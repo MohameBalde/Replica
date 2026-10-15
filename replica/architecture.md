@@ -41,6 +41,26 @@ Décisions clés :
 
 Accès : **contrôles dans la couche données**. Un scope global `BelongsToStore` sur tous les modèles marchands, plus une policy Laravel par ressource. Toute requête admin passe par la boutique de l'utilisateur connecté.
 
+## Paiement à la livraison (activable par le commerçant)
+
+Demande de Mohamed : le commerçant doit pouvoir **activer ou bloquer** le paiement à la livraison.
+
+| niveau de contrôle | réglage | écran | priorité |
+| --- | --- | --- | --- |
+| Boutique | interrupteur **« Accepter le paiement à la livraison »** (`payment_methods.is_active` pour le type `cash_on_delivery`) | S19 | must |
+| Montant | **plafond** optionnel : « seulement pour les commandes jusqu'à 500 000 GNF » (`max_order_total`). Au-delà, le client doit payer avant | S19 | should |
+| Mode de livraison | case **« Paiement à la livraison possible »** par mode (`delivery_methods.allows_cash_on_delivery`). Ex. oui pour Conakry, non pour l'intérieur du pays | S18 | should |
+| Client | bouton **« Bloquer le paiement à la livraison »** sur la fiche d'un client qui a refusé un colis (`customers.cash_on_delivery_blocked`) | S17 | could |
+
+Règles :
+- À la création de la boutique, le paiement à la livraison est **activé par défaut** (c'est l'usage en Guinée). Le commerçant peut le couper à tout moment.
+- Au checkout (S04), l'option n'apparaît que si **toutes** les conditions sont remplies : activée, total sous le plafond, mode de livraison compatible, client non bloqué (repéré par son numéro).
+- **Vérifiée côté serveur** à la création de la commande, pas seulement cachée à l'écran.
+- Si c'est le seul moyen de paiement et qu'il est refusé, le client voit « Paiement avant livraison requis pour cette commande » avec les moyens disponibles.
+- Une commande payée à la livraison **saute l'étape paiement (S05)** : le client passe directement à l'envoi WhatsApp. Elle reste « non payée » jusqu'à ce que le commerçant la marque « payée » après la livraison.
+- Le stock est réservé dès la commande, comme pour les autres paiements.
+- Le message WhatsApp affiche clairement : **« Paiement : à la livraison (150 000 GNF à préparer) »**.
+
 ## Liens partageables et suivi des pubs
 
 C'est la réponse à « comment le client arrive dans la boutique depuis une pub Facebook ».

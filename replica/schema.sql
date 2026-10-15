@@ -109,6 +109,8 @@ CREATE TABLE customers (
   name VARCHAR(120) NOT NULL,
   phone VARCHAR(20) NOT NULL,              -- 224XXXXXXXXX
   address VARCHAR(255) NULL,
+  -- client qui a déjà refusé un colis : le marchand peut lui bloquer le paiement à la livraison
+  cash_on_delivery_blocked TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
   UNIQUE KEY customers_store_phone_unique (store_id, phone),
@@ -122,6 +124,8 @@ CREATE TABLE delivery_methods (
   type VARCHAR(10) NOT NULL,
   fee BIGINT UNSIGNED NOT NULL DEFAULT 0,  -- GNF, forfait en V1 (zones = should)
   min_order BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  -- paiement à la livraison autorisé pour ce mode (ex. oui pour Kaloum, non pour Labé)
+  allows_cash_on_delivery TINYINT(1) NOT NULL DEFAULT 1,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   position INT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NULL,
@@ -138,10 +142,13 @@ CREATE TABLE payment_methods (
   account_number VARCHAR(30) NULL,         -- numéro Orange Money / MTN du marchand
   account_name VARCHAR(120) NULL,          -- nom affiché par l'opérateur, pour rassurer le client
   instructions VARCHAR(500) NULL,
-  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  is_active TINYINT(1) NOT NULL DEFAULT 1, -- le marchand active ou bloque ce moyen de paiement
+  -- Paiement à la livraison : plafond optionnel. Au-delà, le client doit payer avant (Orange Money, MTN...).
+  max_order_total BIGINT UNSIGNED NULL,
   position INT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NULL,
   updated_at TIMESTAMP NULL,
+  UNIQUE KEY payment_methods_store_type_unique (store_id, type),
   KEY payment_methods_store_index (store_id, is_active, position),
   CONSTRAINT payment_methods_store_fk FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE,
   CONSTRAINT payment_methods_type CHECK (type IN ('cash_on_delivery','orange_money','mtn_momo','bank_transfer'))

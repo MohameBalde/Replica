@@ -52,3 +52,7 @@ Message d'accueil prêt à copier (WhatsApp Business / Messenger),partage,must,n
 Suivi de la source de chaque commande (?src=facebook / tiktok / whatsapp),partage,should,no,no,ajout : savoir quelle pub fait vendre
 Visites et ventes par source dans le tableau de bord,partage,could,no,no,ajout
 QR code de la boutique à imprimer,partage,could,yes,no,
+Paiement à la livraison activable / bloquable par le commerçant,paiement,must,yes,no,demande de Mohamed : interrupteur par boutique
+Plafond de montant pour le paiement à la livraison,paiement,should,no,no,ajout : limite le risque de colis refusé
+Paiement à la livraison autorisé ou non par mode de livraison,paiement,should,yes,no,ex. Conakry oui / intérieur non
+Bloquer le paiement à la livraison pour un client,paiement,could,no,no,ajout : client qui a déjà refusé un colis
