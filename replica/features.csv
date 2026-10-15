@@ -47,3 +47,8 @@ Paiement automatique par API mobile money,paiement,could,yes,skip,"API Orange Mo
 Devis de livreurs en temps réel,livraison,could,yes,skip,partenariats de livraison absents en Guinée
 Produits par abonnement,produits,could,yes,skip,usage rare pour la cible
 Étiquettes d'expédition QR,livraison,could,yes,skip,usage rare pour la cible
+Lien direct vers un produit (pour une pub ou un message),partage,must,yes,no,
+Message d'accueil prêt à copier (WhatsApp Business / Messenger),partage,must,no,no,ajout : pont entre la pub Facebook et la boutique
+Suivi de la source de chaque commande (?src=facebook / tiktok / whatsapp),partage,should,no,no,ajout : savoir quelle pub fait vendre
+Visites et ventes par source dans le tableau de bord,partage,could,no,no,ajout
+QR code de la boutique à imprimer,partage,could,yes,no,

@@ -67,6 +67,7 @@ Côté client (boutique publique) : S01 à S07. Côté marchand (admin) : S10 à
 | S19 | Réglages paiement | Settings > Payments | moyens de paiement et instructions | liste, interrupteurs | aucun moyen |
 | S20 | Réglages boutique | Settings | nom, logo, horaires, ouverte/fermée, infos facture | formulaire | — |
 | S21 | Créer une commande manuelle | Admin > Orders > nouveau | saisir une commande reçue par téléphone | même formulaire que S04 côté marchand | — |
+| S22 | Partager ma boutique (ajout) | Admin > Partager | liens par réseau avec `?src=`, lien de chaque produit, QR code, message d'accueil prêt à copier | boutons « Copier », QR | — |
 
 ## Parcours
 
