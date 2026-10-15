@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aperçu du design</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Primitives du design system, en CSS simple qui lit les tokens.
+   Dans l'app Laravel, les mêmes règles seront écrites avec les classes Tailwind (bg-surface, text-muted...). */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text);background:#d9dde3;padding:24px;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.phone{width:390px;background:var(--color-bg);border-radius:28px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.18);position:relative;display:flex;flex-direction:column}
+.cap{font:600 13px/1 var(--font-sans);color:#475569;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 4px}
+.screen{display:flex;flex-direction:column}
+.status{height:24px;background:var(--color-bg)}
+.hdr{display:flex;gap:12px;align-items:center;padding:12px var(--space-4)}
+.logo{width:48px;height:48px;border-radius:50%;background:var(--color-accent-soft);color:var(--color-accent-strong);display:grid;place-items:center;font-weight:700;font-size:var(--text-xl)}
+.h-name{font-size:var(--text-lg);font-weight:var(--weight-lg);line-height:var(--leading-lg)}
+.muted{color:var(--color-text-muted);font-size:var(--text-sm);line-height:var(--leading-sm)}
+.badge{display:inline-flex;align-items:center;font-size:var(--text-xs);font-weight:600;line-height:16px;padding:2px 8px;border-radius:var(--radius-pill)}
+.b-success{background:var(--color-success-soft);color:var(--color-on-success-soft)}
+.b-warning{background:var(--color-warning-soft);color:var(--color-on-warning-soft)}
+.b-neutral{background:var(--color-neutral-soft);color:var(--color-on-neutral-soft)}
+.b-info{background:var(--color-info-soft);color:var(--color-on-info-soft)}
+.b-accent{background:var(--color-accent-soft);color:var(--color-accent-strong)}
+.b-danger{background:var(--color-danger-soft);color:var(--color-on-danger-soft)}
+.tabs{display:flex;gap:20px;padding:0 var(--space-4);border-bottom:1px solid var(--color-border);overflow:hidden}
+.tab{padding:12px 0;font-size:var(--text-sm);font-weight:600;color:var(--color-text-muted);white-space:nowrap}
+.tab.on{color:var(--color-accent);box-shadow:inset 0 -2px 0 var(--color-accent)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:var(--space-4)}
+.card{border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg);border:1px solid var(--color-border)}
+.ph{aspect-ratio:1;display:grid;place-items:center;font-size:30px;font-weight:700;color:var(--color-text-muted)}
+.card .b{padding:8px 10px 10px}
+.pname{font-size:var(--text-sm);line-height:var(--leading-sm);height:40px;overflow:hidden}
+.price{font-size:var(--text-price);font-weight:700;line-height:22px;margin-top:4px}
+.out .ph{filter:grayscale(1);opacity:.45}
+.bar{position:sticky;bottom:0;padding:12px var(--space-4) calc(12px + env(safe-area-inset-bottom));background:var(--color-bg);box-shadow:var(--shadow-pop);margin-top:auto}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:var(--radius-md);border:0;font:600 var(--text-base)/1 var(--font-sans);cursor:pointer}
+.btn-p{background:var(--color-accent);color:var(--color-on-accent)}
+.btn-wa{background:var(--color-whatsapp);color:var(--color-on-whatsapp)}
+.btn-s{background:var(--color-bg);color:var(--color-text);border:1px solid var(--color-border-input);min-height:44px}
+.sec{padding:var(--space-4);border-bottom:8px solid var(--color-surface)}
+.sec h3{font-size:var(--text-base);font-weight:700;margin-bottom:12px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:var(--text-sm);font-weight:600;margin-bottom:6px}
+.input{display:flex;align-items:center;height:48px;border:1px solid var(--color-border-input);border-radius:var(--radius-md);padding:0 12px;font-size:16px;gap:8px}
+.input .pre{color:var(--color-text-muted);border-right:1px solid var(--color-border);padding-right:8px}
+.input.focus{border-color:var(--color-focus);box-shadow:0 0 0 2px var(--color-focus)}
+.radio{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--color-border);border-radius:var(--radius-md);padding:12px;margin-bottom:8px}
+.radio.on{border:2px solid var(--color-accent);background:var(--color-accent-soft);padding:11px}
+.dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--color-border-input);flex:none;margin-top:2px}
+.radio.on .dot{border:6px solid var(--color-accent)}
+.radio .t{font-weight:600;font-size:var(--text-base)}
+.radio .r{margin-left:auto;font-weight:700;white-space:nowrap}
+.sum{display:flex;justify-content:space-between;font-size:var(--text-sm);line-height:26px}
+.sum.tot{font-size:var(--text-lg);font-weight:700;border-top:1px solid var(--color-border);margin-top:6px;padding-top:8px}
+.sw{width:44px;height:26px;border-radius:13px;background:var(--color-accent);position:relative;flex:none}
+.sw:after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.sw.offs{background:var(--color-border-input)}
+.sw.offs:after{right:auto;left:2px}
+.pm{border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px}
+.pm .top{display:flex;gap:12px;align-items:flex-start}
+.ico{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.pm .t{font-weight:700}
+.chk{display:flex;gap:10px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--color-border);font-size:var(--text-sm);font-weight:600}
+.box{width:20px;height:20px;border-radius:5px;background:var(--color-accent);color:#fff;display:grid;place-items:center;font-size:13px}
+.nav{display:flex;border-top:1px solid var(--color-border);height:64px;margin-top:auto}
+.nav div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);gap:4px}
+.nav .on{color:var(--color-accent)}
+.nav i{width:22px;height:22px;border-radius:6px;border:2px solid currentColor;display:block}
+.link{color:var(--color-accent);font-weight:600;font-size:var(--text-sm)}
+</style>
+</head>
+<body>
+
+<!-- S01 Vitrine -->
+<div>
+<div class="cap">S01 · Vitrine (client)</div>
+<div class="phone"><div class="screen" style="min-height:820px">
+  <div class="status"></div>
+  <div class="hdr">
+    <div class="logo">N</div>
+    <div style="flex:1"><div class="h-name">NimStore</div><div class="muted">Conakry · Chaussures &amp; survêtements</div></div>
+    <span class="badge b-success">Ouvert</span>
+  </div>
+  <div class="tabs"><div class="tab on">Tout</div><div class="tab">Chaussures</div><div class="tab">Survêtements</div><div class="tab">Parfums</div></div>
+  <div class="grid">
+    <div class="card"><div class="ph" style="background:#fde7d6">AF1</div><div class="b"><div class="pname">Baskets blanches classiques</div><div class="price">350 000 GNF</div></div></div>
+    <div class="card"><div class="ph" style="background:#dbe7f5">SV</div><div class="b"><div class="pname">Survêtement Real Madrid 2026</div><div class="price">275 000 GNF</div><span class="badge b-warning" style="margin-top:6px">Plus que 3</span></div></div>
+    <div class="card"><div class="ph" style="background:#e5f3e5">PF</div><div class="b"><div class="pname">Parfum oud 100 ml</div><div class="price">180 000 GNF</div></div></div>
+    <div class="card out"><div class="ph" style="background:#ece6f6">SD</div><div class="b"><div class="pname">Sandales cuir homme</div><div class="price">120 000 GNF</div><span class="badge b-neutral" style="margin-top:6px">Épuisé</span></div></div>
+  </div>
+  <div class="bar"><button class="btn btn-p">Voir le panier (2) · 625 000 GNF</button></div>
+</div></div>
+</div>
+
+<!-- S04 Checkout -->
+<div>
+<div class="cap">S04 · Commande (client)</div>
+<div class="phone"><div class="screen" style="min-height:820px">
+  <div class="status"></div>
+  <div class="hdr"><div class="h-name">Finaliser ma commande</div></div>
+  <div class="sec">
+    <div class="field"><label>Votre nom</label><div class="input">Mamadou Diallo</div></div>
+    <div class="field" style="margin:0"><label>Numéro WhatsApp</label><div class="input focus"><span class="pre">+224</span>620 00 00 00</div></div>
+  </div>
+  <div class="sec">
+    <h3>Livraison</h3>
+    <div class="radio on"><div class="dot"></div><div><div class="t">Livraison Ratoma</div><div class="muted">Aujourd'hui ou demain</div></div><div class="r">25 000 GNF</div></div>
+    <div class="radio"><div class="dot"></div><div><div class="t">Retrait en boutique</div><div class="muted">Madina, marché</div></div><div class="r">Gratuit</div></div>
+  </div>
+  <div class="sec">
+    <h3>Paiement</h3>
+    <div class="radio on"><div class="dot"></div><div><div class="t">Paiement à la livraison</div><div class="muted">Espèces à la réception</div></div></div>
+    <div class="radio"><div class="dot"></div><div><div class="t">Orange Money</div><div class="muted">Envoyez puis ajoutez la capture</div></div></div>
+    <div class="radio"><div class="dot"></div><div><div class="t">MTN MoMo</div></div></div>
+  </div>
+  <div class="sec" style="border:0">
+    <div class="sum"><span>Articles (2)</span><span>625 000 GNF</span></div>
+    <div class="sum"><span>Livraison</span><span>25 000 GNF</span></div>
+    <div class="sum tot"><span>Total</span><span>650 000 GNF</span></div>
+  </div>
+  <div class="bar"><button class="btn btn-wa">Envoyer ma commande sur WhatsApp</button></div>
+</div></div>
+</div>
+
+<!-- S19 Réglages paiement -->
+<div>
+<div class="cap">S19 · Paiements (commerçant)</div>
+<div class="phone"><div class="screen" style="min-height:820px">
+  <div class="status"></div>
+  <div class="hdr"><div class="h-name">Moyens de paiement</div></div>
+  <div style="padding:0 var(--space-4)">
+    <div class="pm">
+      <div class="top">
+        <div class="ico b-accent">GNF</div>
+        <div style="flex:1"><div class="t">Paiement à la livraison</div><div class="muted">Le client paie en espèces quand il reçoit sa commande.</div></div>
+        <div class="sw" role="switch" aria-checked="true" aria-label="Paiement à la livraison"></div>
+      </div>
+      <div class="chk"><div class="box">✓</div>Limiter aux commandes jusqu'à…</div>
+      <div class="input" style="margin-top:10px"><span style="flex:1">500 000</span><span class="pre" style="border:0;border-left:1px solid var(--color-border);padding:0 0 0 8px">GNF</span></div>
+      <div class="muted" style="margin-top:8px">Au-delà, le client devra payer avant (Orange Money, MTN…).</div>
+      <div class="muted" style="margin-top:10px">Livraisons concernées : Kaloum, Ratoma, Retrait. <span class="link">Modifier ›</span></div>
+    </div>
+    <div class="pm">
+      <div class="top">
+        <div class="ico" style="background:#ffedd5;color:#9a3412">OM</div>
+        <div style="flex:1"><div class="t">Orange Money</div><div class="muted">620 00 00 00 · Nimaga S.</div></div>
+        <div class="sw" role="switch" aria-checked="true" aria-label="Orange Money"></div>
+      </div>
+    </div>
+    <div class="pm">
+      <div class="top">
+        <div class="ico" style="background:#fef3c7;color:#92400e">MTN</div>
+        <div style="flex:1"><div class="t">MTN MoMo</div><div class="muted">Numéro à ajouter</div><span class="badge b-warning" style="margin-top:6px">Incomplet</span></div>
+        <div class="sw offs" role="switch" aria-checked="false" aria-label="MTN MoMo"></div>
+      </div>
+    </div>
+  </div>
+  <div class="nav"><div><i></i>Commandes</div><div><i></i>Produits</div><div><i></i>Partager</div><div class="on"><i></i>Réglages</div></div>
+</div></div>
+</div>
+
+</body>
+</html>
