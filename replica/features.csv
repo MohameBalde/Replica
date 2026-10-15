@@ -1,40 +1,40 @@
 feature,area,priority,original,clone,notes
-Inscription du marchand (téléphone ou e-mail),onboarding,must,yes,no,
-Création de boutique : nom + lien unique + numéro WhatsApp,onboarding,must,yes,no,
-Page boutique publique avec catégories et grille de produits,boutique,must,yes,no,
-Fiche produit : photos + prix + description,boutique,must,yes,no,
-Variantes produit (taille / couleur) avec prix et stock propres,produits,must,yes,no,
-Panier avec quantités et total,boutique,must,yes,no,
-Formulaire client : nom + téléphone + adresse,commande,must,yes,no,
-Choix du mode de livraison au moment de commander,commande,must,yes,no,
-Choix du moyen de paiement au moment de commander,commande,must,yes,no,
-Envoi de la commande en un message WhatsApp prérempli (wa.me),commande,must,yes,no,cœur du produit
-Facture / page de suivi de commande partageable,commande,must,yes,no,
-Tableau de bord des commandes avec filtres de paiement,commandes,must,yes,no,
-Détail commande et changement de statut (commande / paiement / livraison),commandes,must,yes,no,
-Ajouter / modifier / masquer un produit,produits,must,yes,no,
-Catégories de produits,produits,must,yes,no,
-Suivi de stock par produit et variante,produits,must,yes,no,
-Stock décrémenté à la commande et remis à l'annulation,produits,must,yes,no,
-Rupture de stock affichée côté client,boutique,must,yes,no,
-Modes de livraison avec frais forfaitaires,livraison,must,yes,no,
+Inscription du marchand (téléphone ou e-mail),onboarding,must,yes,yes,téléphone + mot de passe
+Création de boutique : nom + lien unique + numéro WhatsApp,onboarding,must,yes,yes,
+Page boutique publique avec catégories et grille de produits,boutique,must,yes,yes,
+Fiche produit : photos + prix + description,boutique,must,yes,partial,photos à l'étape 2 (initiales en attendant)
+Variantes produit (taille / couleur) avec prix et stock propres,produits,must,yes,partial,base et affichage prêts ; admin limité à une variante
+Panier avec quantités et total,boutique,must,yes,yes,
+Formulaire client : nom + téléphone + adresse,commande,must,yes,yes,
+Choix du mode de livraison au moment de commander,commande,must,yes,yes,
+Choix du moyen de paiement au moment de commander,commande,must,yes,yes,
+Envoi de la commande en un message WhatsApp prérempli (wa.me),commande,must,yes,yes,cœur du produit | cœur du produit ; testé de bout en bout
+Facture / page de suivi de commande partageable,commande,must,yes,yes,
+Tableau de bord des commandes avec filtres de paiement,commandes,must,yes,partial,onglets par statut ; filtre paiement à l'étape 2
+Détail commande et changement de statut (commande / paiement / livraison),commandes,must,yes,yes,
+Ajouter / modifier / masquer un produit,produits,must,yes,yes,
+Catégories de produits,produits,must,yes,partial,créées depuis le formulaire produit ; écran S16 à venir
+Suivi de stock par produit et variante,produits,must,yes,partial,par produit (variante unique) en V1
+Stock décrémenté à la commande et remis à l'annulation,produits,must,yes,yes,"testé : pas de survente, pas de double remise"
+Rupture de stock affichée côté client,boutique,must,yes,yes,
+Modes de livraison avec frais forfaitaires,livraison,must,yes,partial,appliqués au checkout ; écran S18 à venir
 Envoi d'une preuve de paiement (capture) par le client,paiement,must,yes,no,
-Interface entièrement en français,guinée,must,no,no,ajout Guinée
-Prix et totaux en GNF (séparateur de milliers),guinée,must,no,no,ajout Guinée
-Instructions Orange Money et MTN MoMo (numéro marchand + montant),guinée,must,no,no,ajout Guinée
+Interface entièrement en français,guinée,must,no,yes,ajout Guinée
+Prix et totaux en GNF (séparateur de milliers),guinée,must,no,yes,ajout Guinée
+Instructions Orange Money et MTN MoMo (numéro marchand + montant),guinée,must,no,yes,ajout Guinée
 Options / suppléments payants sur un produit,produits,should,yes,no,
 Frais de livraison par zone,livraison,should,yes,no,
 Questions personnalisées au checkout (repère),commande,should,yes,no,
-Minimum de commande par mode de livraison,livraison,should,yes,no,
+Minimum de commande par mode de livraison,livraison,should,yes,partial,vérifié au checkout ; réglage dans S18 à venir
 Liste clients avec historique,clients,should,yes,no,
 Reçu WhatsApp envoyé au client par le marchand,commandes,should,yes,no,
 Commande manuelle saisie par le marchand,commandes,should,yes,no,
 Changement de statut en masse,commandes,should,yes,no,
-Boutique ouverte / fermée et horaires,réglages,should,yes,no,
+Boutique ouverte / fermée et horaires,réglages,should,yes,partial,bloque les commandes ; interrupteur S20 à venir
 Zones de livraison par commune de Conakry et par ville (Kankan / Labé / Nzérékoré),guinée,should,no,no,ajout Guinée
 Pages légères pour 3G (images compressées),guinée,should,no,no,ajout Guinée
 Crédit client / dettes (achat à crédit),guinée,should,no,no,ajout Guinée : très courant dans les boutiques
-Indicateur stock faible côté client,boutique,could,yes,no,
+Indicateur stock faible côté client,boutique,could,yes,yes,
 Taxes sur produits et livraison,réglages,could,yes,no,peu utile pour les petits commerçants
 Export des commandes en PDF,commandes,could,yes,no,
 QR code sur la commande confirmée,commandes,could,yes,no,
@@ -47,12 +47,12 @@ Paiement automatique par API mobile money,paiement,could,yes,skip,"API Orange Mo
 Devis de livreurs en temps réel,livraison,could,yes,skip,partenariats de livraison absents en Guinée
 Produits par abonnement,produits,could,yes,skip,usage rare pour la cible
 Étiquettes d'expédition QR,livraison,could,yes,skip,usage rare pour la cible
-Lien direct vers un produit (pour une pub ou un message),partage,must,yes,no,
-Message d'accueil prêt à copier (WhatsApp Business / Messenger),partage,must,no,no,ajout : pont entre la pub Facebook et la boutique
-Suivi de la source de chaque commande (?src=facebook / tiktok / whatsapp),partage,should,no,no,ajout : savoir quelle pub fait vendre
-Visites et ventes par source dans le tableau de bord,partage,could,no,no,ajout
+Lien direct vers un produit (pour une pub ou un message),partage,must,yes,yes,
+Message d'accueil prêt à copier (WhatsApp Business / Messenger),partage,must,no,partial,ajout : pont entre la pub Facebook et la boutique | généré à la création ; écran S22 à venir
+Suivi de la source de chaque commande (?src=facebook / tiktok / whatsapp),partage,should,no,yes,ajout : savoir quelle pub fait vendre
+Visites et ventes par source dans le tableau de bord,partage,could,no,partial,ajout | visites enregistrées ; affichage à venir
 QR code de la boutique à imprimer,partage,could,yes,no,
-Paiement à la livraison activable / bloquable par le commerçant,paiement,must,yes,no,demande de Mohamed : interrupteur par boutique
-Plafond de montant pour le paiement à la livraison,paiement,should,no,no,ajout : limite le risque de colis refusé
-Paiement à la livraison autorisé ou non par mode de livraison,paiement,should,yes,no,ex. Conakry oui / intérieur non
-Bloquer le paiement à la livraison pour un client,paiement,could,no,no,ajout : client qui a déjà refusé un colis
+Paiement à la livraison activable / bloquable par le commerçant,paiement,must,yes,yes,"demande de Mohamed : interrupteur par boutique | testé, vérifié côté serveur"
+Plafond de montant pour le paiement à la livraison,paiement,should,no,yes,ajout : limite le risque de colis refusé | testé
+Paiement à la livraison autorisé ou non par mode de livraison,paiement,should,yes,partial,ex. Conakry oui / intérieur non | règle appliquée et testée ; case dans S18 à venir
+Bloquer le paiement à la livraison pour un client,paiement,could,no,partial,ajout : client qui a déjà refusé un colis | règle appliquée et testée ; bouton S17 à venir

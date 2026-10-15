@@ -1,0 +1,20 @@
+@props(['name', 'size' => 22])
+{{-- Icônes Lucide (licence ISC), en SVG en ligne : seules celles utilisées, zéro requête réseau. --}}
+@php
+    $paths = [
+        'bag' => ['M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z', 'M3 6h18', 'M16 10a4 4 0 0 1-8 0'],
+        'message' => ['M7.9 20A9 9 0 1 0 4 16.1L2 22Z'],
+        'inbox' => ['M22 12h-6l-2 3h-4l-2-3H2', 'M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z'],
+        'tag' => ['M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z', 'M7.5 7.5h.01'],
+        'wallet' => ['M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1', 'M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'],
+        'external' => ['M15 3h6v6', 'M10 14 21 3', 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'],
+        'back' => ['m12 19-7-7 7-7', 'M19 12H5'],
+        'check' => ['M20 6 9 17l-5-5'],
+        'plus' => ['M5 12h14', 'M12 5v14'],
+        'minus' => ['M5 12h14'],
+    ];
+@endphp
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ $size }}" height="{{ $size }}" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" {{ $attributes }}>
+    @foreach ($paths[$name] ?? [] as $d)<path d="{{ $d }}"/>@endforeach
+</svg>
