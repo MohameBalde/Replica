@@ -5,7 +5,15 @@
 **Adaptations Guinée :** français, prix en GNF, Orange Money / MTN MoMo (preuve de paiement en V1), livraison par commune ou quartier de Conakry et par ville, pensé pour un téléphone d'abord, pages légères pour connexion 3G.
 **Date :** 2026-10-15
 
-> **Limite de cette recon.** Le site take.app est bloqué par le réseau de cette session : rien n'a été ouvert directement. Tout vient des résumés de recherche web de leur site, de leur centre d'aide et de leur changelog. Les écrans sont **déduits** des chemins cités dans l'aide (« Admin > Products »…). À compléter avec des captures d'écran du vrai produit (compte gratuit Basic de Mohamed, ou fiche store).
+> **Limite de cette recon.** Première passe faite par recherche web (site bloqué). Deuxième passe : pages lues directement (accueil, tarifs, pays, centre d'aide, « How it works », « Manage Orders »). Les écrans côté marchand restent **déduits** de l'aide ; l'écran client est confirmé par la démo animée de la page d'accueil. À compléter avec des captures d'un compte gratuit de Mohamed.
+
+## Concurrence et positionnement (vérifié le 2026-10-15)
+
+- **Take App accepte déjà Orange Money, MTN MoMo, Wave, CinetPay, PawaPay** (page d'accueil, liste des moyens de paiement).
+- **La Guinée n'apparaît pas** dans sa liste de pays mis en avant (`/countries`), alors que le **Sénégal et la Côte d'Ivoire** y sont, en XOF. Aucune mention de GNF ou de Guinée sur l'accueil et la page pays. Take App annonce « 180+ pays » : une inscription depuis la Guinée est sans doute possible, mais rien n'y est adapté.
+- **Tarifs** (`/pricing`) : Basic gratuit limité à **50 commandes enregistrées par mois** (au-delà, elles arrivent sur WhatsApp mais ne sont plus enregistrées) ; Business **50 $ par mois** (1 $ le premier mois), payé en dollars. Paiement de l'abonnement par carte ou solde prépayé.
+- **Angle pour la version guinéenne :** prix en GNF payable par Orange Money, bien moins cher que 50 $, sans limite cachée de 50 commandes ; support en français et en local (WhatsApp, présence physique à Conakry) ; livraison par commune et ville guinéennes ; carnet de crédit clients.
+- Take App publie aussi une page « Take App vs Loyverse » : il couvre en partie la caisse (app POS mobile). Cela confirme le bon couplage boutique WhatsApp + caisse pour la suite.
 
 ## Sources
 
@@ -25,6 +33,10 @@
 | 12 | aide : catalogue WhatsApp | https://www.take.app/fr/help/whatsapp-catalog | synchro catalogue WhatsApp Business toutes les 10 min, sans catégories |
 | 13 | aide : taxes | https://www.take.app/help/tax-settings | taxe sur produits et frais de livraison |
 | 14 | aide : FAQ | https://www.take.app/help/faq | app marchand iOS/Android, notifications, reçus WhatsApp |
+| 15 | page d'accueil (lue) | https://www.take.app/ | démo des écrans client : boutique, fiche produit avec options, checkout, paiement, « Send WhatsApp », facture ; liste des moyens de paiement |
+| 16 | tarifs (lue) | https://www.take.app/pricing | Basic 0 $ / 50 commandes, Business 50 $ / mois, tableau comparatif complet |
+| 17 | pays (lue) | https://www.take.app/countries | 180+ pays annoncés ; Afrique mise en avant : Afrique du Sud, Côte d'Ivoire, Kenya, Nigeria, Ghana, Sénégal, Rwanda… pas la Guinée |
+| 18 | aide : centre d'aide (lue) | https://www.take.app/help | 14 rubriques, environ 330 articles |
 
 ## Boucle principale
 
@@ -32,16 +44,17 @@ Le client ouvre le lien de la boutique, ajoute des produits au panier et envoie 
 
 ## Écrans
 
-Côté client (boutique publique) : S01 à S06. Côté marchand (admin) : S10 à S21.
+Côté client (boutique publique) : S01 à S07. Côté marchand (admin) : S10 à S21.
 
 | ID | écran | accès | rôle | composants clés | états |
 | --- | --- | --- | --- | --- | --- |
 | S01 | Accueil boutique | `/{boutique}` | logo, nom, catégories, produits | en-tête boutique, onglets catégories, grille produits, bouton panier flottant | vide (aucun produit), rempli, boutique fermée |
 | S02 | Fiche produit | clic produit | photos, prix, choix variante/options, quantité | carrousel, sélecteur variante, cases options, stepper quantité, bouton « Ajouter » | en stock, stock faible (« plus que 3 »), rupture |
 | S03 | Panier | bouton panier | revoir les articles | lignes panier, stepper, total | vide, rempli |
-| S04 | Paiement / infos client | « Commander » | nom, téléphone, mode de livraison, adresse, question repère, mode de paiement | formulaire, choix livraison, choix paiement, récapitulatif | erreur champ, minimum non atteint |
-| S05 | Envoi WhatsApp | « Envoyer la commande » | ouvre WhatsApp avec le message prérempli | lien wa.me | WhatsApp absent (ouverture web) |
-| S06 | Facture / suivi commande | lien dans le message | statut, total, instructions de paiement, envoi preuve de paiement | badge statut, bloc paiement, envoi d'image, QR | non payé, paiement en vérification, payé, annulé |
+| S04 | Checkout | « Commander » | nom, numéro WhatsApp, service (livraison payante / retrait gratuit), adresse, date et heure, code promo, récapitulatif | formulaire, choix du service, sélecteur date/heure, récapitulatif avec frais et taxe, bouton « Commander et payer » | erreur champ, minimum non atteint |
+| S05 | Paiement | après « Commander et payer » | « Commande reçue, finalisez le paiement » : montant, choix du moyen (mobile money, virement, espèces à la livraison…), envoi de la preuve | liste des moyens, QR ou numéro, envoi d'image | paiement auto réussi, preuve envoyée en attente |
+| S06 | Envoi WhatsApp | après paiement | « Envoyez-nous le détail pour confirmer » : ouvre WhatsApp avec le message prérempli (n°, articles, options, frais, total, client, service, paiement, lien facture) | bouton « Envoyer sur WhatsApp », lien wa.me | WhatsApp absent (ouverture web) |
+| S07 | Facture / suivi commande | lien « Voir la facture » du message | n° facture, date, articles, frais, total, client, livraison, badges statut | badges statut, blocs détail | en attente, paiement en vérification, payé, annulé |
 | S10 | Inscription / connexion marchand | `/admin` | créer un compte | formulaire téléphone/e-mail | erreur |
 | S11 | Création de boutique (onboarding) | après inscription | nom, lien, numéro WhatsApp, devise | assistant en étapes | lien déjà pris |
 | S12 | Tableau de bord commandes | Admin > Orders | toutes les commandes, filtres paiement | liste, filtres (Tous, Non payé, En vérification, Payé), recherche, sélection multiple | vide, rempli |
@@ -59,8 +72,9 @@ Côté client (boutique publique) : S01 à S06. Côté marchand (admin) : S10 à
 
 ```
 F01 Le client commande
-    S01 -> S02 -> S03 -> S04 -> S05 (WhatsApp) -> S06
-    clics, chemin heureux : environ 6 (produit, ajouter, panier, commander, remplir, envoyer)
+    S01 -> S02 -> S03 -> S04 -> S05 (paiement) -> S06 (WhatsApp) -> S07
+    clics, chemin heureux : environ 7 (produit, ajouter, panier, remplir, commander et payer, payer, envoyer)
+    note : chez Take App, la commande est enregistrée AVANT l'envoi WhatsApp ; le message sert de confirmation.
     cas limites : rupture pendant la commande, minimum de commande non atteint,
                   WhatsApp non installé, boutique fermée, prix modifié entre-temps
 
@@ -129,8 +143,9 @@ Customer     id, store_id, nom, téléphone, adresse, crédit
              preuve : S17, source 11                          confiance : haute
 
 Order        id, store_id, customer_id, numéro, statut (brouillon | en_attente | confirmée | terminée | annulée),
-             statut_paiement (non_payé | en_vérification | payé),
-             statut_livraison (non_livré | en_cours | livré), mode_livraison_id, adresse,
+             statut_paiement (non_payé | en_vérification | partiellement_payé | payé | remboursé),
+             statut_livraison (non_préparée | prête | en_livraison | livrée), mode_livraison_id, adresse,
+             date_heure_livraison, note_interne, employé_id, numéro_suivi,
              réponses (json), sous_total, frais_livraison, taxe, total, créée_le
              preuve : source 7, 8, 9                          confiance : haute
 
@@ -164,6 +179,6 @@ Voir `features.csv` (48 lignes). Must : 23, should : 12, could : 8, skip : 5. Do
 
 ## Taille
 
-Écrans 18, parcours 6, entités 12.
+Écrans 19, parcours 6, entités 12.
 Parties difficiles : (1) le message WhatsApp prérempli, bien formaté et fiable sur tous les téléphones ; (2) le stock juste (décrément à la commande, remise à l'annulation, pas de survente) ; (3) les pages rapides et légères sur 3G avec des photos produits compressées.
 **Taille : M** (quelques semaines pour la V1 « must »).
