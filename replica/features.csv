@@ -1,0 +1,49 @@
+feature,area,priority,original,clone,notes
+Inscription du marchand (téléphone ou e-mail),onboarding,must,yes,no,
+Création de boutique : nom + lien unique + numéro WhatsApp,onboarding,must,yes,no,
+Page boutique publique avec catégories et grille de produits,boutique,must,yes,no,
+Fiche produit : photos + prix + description,boutique,must,yes,no,
+Variantes produit (taille / couleur) avec prix et stock propres,produits,must,yes,no,
+Panier avec quantités et total,boutique,must,yes,no,
+Formulaire client : nom + téléphone + adresse,commande,must,yes,no,
+Choix du mode de livraison au moment de commander,commande,must,yes,no,
+Choix du moyen de paiement au moment de commander,commande,must,yes,no,
+Envoi de la commande en un message WhatsApp prérempli (wa.me),commande,must,yes,no,cœur du produit
+Facture / page de suivi de commande partageable,commande,must,yes,no,
+Tableau de bord des commandes avec filtres de paiement,commandes,must,yes,no,
+Détail commande et changement de statut (commande / paiement / livraison),commandes,must,yes,no,
+Ajouter / modifier / masquer un produit,produits,must,yes,no,
+Catégories de produits,produits,must,yes,no,
+Suivi de stock par produit et variante,produits,must,yes,no,
+Stock décrémenté à la commande et remis à l'annulation,produits,must,yes,no,
+Rupture de stock affichée côté client,boutique,must,yes,no,
+Modes de livraison avec frais forfaitaires,livraison,must,yes,no,
+Envoi d'une preuve de paiement (capture) par le client,paiement,must,yes,no,
+Interface entièrement en français,guinée,must,no,no,ajout Guinée
+Prix et totaux en GNF (séparateur de milliers),guinée,must,no,no,ajout Guinée
+Instructions Orange Money et MTN MoMo (numéro marchand + montant),guinée,must,no,no,ajout Guinée
+Options / suppléments payants sur un produit,produits,should,yes,no,
+Frais de livraison par zone,livraison,should,yes,no,
+Questions personnalisées au checkout (repère),commande,should,yes,no,
+Minimum de commande par mode de livraison,livraison,should,yes,no,
+Liste clients avec historique,clients,should,yes,no,
+Reçu WhatsApp envoyé au client par le marchand,commandes,should,yes,no,
+Commande manuelle saisie par le marchand,commandes,should,yes,no,
+Changement de statut en masse,commandes,should,yes,no,
+Boutique ouverte / fermée et horaires,réglages,should,yes,no,
+Zones de livraison par commune de Conakry et par ville (Kankan / Labé / Nzérékoré),guinée,should,no,no,ajout Guinée
+Pages légères pour 3G (images compressées),guinée,should,no,no,ajout Guinée
+Crédit client / dettes (achat à crédit),guinée,should,no,no,ajout Guinée : très courant dans les boutiques
+Indicateur stock faible côté client,boutique,could,yes,no,
+Taxes sur produits et livraison,réglages,could,yes,no,peu utile pour les petits commerçants
+Export des commandes en PDF,commandes,could,yes,no,
+QR code sur la commande confirmée,commandes,could,yes,no,
+Plusieurs boutiques par compte,compte,could,yes,no,
+App marchand avec notifications push,compte,could,yes,no,V1 : site web installable (PWA)
+Synchronisation catalogue WhatsApp Business,intégrations,could,yes,skip,passe par Meta avec validation du compte
+Lien de boutique partageable en image (statut WhatsApp / TikTok),guinée,could,no,no,ajout Guinée : marketing
+Rapport du jour (ventes / commandes),guinée,could,no,no,ajout Guinée
+Paiement automatique par API mobile money,paiement,could,yes,skip,"API Orange Money / MTN Guinée à obtenir, V1 = preuve de paiement"
+Devis de livreurs en temps réel,livraison,could,yes,skip,partenariats de livraison absents en Guinée
+Produits par abonnement,produits,could,yes,skip,usage rare pour la cible
+Étiquettes d'expédition QR,livraison,could,yes,skip,usage rare pour la cible
