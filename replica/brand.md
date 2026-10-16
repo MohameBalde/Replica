@@ -41,7 +41,26 @@ Légende : ✅ libre / rien trouvé · ❌ pris · ⏳ à faire. « Libre » = a
 
 La Guinée dépose ses marques à l'**OAPI** (Organisation africaine de la propriété intellectuelle, Yaoundé), via l'OGPI à Conakry. Ces vérifications sont un premier tri, pas un avis juridique : avant de dépenser de l'argent sur le nom (enseigne, logo imprimé, dépôt), faire une recherche officielle à l'OGPI.
 
-## Recommandation : **Tabalé**
+## Proposition de Mohamed : **Wanlan** (« aide-moi » en poular)
+
+Vérifié le 2026-10-16 :
+
+| vérification | résultat |
+| --- | --- |
+| sens | « aide-moi » en poular (selon Mohamed) : l'app qui aide le commerçant à vendre |
+| `.com` | ❌ `wanlan.com` pris, mais c'est une page de parking (redirection vers `/lander`) : peut-être rachetable · ✅ `wanlangn.com` et `wanlan224.com` libres |
+| `.app` | ✅ `wanlan.app` libre |
+| App Store (nom exact) | ✅ aucun résultat |
+| Google Play | ✅ un seul résultat proche, sans rapport : « Wanlanid: Book Summary Insight » |
+| web | ✅ aucune app ni boutique « Wanlan » trouvée en Guinée |
+| variantes d'orthographe | `wallan.com` = une société d'investissement (Wallan Holding) ; `wallan.app` et `wallam.app` libres |
+| TikTok, Instagram, Facebook | ⏳ à chercher sur le téléphone |
+| marque OAPI / OGPI | ⏳ |
+
+Points forts : distinctif donc protégeable, sens chaleureux qui colle au produit (« l'app qui t'aide à vendre »), libre en `.app` et sans concurrent du même nom.
+Points à tester : (1) le sens n'est compris qu'en poular : vérifier que les commerçants soussou, malinkés et forestiers l'adoptent aussi bien, puisque la cible est toute la Guinée ; (2) l'orthographe : à l'oral, certains écriront « Wallan » ou « Wanlane ». Prendre aussi le domaine de la variante la plus fréquente et le rediriger.
+
+## Recommandation initiale : **Tabalé**
 
 - **Distinctif** : un vrai mot de la culture mandingue, facile à dire en français, soussou, poular et malinké. Un nom descriptif comme « Panier224 » se copie facilement et se protège mal.
 - **Il raconte l'angle** : le tabalé annonce les nouvelles au village. Ton app annonce la boutique du commerçant sur WhatsApp, TikTok et Facebook. C'est une histoire toute prête pour Balde Media.
