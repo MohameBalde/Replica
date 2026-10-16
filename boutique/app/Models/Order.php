@@ -80,6 +80,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function paymentProofs(): HasMany
+    {
+        return $this->hasMany(PaymentProof::class)->latest();
+    }
+
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);

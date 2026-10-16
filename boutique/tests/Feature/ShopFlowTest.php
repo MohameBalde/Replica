@@ -218,6 +218,17 @@ class ShopFlowTest extends TestCase
         $this->actingAs(User::factory()->create())->get('/admin/commandes')->assertRedirect(route('admin.store.create'));
     }
 
+    public function test_many_cart_additions_do_not_block_checkout(): void
+    {
+        // Régression : les limites anti-abus partageaient un compteur par IP pour toutes les routes.
+        [$store, $variant] = $this->merchantWithProduct();
+        for ($i = 0; $i < 12; $i++) {
+            $this->post('/nimstore/panier', ['variant_id' => $variant->id])->assertRedirect();
+        }
+        $this->checkout($store)->assertSessionHasNoErrors()->assertRedirect();
+        $this->assertSame(12, Order::firstOrFail()->items()->first()->quantity);
+    }
+
     public function test_login_with_any_phone_format(): void
     {
         User::factory()->create(['phone' => '224620000000']);

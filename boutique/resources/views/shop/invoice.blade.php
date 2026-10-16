@@ -5,6 +5,8 @@
         <div class="mt-2 flex flex-wrap gap-1.5">@include('admin.orders._badges')</div>
     </header>
 
+    <x-flash />
+
     @if ($order->isCancelled())
         <p class="toast bg-danger-soft text-on-danger-soft">Cette commande a été annulée. Contactez la boutique pour toute question.</p>
     @else
@@ -22,9 +24,27 @@
                 @if ($order->paymentMethod->account_name)
                     <p class="text-sm text-text-muted">Nom affiché : {{ $order->paymentMethod->account_name }}</p>
                 @endif
-                <p class="mt-3 text-sm">Puis envoyez votre commande sur WhatsApp avec la capture de votre paiement.</p>
+                <p class="mt-3 text-sm">Ensuite, ajoutez la capture de votre paiement ci-dessous, puis envoyez la commande sur WhatsApp.</p>
+            @elseif ($order->payment_status === 'confirming')
+                <p class="text-lg font-bold">Capture reçue 👍</p>
+                <p class="mt-1 text-text-muted">{{ $store->name }} vérifie votre paiement de {{ gnf($order->total) }}. Envoyez la commande sur WhatsApp si ce n'est pas déjà fait.</p>
             @else
                 <p class="text-lg font-bold">Merci pour votre commande !</p>
+            @endif
+
+            @if (! $order->isCashOnDelivery() && in_array($order->payment_status, ['unpaid', 'confirming'], true)
+                && $order->payment_proofs_count < \App\Http\Controllers\Shop\InvoiceController::MAX_PROOFS)
+                <form method="POST" action="{{ route('invoice.proof', $order) }}" enctype="multipart/form-data" class="mt-4 rounded-md bg-surface p-3"
+                      onsubmit="this.querySelector('[type=submit]').disabled = true">
+                    @csrf
+                    <label class="label" for="proof">{{ $order->payment_proofs_count ? 'Envoyer une autre capture' : 'Capture de votre paiement' }}</label>
+                    <input class="block w-full text-sm file:mr-3 file:min-h-tap file:rounded-md file:border file:border-border-input file:bg-bg file:px-3 file:font-semibold"
+                           type="file" id="proof" name="proof" accept="image/*" required>
+                    <label class="label mt-3" for="reference">N° de transaction <span class="font-normal text-text-muted">(facultatif)</span></label>
+                    <input class="input" id="reference" name="reference" maxlength="60" placeholder="Ex. MP2610.1234.A56789">
+                    @error('proof')<p class="error">{{ $message }}</p>@enderror
+                    <button class="btn btn-secondary mt-3" type="submit">Envoyer la capture</button>
+                </form>
             @endif
 
             <a href="{{ route('invoice.whatsapp', $order) }}" class="btn btn-whatsapp btn-lg mt-4">

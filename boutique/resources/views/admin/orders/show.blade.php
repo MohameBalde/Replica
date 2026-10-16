@@ -12,12 +12,37 @@
 
     <section class="section">
         <h2 class="section-title">Client</h2>
-        <p class="font-semibold">{{ $order->customer_name }}</p>
+        <p class="font-semibold">
+            @if ($order->customer)
+                <a class="text-accent" href="{{ route('admin.customers.show', $order->customer->id) }}">{{ $order->customer_name }}</a>
+                @if ($order->customer->cash_on_delivery_blocked)<span class="badge badge-danger ml-1">Paiement avant livraison</span>@endif
+            @else
+                {{ $order->customer_name }}
+            @endif
+        </p>
         <p class="text-text-muted">{{ phone_display($order->customer_phone) }}</p>
         <p class="mt-1">{{ $order->delivery_method_name }}@if ($order->address) · {{ $order->address }}@endif</p>
         @if ($order->note)<p class="mt-2 rounded-md bg-surface p-3 text-sm">« {{ $order->note }} »</p>@endif
         <a href="{{ $writeToCustomerUrl }}" class="btn btn-whatsapp mt-4" target="_blank" rel="noopener"><x-icon name="message" :size="20" /> Écrire au client</a>
     </section>
+
+    @if ($order->paymentProofs->isNotEmpty())
+        <section class="section">
+            <h2 class="section-title">Captures de paiement</h2>
+            <p class="mb-3 rounded-md bg-warning-soft p-3 text-sm text-on-warning-soft">Une capture peut être fausse : vérifiez sur votre téléphone {{ $order->paymentLabel() }} que {{ gnf($order->total) }} sont bien arrivés.</p>
+            <ul class="grid grid-cols-2 gap-3">
+                @foreach ($order->paymentProofs as $proof)
+                    <li>
+                        <a href="{{ route('admin.orders.proof', [$order->id, $proof->id]) }}" target="_blank" rel="noopener">
+                            <img src="{{ route('admin.orders.proof', [$order->id, $proof->id]) }}" alt="Capture de paiement du {{ $proof->created_at->format('d/m H:i') }}"
+                                 class="aspect-[3/4] w-full rounded-md border border-border object-cover" loading="lazy">
+                        </a>
+                        <p class="mt-1 text-xs text-text-muted">{{ $proof->created_at->timezone('Africa/Conakry')->format('d/m H:i') }}@if ($proof->reference) · n° {{ $proof->reference }}@endif</p>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 
     <section class="section">
         <h2 class="section-title">Articles</h2>

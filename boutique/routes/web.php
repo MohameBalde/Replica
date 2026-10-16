@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\ProductController;
@@ -20,9 +21,9 @@ Route::get('/', fn () => auth()->check() ? redirect()->route('admin.orders.index
 // S10 : compte commerçant
 Route::middleware('guest')->group(function () {
     Route::get('/inscription', [RegisterController::class, 'create'])->name('register');
-    Route::post('/inscription', [RegisterController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('/inscription', [RegisterController::class, 'store'])->middleware('throttle:auth');
     Route::get('/connexion', [LoginController::class, 'create'])->name('login');
-    Route::post('/connexion', [LoginController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('/connexion', [LoginController::class, 'store'])->middleware('throttle:auth');
 });
 Route::post('/deconnexion', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
@@ -40,6 +41,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/commandes/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
         Route::patch('/commandes/{order}/statuts', [OrderController::class, 'updateStatuses'])->whereNumber('order')->name('orders.statuses');
         Route::post('/commandes/{order}/annuler', [OrderController::class, 'cancel'])->whereNumber('order')->name('orders.cancel');
+        Route::get('/commandes/{order}/preuves/{proof}', [OrderController::class, 'proof'])->whereNumber(['order', 'proof'])->name('orders.proof');
+
+        // S17 : clients
+        Route::get('/clients', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/clients/{customer}', [CustomerController::class, 'show'])->whereNumber('customer')->name('customers.show');
+        Route::post('/clients/{customer}/paiement-livraison', [CustomerController::class, 'toggleCashOnDelivery'])->whereNumber('customer')->name('customers.cod');
 
         // S14, S15 : produits
         Route::get('/produits', [ProductController::class, 'index'])->name('products.index');
@@ -74,14 +81,15 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 // S06, S07 : facture publique (lien non devinable) et envoi WhatsApp
 Route::get('/c/{order}', [InvoiceController::class, 'show'])->name('invoice.show');
 Route::get('/c/{order}/whatsapp', [InvoiceController::class, 'whatsapp'])->name('invoice.whatsapp');
+Route::post('/c/{order}/preuve', [InvoiceController::class, 'storeProof'])->middleware('throttle:proof')->name('invoice.proof');
 
 // Boutique publique : en dernier, car /{store} attrape tout le reste.
 Route::prefix('{store}')->name('shop.')->group(function () {
     Route::get('/', [StorefrontController::class, 'show'])->name('show');
     Route::get('/p/{product:slug}', [StorefrontController::class, 'product'])->scopeBindings()->name('product');
     Route::get('/panier', [CartController::class, 'show'])->name('cart');
-    Route::post('/panier', [CartController::class, 'add'])->middleware('throttle:60,1')->name('cart.add');
+    Route::post('/panier', [CartController::class, 'add'])->middleware('throttle:cart')->name('cart.add');
     Route::patch('/panier', [CartController::class, 'update'])->name('cart.update');
     Route::get('/commande', [CheckoutController::class, 'show'])->name('checkout');
-    Route::post('/commande', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+    Route::post('/commande', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('checkout.store');
 });
