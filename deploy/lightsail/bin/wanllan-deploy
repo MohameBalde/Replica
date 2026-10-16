@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# Met en ligne le dernier commit de la branche suivie, seulement si ses tests
-# GitHub Actions sont verts. Lancé toutes les 2 minutes par wanllan-deploy.timer.
+# Met en ligne le dernier commit de la branche suivie, seulement si tous les
+# tests passent. Les tests tournent ici, sur le serveur, avec une base en
+# mémoire (jamais la vraie). Si CHECK_NAME est rempli dans deploy.conf, on
+# attend en plus que ce test GitHub Actions soit vert.
+# Lancé toutes les 2 minutes par wanllan-deploy.timer.
 #
 # À la main :
 #   sudo wanllan-deploy           comme le minuteur
-#   sudo wanllan-deploy --wait    attend jusqu'à 20 min que les tests finissent
-#   sudo wanllan-deploy --force   met en ligne sans regarder les tests (urgence)
+#   sudo wanllan-deploy --wait    attend jusqu'à 20 min le test GitHub (si CHECK_NAME)
+#   sudo wanllan-deploy --force   met en ligne sans test GitHub ni test serveur (urgence)
 set -euo pipefail
 source /etc/wanllan/deploy.conf
 
@@ -55,7 +58,7 @@ ci_status() {
           else "failure" end' <<<"$json"
 }
 
-if [[ $FORCE -eq 0 ]]; then
+if [[ $FORCE -eq 0 && -n "${CHECK_NAME:-}" ]]; then
     deadline=$(( $(date +%s) + 1200 ))
     while :; do
         status="$(ci_status)"
@@ -89,13 +92,26 @@ fail() {
 mkdir -p "$RELEASE"
 git -C "$REPO" archive "$SHA" boutique | tar -x -C "$RELEASE" --strip-components=1 || fail "copie du code"
 cd "$RELEASE"
+
+composer install --no-interaction --prefer-dist --no-progress || fail "composer"
+{ npm ci --no-audit --no-fund --loglevel=error && npm run build --silent; } >/dev/null || fail "build des styles"
+rm -rf node_modules
+
+# Les tests tournent avant tout lien vers la production : pas de .env de
+# production, son propre dossier storage, une base SQLite en mémoire.
+if [[ $FORCE -eq 0 && "${RUN_TESTS:-1}" == 1 ]]; then
+    sed -e "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" -e 's|^DB_CONNECTION=.*|DB_CONNECTION=sqlite|' \
+        .env.example > .env.testing
+    echo 'DB_DATABASE=:memory:' >> .env.testing
+    php artisan test --without-tty > "$STATE/tests.log" 2>&1 || { tail -n 30 "$STATE/tests.log"; fail "tests"; }
+    rm -f .env.testing
+    log "$SHORT : $(grep -Eo 'Tests: +[0-9]+ passed' "$STATE/tests.log" | tr -s ' ')."
+fi
+
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress --quiet || fail "composer sans outils de test"
 ln -s "$BASE/shared/.env" .env
 rm -rf storage
 ln -s "$BASE/shared/storage" storage
-
-composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress || fail "composer"
-{ npm ci --no-audit --no-fund --loglevel=error && npm run build --silent; } >/dev/null || fail "build des styles"
-rm -rf node_modules
 echo "$SHA" > public/version.txt
 
 php artisan storage:link --quiet || fail "lien des photos"

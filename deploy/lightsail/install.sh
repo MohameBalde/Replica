@@ -43,7 +43,7 @@ apt-get -y -q -o Dpkg::Options::=--force-confold upgrade
 apt-get -y -q install ca-certificates curl git unzip jq gzip \
     nginx mysql-server \
     php8.3-fpm php8.3-cli php8.3-mysql php8.3-mbstring php8.3-xml php8.3-curl \
-    php8.3-zip php8.3-gd php8.3-intl php8.3-bcmath php8.3-opcache composer \
+    php8.3-zip php8.3-gd php8.3-intl php8.3-bcmath php8.3-opcache php8.3-sqlite3 composer \
     ufw fail2ban certbot unattended-upgrades
 if ! command -v node >/dev/null || [[ "$(node -p 'process.versions.node.split(".")[0]')" -lt 22 ]]; then
     curl -fsSL https://deb.nodesource.com/setup_22.x -o /tmp/nodesource_setup.sh
@@ -77,8 +77,11 @@ BASE=$BASE
 DOMAIN=$DOMAIN
 BRANCH=$BRANCH
 GITHUB_REPO=$GITHUB_REPO
-# Nom du test GitHub Actions qui doit être vert avant chaque mise en ligne.
-CHECK_NAME=tests
+# Tous les tests tournent sur le serveur avant chaque mise en ligne (1 = oui).
+RUN_TESTS=1
+# En plus, attendre ce test GitHub Actions (laisser vide tant que GitHub Actions
+# ne tourne pas sur le compte ; mettre « tests » quand il marche).
+CHECK_NAME=
 KEEP_RELEASES=5
 # Seulement si le dépôt devient privé : un jeton GitHub en lecture seule.
 GITHUB_TOKEN=
@@ -144,7 +147,7 @@ install -m 644 "$SRC/conf/cron" /etc/cron.d/wanllan
 systemctl daemon-reload
 systemctl enable --now wanllan-deploy.timer wanllan-backup.timer >/dev/null
 
-say "10/10 Première mise en ligne (attend que les tests GitHub soient verts)"
+say "10/10 Première mise en ligne (les tests tournent d'abord, 2 à 4 minutes)"
 wanllan-deploy --wait || die "première mise en ligne impossible. Tapez : sudo wanllan-status"
 
 if wanllan-https --check >/dev/null 2>&1; then

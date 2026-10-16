@@ -84,8 +84,25 @@ class SubscriptionTest extends TestCase
             ->assertSee('Votre boutique sur WhatsApp, en 2 minutes.')
             ->assertSee(gnf(config('wanllan.prices.merchant')))
             ->assertSee('Rien n\'est prélevé automatiquement')
-            ->assertDontSee('Le plus choisi')
-            ->assertDontSee('Take App');
+            ->assertDontSee('Le plus choisi');
         $this->actingAs($this->merchant)->get('/')->assertRedirect(route('admin.orders.index'));
+    }
+
+    public function test_public_pages_never_name_the_original_app(): void
+    {
+        // Les noms interdits viennent de replica/brand.json (hors de l'app, présent dans le dépôt).
+        $brand = base_path('../replica/brand.json');
+        if (! is_file($brand)) {
+            $this->markTestSkipped('replica/brand.json absent');
+        }
+        $avoid = json_decode((string) file_get_contents($brand), true)['avoid'];
+
+        auth()->logout();
+        foreach (['/', '/inscription', '/conditions', '/confidentialite', '/'.$this->store->slug] as $page) {
+            $html = mb_strtolower($this->get($page)->assertOk()->getContent());
+            foreach ($avoid as $name) {
+                $this->assertStringNotContainsString(mb_strtolower($name), $html, "« {$name} » apparaît sur {$page}");
+            }
+        }
     }
 }
