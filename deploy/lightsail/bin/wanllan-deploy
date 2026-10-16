@@ -113,12 +113,14 @@ else
     check=(curl -fsS -o /dev/null --max-time 15 -H "Host: $DOMAIN" "http://127.0.0.1/up")
 fi
 if ! "${check[@]}"; then
+    # On note l'échec avant tout le reste : le minuteur ne doit pas réessayer ce commit.
+    echo "$SHA" > "$STATE/failed"
     if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
         ln -sfn "$PREVIOUS" "$BASE/current.new"
         mv -Tf "$BASE/current.new" "$BASE/current"
-        sudo /usr/bin/systemctl reload php8.3-fpm
+        sudo /usr/bin/systemctl reload php8.3-fpm || true
+        rm -rf "$RELEASE"
     fi
-    echo "$SHA" > "$STATE/failed"
     log "$SHORT : ÉCHEC (le site ne répond pas). Retour à la version précédente."
     exit 1
 fi
