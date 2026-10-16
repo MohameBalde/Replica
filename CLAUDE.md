@@ -64,7 +64,9 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - Angle retenu : « Votre boutique WhatsApp, faite pour la Guinée » + promesse « payé en GNF par Orange Money, sans carte, sans prélèvement ».
 - Lancement préparé : prix en GNF (`replica/launch/pricing.md`), page d'accueil à `/`, plan daté (`replica/launch/launch-plan.md`). Activer un abonnement : `php artisan wanllan:abonnement <boutique> merchant 1 --ref=...`.
 - Hébergement choisi : **AWS Lightsail, région Paris** (serveur 1 Go à 7 $/mois, sauvegardes quotidiennes). Étude comparative et raisons : `replica/hosting.md`. Mohamed a une carte qui paie en dollars.
-- Suite : `/replica-deploy` sur Lightsail, puis brique 2 (caisse et stock hors ligne) en janvier 2027.
+- Déploiement préparé (`replica/deploy.md`, scripts dans `deploy/lightsail/`) : mise en ligne le **22 octobre** en fusionnant la PR #1 dans `main`. Ensuite, le serveur regarde `main` toutes les 2 minutes, lance les 44 tests sur place et revient seul à la version précédente si le site ne répond plus. Les mises à jour passent par une PR que Mohamed fusionne.
+- Le compte GitHub de Mohamed est bloqué pour facturation : GitHub Actions ne tourne pas (le serveur n'en dépend pas).
+- Suite : mise en ligne, bêta du 26 octobre, puis brique 2 (caisse et stock hors ligne) en janvier 2027.
 
 ### Autres pistes
 
