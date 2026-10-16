@@ -14,9 +14,14 @@
                 @php $stock = $product->totalStock(); @endphp
                 <li>
                     <a href="{{ route('admin.products.edit', $product->id) }}" class="flex items-center gap-3 px-4 py-3">
+                        @if ($product->firstImage)
+                            <img src="{{ asset('storage/'.$product->firstImage->thumb_path) }}" alt="" class="size-12 shrink-0 rounded-md object-cover" loading="lazy">
+                        @else
+                            <span class="grid size-12 shrink-0 place-items-center rounded-md bg-surface text-sm font-bold text-text-muted" aria-hidden="true">{{ mb_strtoupper(mb_substr($product->name, 0, 2)) }}</span>
+                        @endif
                         <div class="min-w-0 flex-1">
                             <p class="truncate font-semibold">{{ $product->name }}</p>
-                            <p class="text-sm text-text-muted">{{ $product->category?->name ?? 'Sans catégorie' }}</p>
+                            <p class="text-sm text-text-muted">{{ $product->category?->name ?? 'Sans catégorie' }}@if ($product->variants->count() > 1) · {{ $product->variants->count() }} choix @endif</p>
                         </div>
                         <div class="text-right">
                             <p class="price">{{ gnf($product->fromPrice()) }}</p>

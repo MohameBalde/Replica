@@ -6,50 +6,67 @@
 
     <x-flash />
 
-    @php $soldOut = $product->isSoldOut(); @endphp
-    <div class="grid aspect-square place-items-center bg-surface text-5xl font-bold text-text-muted {{ $soldOut ? 'opacity-50 grayscale' : '' }}">
+    @php
+        $soldOut = $product->isSoldOut();
+        $available = $product->variants->first(fn ($v) => $v->isAvailable()) ?? $product->variants->first();
+        $multi = $product->variants->count() > 1;
+    @endphp
+
+    {{-- Photos : défilement horizontal natif (pas de carrousel JS). --}}
+    <div class="relative bg-surface {{ $soldOut ? 'opacity-50 grayscale' : '' }}">
         @if ($product->images->isNotEmpty())
-            <img src="{{ asset('storage/'.$product->images->first()->path) }}" alt="{{ $product->name }}" class="size-full object-cover">
+            <ul class="flex snap-x snap-mandatory overflow-x-auto" aria-label="Photos">
+                @foreach ($product->images as $image)
+                    <li class="w-full shrink-0 snap-center">
+                        <img src="{{ asset('storage/'.$image->path) }}" alt="{{ $product->name }}, photo {{ $loop->iteration }}"
+                             class="aspect-square w-full object-cover" @unless ($loop->first) loading="lazy" @endunless>
+                    </li>
+                @endforeach
+            </ul>
+            @if ($product->images->count() > 1)
+                <span class="badge badge-neutral absolute right-3 bottom-3">{{ $product->images->count() }} photos · glissez</span>
+            @endif
         @else
-            <span aria-hidden="true">{{ mb_strtoupper(mb_substr($product->name, 0, 2)) }}</span>
+            <div class="grid aspect-square place-items-center text-5xl font-bold text-text-muted" aria-hidden="true">{{ mb_strtoupper(mb_substr($product->name, 0, 2)) }}</div>
         @endif
     </div>
 
-    <form method="POST" action="{{ route('shop.cart.add', $store) }}" class="flex flex-1 flex-col">
+    <form method="POST" action="{{ route('shop.cart.add', $store) }}" class="flex flex-1 flex-col" id="add-form">
         @csrf
         <div class="p-4">
             <h1 class="text-xl font-bold">{{ $product->name }}</h1>
-            <p class="price mt-1 text-lg">{{ gnf($product->fromPrice()) }}</p>
+            <p class="price mt-1 text-lg" id="price">{{ gnf($available->price) }}</p>
 
-            @if ($product->variants->count() > 1)
+            @if ($multi)
                 <fieldset class="mt-4">
-                    <legend class="label">Choix</legend>
+                    <legend class="label">Choisissez</legend>
                     <div class="flex flex-wrap gap-2">
                         @foreach ($product->variants as $variant)
-                            <label class="choice px-3 py-2 {{ $variant->isAvailable() ? '' : 'pointer-events-none text-text-muted line-through opacity-60' }}">
-                                <input type="radio" name="variant_id" value="{{ $variant->id }}" class="sr-only" @checked($loop->first) @disabled(! $variant->isAvailable())>
-                                {{ $variant->name }}
+                            @php $ok = $variant->isAvailable(); @endphp
+                            <label class="choice px-3 py-2 {{ $ok ? '' : 'cursor-not-allowed text-text-muted line-through opacity-60' }}">
+                                <input type="radio" name="variant_id" value="{{ $variant->id }}" class="sr-only"
+                                       data-price="{{ gnf($variant->price) }}" data-stock="{{ $variant->stock ?? '' }}"
+                                       @checked($available->id === $variant->id) @disabled(! $ok)>
+                                {{ $variant->name }}<span class="sr-only">{{ $ok ? '' : ' (épuisé)' }}</span>
                             </label>
                         @endforeach
                     </div>
                 </fieldset>
             @else
-                <input type="hidden" name="variant_id" value="{{ $product->variants->first()->id }}">
+                <input type="hidden" name="variant_id" value="{{ $available->id }}">
             @endif
 
             @if (! $soldOut)
-                @php $max = $product->track_stock ? min(\App\Services\Cart::MAX_QUANTITY, max(1, $product->totalStock())) : \App\Services\Cart::MAX_QUANTITY; @endphp
                 <div class="mt-4 flex items-center gap-3">
                     <label for="quantity" class="label mb-0">Quantité</label>
-                    <input class="input w-24 text-center" id="quantity" name="quantity" type="number" inputmode="numeric" min="1" max="{{ $max }}" value="1">
-                    @if ($product->track_stock && $product->totalStock() <= 3)
-                        <span class="badge badge-warning">Plus que {{ $product->totalStock() }}</span>
-                    @endif
+                    <input class="input w-24 text-center" id="quantity" name="quantity" type="number" inputmode="numeric" min="1"
+                           max="{{ $available->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="1">
+                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= 3) hidden @endunless>Plus que <span>{{ $available->stock }}</span></span>
                 </div>
             @endif
 
             @if ($product->description)
-                <div class="mt-5 text-text-muted whitespace-pre-line">{{ $product->description }}</div>
+                <div class="mt-5 whitespace-pre-line text-text-muted">{{ $product->description }}</div>
             @endif
         </div>
 
@@ -66,4 +83,16 @@
             @endif
         </div>
     </form>
+
+    @if ($multi)
+        <script>
+            document.getElementById('add-form').addEventListener('change', e => {
+                if (e.target.name !== 'variant_id') return;
+                document.getElementById('price').textContent = e.target.dataset.price;
+                const stock = e.target.dataset.stock, low = document.getElementById('low-stock'), qty = document.getElementById('quantity');
+                if (qty) qty.max = stock || {{ \App\Services\Cart::MAX_QUANTITY }};
+                if (low) { low.hidden = !(stock !== '' && Number(stock) <= 3); low.querySelector('span').textContent = stock; }
+            });
+        </script>
+    @endif
 </x-layouts.shop>

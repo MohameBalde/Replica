@@ -47,7 +47,7 @@
                         </div>
                         <div class="p-2.5">
                             <p class="line-clamp-2 text-sm">{{ $product->name }}</p>
-                            <p class="price mt-1">{{ gnf($product->fromPrice()) }}</p>
+                            <p class="price mt-1">{{ $product->variants->min('price') !== $product->variants->max('price') ? 'Dès ' : '' }}{{ gnf($product->fromPrice()) }}</p>
                             @if ($soldOut)
                                 <span class="badge badge-neutral mt-1.5">Épuisé</span>
                             @elseif ($stock !== null && $stock <= 3)
