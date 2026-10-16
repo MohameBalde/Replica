@@ -24,7 +24,7 @@
                 @php
                     $items = [
                         ['admin.orders.index', ['admin.orders.*', 'admin.customers.*'], 'inbox', 'Commandes'],
-                        ['admin.products.index', ['admin.products.*'], 'tag', 'Produits'],
+                        ['admin.products.index', ['admin.products.*', 'admin.categories.*'], 'tag', 'Produits'],
                         ['admin.share', ['admin.share*'], 'share', 'Partager'],
                         ['admin.settings.store', ['admin.settings.*', 'admin.delivery.*', 'admin.payments.*'], 'settings', 'Réglages'],
                     ];

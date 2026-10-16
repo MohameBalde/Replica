@@ -1,6 +1,7 @@
 <x-layouts.admin title="Produits">
     <div class="p-4">
         <a href="{{ route('admin.products.create') }}" class="btn btn-primary"><x-icon name="plus" :size="20" /> Ajouter un produit</a>
+        <a href="{{ route('admin.categories.index') }}" class="mt-2 block text-center text-sm font-semibold text-accent">Gérer les catégories</a>
     </div>
 
     @if ($products->isEmpty())

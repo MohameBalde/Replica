@@ -70,7 +70,14 @@ class DatabaseSeeder extends Seeder
                     'track_stock' => $stock !== null,
                     'position' => $position++,
                 ]);
-                $product->variants()->create(['price' => $price, 'stock' => $stock]);
+                if ($name === 'Survêtement Real Madrid 2026') {
+                    // Démonstration des tailles : prix et stock par taille.
+                    foreach ([['M', 275000, 2], ['L', 275000, 1], ['XL', 290000, 0]] as $i => [$size, $p, $s]) {
+                        $product->variants()->create(['name' => $size, 'price' => $p, 'stock' => $s, 'position' => $i]);
+                    }
+                } else {
+                    $product->variants()->create(['price' => $price, 'stock' => $stock]);
+                }
             }
         }
     }

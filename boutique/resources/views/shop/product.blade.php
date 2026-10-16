@@ -61,7 +61,7 @@
                     <label for="quantity" class="label mb-0">Quantité</label>
                     <input class="input w-24 text-center" id="quantity" name="quantity" type="number" inputmode="numeric" min="1"
                            max="{{ $available->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="1">
-                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= 3) hidden @endunless>Plus que <span>{{ $available->stock }}</span></span>
+                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= 3) hidden @endunless>Plus que&nbsp;<span>{{ $available->stock }}</span></span>
                 </div>
             @endif
 

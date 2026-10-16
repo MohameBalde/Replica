@@ -1,8 +1,27 @@
 # Journal de construction
 
-App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 5,8 Ko gzip, aucun JavaScript chargé hors un petit script sur S04).
-Tests : 17 tests, 130 vérifications, verts sur SQLite et sur MariaDB. Parcours complet rejoué dans Chromium à 390 px, zéro erreur console.
-Parité (`replica-diff/parity.py`) : **62,4 / 100**, indispensables 15 sur 22.
+App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
+Tests : 33 tests, 270 vérifications, verts sur SQLite et sur MariaDB. Parcours rejoués dans Chromium à 390 px, zéro erreur console.
+Parité (`replica-diff/parity.py`) : **82,8 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-16 : étape 2
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| S15 produit | fait | réordonner les photos | variantes : garder les ids pour ne pas casser les commandes, journaliser chaque changement de stock |
+| S02 fiche produit | fait | — | photos en défilement natif, prix et stock qui suivent la taille choisie |
+| S05 preuve de paiement | fait | — | captures sur disque privé, servies uniquement au commerçant de la boutique |
+| S12 commandes | fait | actions en masse | — |
+| S13 détail | fait | note interne | — |
+| S16 catégories | fait | — | — |
+| S17 clients | fait | — | — |
+| S18 livraison | fait | horaires de livraison | — |
+| S20 boutique | partiel | horaires d'ouverture, logo | — |
+| S22 partager | fait | — | message d'accueil : le lien était figé dans le texte enregistré ; remplacé par un repère `{lien}` complété à la copie |
+
+**Bug corrigé** : les limites anti-abus (`throttle:10,1`…) partageaient un seul compteur par IP pour toutes les routes. Un client qui ajoutait une dizaine d'articles se faisait bloquer (429) à la commande ou à l'envoi de la capture. Chaque route a maintenant son propre limiteur nommé, avec un test de non-régression.
+
+**Ce qui reste (should / could)** : questions personnalisées au checkout, actions en masse, commande manuelle, reçu WhatsApp au client, carnet de crédit, rapport du jour, horaires, plusieurs boutiques par compte.
 
 ## 2026-10-15 : tranche verticale
 

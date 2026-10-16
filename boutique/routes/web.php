@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
@@ -69,6 +70,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/partager', [ShareController::class, 'show'])->name('share');
         Route::put('/partager/message', [ShareController::class, 'updateWelcome'])->name('share.welcome');
         Route::get('/partager/qr.svg', [ShareController::class, 'qr'])->name('share.qr');
+
+        // S16 : catégories
+        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{category}', [CategoryController::class, 'update'])->whereNumber('category')->name('categories.update');
+        Route::post('/categories/{category}/deplacer', [CategoryController::class, 'move'])->whereNumber('category')->name('categories.move');
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->whereNumber('category')->name('categories.destroy');
 
         // S19 : paiements (dont le paiement à la livraison activable)
         Route::get('/paiement', [PaymentSettingsController::class, 'edit'])->name('payments.edit');

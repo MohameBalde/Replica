@@ -99,6 +99,10 @@ class SettingsTest extends TestCase
             ->assertSee('/nimstore/p/baskets?src=facebook')
             ->assertSee('Merci de contacter NimStore');
 
+        // Le lien n'est pas figé dans le message : il suit le domaine actuel.
+        $this->assertStringContainsString('{lien}', $this->store->fresh()->welcome_message);
+        $this->assertStringContainsString(url('/nimstore').'?src=whatsapp', $this->store->fresh()->welcomeMessageText());
+
         $qr = $this->get('/admin/partager/qr.svg');
         $qr->assertOk()->assertHeader('Content-Type', 'image/svg+xml');
         $this->assertStringContainsString('<svg', $qr->getContent());

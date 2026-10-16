@@ -77,10 +77,14 @@ class StoreSetupController extends Controller
         return redirect()->route('admin.products.create')->with('status', 'Votre boutique est créée ! Ajoutez votre premier produit.');
     }
 
+    /**
+     * {lien} est remplacé au moment de copier (Store::welcomeMessageText) : si le
+     * domaine change, le message suit sans que le commerçant ait à le réécrire.
+     */
     public static function defaultWelcomeMessage(string $name, string $slug, string $city): string
     {
         return "Bonjour 👋 Merci de contacter {$name} !\n"
-            ."Voir tous nos produits et commander ici : ".url($slug).'?src=whatsapp'."\n"
+            ."Voir tous nos produits et commander ici : {lien}\n"
             ."Livraison à {$city}. Paiement à la livraison ou par mobile money.";
     }
 }

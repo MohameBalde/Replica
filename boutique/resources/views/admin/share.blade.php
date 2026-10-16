@@ -39,9 +39,11 @@
             @csrf @method('PUT')
             <label class="sr-only" for="welcome_message">Message d'accueil</label>
             <textarea class="input" id="welcome_message" name="welcome_message" rows="5" maxlength="1000">{{ old('welcome_message', $store->welcome_message) }}</textarea>
+            <p class="help">Écrivez <strong class="font-mono">{lien}</strong> là où doit apparaître le lien de votre boutique.</p>
             @error('welcome_message')<p class="error">{{ $message }}</p>@enderror
             <div class="mt-3 grid grid-cols-2 gap-2">
-                <button type="button" class="btn btn-primary" data-label="Copier" onclick="copyText(this, document.getElementById('welcome_message').value)"><x-icon name="copy" :size="18" /><span>Copier</span></button>
+                <button type="button" class="btn btn-primary" data-label="Copier"
+                        onclick="copyText(this, document.getElementById('welcome_message').value.replaceAll('{lien}', @js(route('shop.show', $store).'?src=whatsapp')))"><x-icon name="copy" :size="18" /><span>Copier</span></button>
                 <button type="submit" class="btn btn-secondary">Enregistrer</button>
             </div>
         </form>

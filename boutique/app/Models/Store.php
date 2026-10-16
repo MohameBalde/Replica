@@ -69,6 +69,12 @@ class Store extends Model
         return $this->hasMany(DailyVisit::class);
     }
 
+    /** Message d'accueil prêt à coller, avec le lien de la boutique à jour. */
+    public function welcomeMessageText(): string
+    {
+        return str_replace('{lien}', route('shop.show', $this).'?src=whatsapp', (string) $this->welcome_message);
+    }
+
     public function cashOnDelivery(): ?PaymentMethod
     {
         return $this->paymentMethods()->where('type', PaymentMethod::CASH_ON_DELIVERY)->first();
