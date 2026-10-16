@@ -28,6 +28,30 @@ Recherches faites le 16 octobre 2026. Les prix changent : à revérifier le jour
 | Risque principal | panne non surveillée | idem, sans Paris | coût qui varie, base pas prête, code à adapter (fichiers) | sauvegardes payantes | offre affichée « indisponible » en août 2026, deux hausses de prix en 2026, comptes refusés hors Europe signalés |
 | Pour le CV de Mohamed | **AWS + Linux en production** | Linux | — | — | Linux |
 
+## Et Hostinger ? (ajouté le 16 octobre, à la demande de Mohamed)
+
+**Hostinger VPS** : un serveur Linux comme Lightsail, avec un centre de données en France (Paris, annoncé en 2023). C'est **le meilleur rapport puissance/prix**, mais seulement en payant d'avance.
+
+| | AWS Lightsail 1 Go | Hostinger KVM 1 |
+| --- | --- | --- |
+| Serveur | 2 processeurs, 1 Go, 40 Go | 1 processeur, **4 Go**, 50 Go NVMe |
+| Paiement | **chaque mois**, ≈ 8 à 9 $ avec les sauvegardes | **24 mois d'avance** : ≈ 156 $ (≈ 1 370 000 GNF) d'un coup, soit 6,49 $/mois |
+| Sans engagement | 7 $/mois | ≈ 13,99 $/mois |
+| Au renouvellement | même prix | 11,99 $/mois |
+| Sur 2 ans | ≈ 204 $ sans crédit AWS, beaucoup moins si les crédits couvrent Lightsail | ≈ 156 $ |
+| Sauvegardes | chaque jour, 7 gardées, 1 à 2 $/mois | **chaque semaine** ; chaque jour = option payante (6 à 12 $/mois selon les sources) |
+| Arrêter | quand on veut | remboursé seulement pendant les 30 premiers jours |
+| Plus | AWS sur le CV, crédits de bienvenue possibles | 4 fois plus de mémoire, site et support en français |
+
+Le KVM 2 (2 processeurs, 8 Go, 100 Go) coûte 8,99 $/mois sur 24 mois (≈ 216 $ d'avance) et 14,99 $/mois au renouvellement.
+
+**Verdict : Lightsail reste le choix pour Wanllan aujourd'hui.**
+- Le produit n'est pas encore validé : payer 2 ans d'avance (≈ 1,37 million de GNF) avant la bêta est un pari. Lightsail se paie mois par mois et s'arrête quand on veut.
+- Une sauvegarde par semaine, c'est jusqu'à 7 jours de commandes perdues en cas de panne. Les sauvegardes quotidiennes de Lightsail coûtent 1 à 2 $ ; celles de Hostinger effacent son avance de prix.
+- Si les crédits AWS couvrent Lightsail, il revient moins cher que Hostinger sur 2 ans. Sans crédit, Hostinger KVM 1 économise environ 50 $ sur 2 ans.
+
+**Hostinger hébergement web (mutualisé)** : écarté. Pas d'accès administrateur, ressources partagées avec d'autres sites et limitées par une règle d'usage raisonnable, versions de PHP différentes entre le site et la ligne de commande qui cassent Composer. Bien pour un site vitrine ou WordPress, pas pour une app avec des commerçants abonnés.
+
 ## Écartés tout de suite
 
 - **AWS EC2 + RDS + répartiteur de charge** : l'AWS des grandes entreprises. Facilement 40 à 50 $/mois, une facture qui change chaque mois, beaucoup de réglages.
@@ -76,6 +100,7 @@ Le nom de domaine est en plus (environ 10 à 15 $ par an pour un .com).
 - Le serveur sature (mémoire ou processeur au-dessus de 80 % plusieurs jours) : passer au serveur de 2 Go.
 - Plus de 200 boutiques actives : sortir la base de données sur son propre serveur.
 - Mohamed ne veut plus gérer de serveur : Laravel Cloud, si sa base MySQL est prête pour la production.
+- Wanllan est validé (vers février 2027) et Mohamed veut regrouper plusieurs projets sur un gros serveur pas cher : Hostinger KVM 2 payé 2 ans d'avance, avec une copie de la base chaque nuit hors du serveur.
 - Une loi impose de garder les données en Guinée : reprendre contact avec GUILAB.
 
 ## Sources (lues le 16 octobre 2026)
@@ -91,6 +116,9 @@ Le nom de domaine est en plus (environ 10 à 15 $ par an pour un .com).
 - Railway, prix (sites tiers) : https://temps.sh/blog/railway-pricing-2026 ; sauvegardes : https://docs.railway.com/volumes/backups et https://station.railway.com/questions/hard-limit-resource-usage-backups-2ca70e7b
 - DigitalOcean, prix (sites tiers) : https://www.temperstack.com/plans/digitalocean/ et https://diyai.io/ai-tools/hosting/digitalocean-pricing/
 - Hetzner, hausses de 2026 : https://wz-it.com/en/blog/hetzner-price-increase-june-2026-cpx-ccx-alternatives/ et https://findstack.com/resources/hetzner-price-increase-2026 ; comptes refusés : https://lowendtalk.com/discussion/comment/2879718/
+- Hostinger, prix des VPS (sites tiers) : https://hereflowai.com/hostinger-vps-pricing-2026/ , https://bearhost.com/blogs/hostinger-pricing , sans engagement : https://vpsbenchmarks.com/hosters/hostinger
+- Hostinger, centre de données de Paris : https://www.hostinger.com/blog/?p=4440 ; sauvegardes des VPS : https://www.hostinger.com/support/1583232-how-to-back-up-or-restore-a-vps/ et https://hostadvice.com/blog/web-hosting/hostinger-backups/
+- Hostinger mutualisé et Laravel (versions de PHP) : https://neura.market/directories/copilot/blog/devto-3792034 ; règle d'usage : https://www.websiteplanet.com/uk/blog/найкращих-веб-хостингів-для-laravel/
 - Azure for Students : https://learn.microsoft.com/en-us/azure/education-hub/faq
 - Oracle, ressources gratuites : https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm
 - GUILAB : https://www.datacentermap.com/guinea/conakry/guilab-data-center/
