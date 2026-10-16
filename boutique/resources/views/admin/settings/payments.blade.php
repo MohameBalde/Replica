@@ -1,4 +1,5 @@
-<x-layouts.admin title="Moyens de paiement">
+<x-layouts.admin title="Réglages">
+    @include('admin.settings._tabs')
     <div class="space-y-3 p-4">
         @error('is_active')<p class="toast mx-0 bg-danger-soft text-on-danger-soft" role="alert">{{ $message }}</p>@enderror
 

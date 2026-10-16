@@ -37,6 +37,7 @@ class Order extends Model
         'tiktok' => 'TikTok',
         'whatsapp' => 'WhatsApp',
         'messenger' => 'Messenger',
+        'qr' => 'QR code',
         'direct' => 'Direct',
     ];
 

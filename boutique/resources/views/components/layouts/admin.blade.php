@@ -23,13 +23,14 @@
             <nav aria-label="Menu" class="fixed inset-x-0 bottom-0 z-30 mx-auto flex h-16 max-w-admin border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]">
                 @php
                     $items = [
-                        ['admin.orders.index', 'admin.orders.*', 'inbox', 'Commandes'],
-                        ['admin.products.index', 'admin.products.*', 'tag', 'Produits'],
-                        ['admin.payments.edit', 'admin.payments.*', 'wallet', 'Paiements'],
+                        ['admin.orders.index', ['admin.orders.*', 'admin.customers.*'], 'inbox', 'Commandes'],
+                        ['admin.products.index', ['admin.products.*'], 'tag', 'Produits'],
+                        ['admin.share', ['admin.share*'], 'share', 'Partager'],
+                        ['admin.settings.store', ['admin.settings.*', 'admin.delivery.*', 'admin.payments.*'], 'settings', 'Réglages'],
                     ];
                 @endphp
-                @foreach ($items as [$route, $pattern, $icon, $label])
-                    @php $active = request()->routeIs($pattern); @endphp
+                @foreach ($items as [$route, $patterns, $icon, $label])
+                    @php $active = request()->routeIs(...$patterns); @endphp
                     <a href="{{ route($route) }}" @if ($active) aria-current="page" @endif
                        class="flex flex-1 flex-col items-center justify-center gap-1 text-xs font-semibold {{ $active ? 'text-accent' : 'text-text-muted' }}">
                         <x-icon :name="$icon" />{{ $label }}

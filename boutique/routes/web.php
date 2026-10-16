@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ShareController;
+use App\Http\Controllers\Admin\StoreSettingsController;
 use App\Http\Controllers\Admin\StoreSetupController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -44,6 +47,21 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/produits', [ProductController::class, 'store'])->name('products.store');
         Route::get('/produits/{product}', [ProductController::class, 'edit'])->whereNumber('product')->name('products.edit');
         Route::put('/produits/{product}', [ProductController::class, 'update'])->whereNumber('product')->name('products.update');
+
+        // S20 : boutique (infos, ouvert / fermé)
+        Route::get('/reglages', [StoreSettingsController::class, 'edit'])->name('settings.store');
+        Route::put('/reglages', [StoreSettingsController::class, 'update'])->name('settings.store.update');
+        Route::post('/reglages/ouverture', [StoreSettingsController::class, 'toggle'])->name('settings.store.toggle');
+
+        // S18 : modes de livraison (frais, minimum, paiement à la livraison par mode)
+        Route::get('/livraison', [DeliverySettingsController::class, 'index'])->name('delivery.index');
+        Route::post('/livraison', [DeliverySettingsController::class, 'store'])->name('delivery.store');
+        Route::put('/livraison/{method}', [DeliverySettingsController::class, 'update'])->whereNumber('method')->name('delivery.update');
+
+        // S22 : partager ma boutique
+        Route::get('/partager', [ShareController::class, 'show'])->name('share');
+        Route::put('/partager/message', [ShareController::class, 'updateWelcome'])->name('share.welcome');
+        Route::get('/partager/qr.svg', [ShareController::class, 'qr'])->name('share.qr');
 
         // S19 : paiements (dont le paiement à la livraison activable)
         Route::get('/paiement', [PaymentSettingsController::class, 'edit'])->name('payments.edit');

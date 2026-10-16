@@ -64,6 +64,11 @@ class Store extends Model
         return $this->hasMany(PaymentMethod::class)->orderBy('position');
     }
 
+    public function dailyVisits(): HasMany
+    {
+        return $this->hasMany(DailyVisit::class);
+    }
+
     public function cashOnDelivery(): ?PaymentMethod
     {
         return $this->paymentMethods()->where('type', PaymentMethod::CASH_ON_DELIVERY)->first();
