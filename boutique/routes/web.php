@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ShareController;
 use App\Http\Controllers\Admin\StoreSettingsController;
+use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\StoreSetupController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -17,7 +18,8 @@ use App\Http\Controllers\Shop\InvoiceController;
 use App\Http\Controllers\Shop\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => auth()->check() ? redirect()->route('admin.orders.index') : redirect()->route('register'));
+// Page d'accueil publique de Wanllan ; un commerçant connecté va droit à ses commandes.
+Route::get('/', fn () => auth()->check() ? redirect()->route('admin.orders.index') : view('landing'))->name('home');
 
 // S10 : compte commerçant
 Route::middleware('guest')->group(function () {
@@ -65,6 +67,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/livraison', [DeliverySettingsController::class, 'index'])->name('delivery.index');
         Route::post('/livraison', [DeliverySettingsController::class, 'store'])->name('delivery.store');
         Route::put('/livraison/{method}', [DeliverySettingsController::class, 'update'])->whereNumber('method')->name('delivery.update');
+
+        // S23 : mon abonnement (prépayé, sans prélèvement)
+        Route::get('/abonnement', [SubscriptionController::class, 'show'])->name('subscription');
 
         // S22 : partager ma boutique
         Route::get('/partager', [ShareController::class, 'show'])->name('share');

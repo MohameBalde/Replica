@@ -15,6 +15,16 @@
             @endisset
         </header>
 
+        @isset($currentStore)
+            {{-- Rappel avant la fin d'une formule payante : jamais de prélèvement, donc on prévient. --}}
+            @php $left = $currentStore->planDaysLeft(); @endphp
+            @if ($left !== null && $left <= config('wanllan.reminder_days'))
+                <a href="{{ route('admin.subscription') }}" class="toast block bg-warning-soft text-on-warning-soft">
+                    Votre formule {{ \App\Support\Plans::get($currentStore->activePlan())['name'] }} se termine dans {{ $left }} jour{{ $left > 1 ? 's' : '' }}. Renouveler →
+                </a>
+            @endif
+        @endisset
+
         <x-flash />
 
         <main class="flex-1 pb-24">{{ $slot }}</main>
@@ -26,7 +36,7 @@
                         ['admin.orders.index', ['admin.orders.*', 'admin.customers.*'], 'inbox', 'Commandes'],
                         ['admin.products.index', ['admin.products.*', 'admin.categories.*'], 'tag', 'Produits'],
                         ['admin.share', ['admin.share*'], 'share', 'Partager'],
-                        ['admin.settings.store', ['admin.settings.*', 'admin.delivery.*', 'admin.payments.*'], 'settings', 'Réglages'],
+                        ['admin.settings.store', ['admin.settings.*', 'admin.delivery.*', 'admin.payments.*', 'admin.subscription'], 'settings', 'Réglages'],
                     ];
                 @endphp
                 @foreach ($items as [$route, $patterns, $icon, $label])

@@ -62,7 +62,8 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - Fait : recon, architecture, design, construction (22 fonctions indispensables sur 22), avis des utilisateurs de Take App (`replica/fixes.md`).
 - Demande de Mohamed : le paiement à la livraison est activable / bloquable par le commerçant (boutique, plafond, zone, client).
 - Angle retenu : « Votre boutique WhatsApp, faite pour la Guinée » + promesse « payé en GNF par Orange Money, sans carte, sans prélèvement ».
-- Suite : `/replica-launch` (prix en GNF), `/replica-deploy` (Railway), puis brique 2 (caisse et stock hors ligne) en janvier 2027.
+- Lancement préparé : prix en GNF (`replica/launch/pricing.md`), page d'accueil à `/`, plan daté (`replica/launch/launch-plan.md`). Activer un abonnement : `php artisan wanllan:abonnement <boutique> merchant 1 --ref=...`.
+- Suite : `/replica-deploy` (Railway), puis brique 2 (caisse et stock hors ligne) en janvier 2027.
 
 ### Autres pistes
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Plans;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +22,7 @@ class Store extends Model
 
     protected function casts(): array
     {
-        return ['is_open' => 'boolean', 'next_order_number' => 'integer'];
+        return ['is_open' => 'boolean', 'next_order_number' => 'integer', 'plan_expires_at' => 'datetime'];
     }
 
     public function getRouteKeyName(): string
@@ -62,6 +63,62 @@ class Store extends Model
     public function paymentMethods(): HasMany
     {
         return $this->hasMany(PaymentMethod::class)->orderBy('position');
+    }
+
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class)->latest();
+    }
+
+    /** Formule en vigueur : une formule payante expirée redevient Découverte, sans rien supprimer. */
+    public function activePlan(): string
+    {
+        if ($this->plan !== Plans::FREE && $this->plan_expires_at && $this->plan_expires_at->isFuture()) {
+            return $this->plan;
+        }
+
+        return Plans::FREE;
+    }
+
+    public function maxProducts(): ?int
+    {
+        return Plans::get($this->activePlan())['max_products'];
+    }
+
+    public function canAddProduct(): bool
+    {
+        $max = $this->maxProducts();
+
+        return $max === null || $this->products()->count() < $max;
+    }
+
+    public function showsBadge(): bool
+    {
+        return Plans::get($this->activePlan())['badge'];
+    }
+
+    /** Jours restants avant la fin d'une formule payante (null si Découverte). */
+    public function planDaysLeft(): ?int
+    {
+        return $this->activePlan() === Plans::FREE ? null : (int) ceil(now()->diffInHours($this->plan_expires_at) / 24);
+    }
+
+    /**
+     * Enregistre un paiement d'abonnement et repousse la date de fin.
+     * Même formule encore active : on ajoute à la suite. Sinon : on part d'aujourd'hui.
+     */
+    public function recordSubscription(string $plan, int $months, int $amount, string $method, ?string $reference = null): SubscriptionPayment
+    {
+        $start = ($this->activePlan() === $plan) ? $this->plan_expires_at : now();
+        $end = $start->copy()->addMonthsNoOverflow($months);
+
+        $payment = $this->subscriptionPayments()->create([
+            'plan' => $plan, 'months' => $months, 'amount' => $amount, 'method' => $method,
+            'reference' => $reference, 'period_start' => $start, 'period_end' => $end,
+        ]);
+        $this->forceFill(['plan' => $plan, 'plan_expires_at' => $end])->save();
+
+        return $payment;
     }
 
     public function dailyVisits(): HasMany

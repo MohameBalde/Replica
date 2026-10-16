@@ -37,8 +37,12 @@ class ProductController extends Controller
         ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
+        if (! $this->currentStore($request)->canAddProduct()) {
+            return redirect()->route('admin.subscription')->with('status', $this->limitMessage($request));
+        }
+
         return view('admin.products.form', [
             'product' => new Product(['is_visible' => true]),
             'categories' => $this->currentStore($request)->categories,
@@ -48,6 +52,9 @@ class ProductController extends Controller
     public function store(Request $request, ImageProcessor $images): RedirectResponse
     {
         $store = $this->currentStore($request);
+        if (! $store->canAddProduct()) {
+            return redirect()->route('admin.subscription')->with('status', $this->limitMessage($request));
+        }
         $data = $this->validated($request);
 
         $product = DB::transaction(function () use ($store, $data) {
@@ -238,6 +245,12 @@ class ProductController extends Controller
         }
 
         return $slug;
+    }
+
+    private function limitMessage(Request $request): string
+    {
+        return 'La formule Découverte permet '.$this->currentStore($request)->maxProducts()
+            .' produits. Vos produits restent en ligne ; passez à Commerçant pour en ajouter d\'autres.';
     }
 
     private function currentStore(Request $request): Store

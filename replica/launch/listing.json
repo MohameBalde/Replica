@@ -1,0 +1,21 @@
+{
+  "_note": "Pas de publication sur les stores pour l'instant : Wanllan est un site web installable. Fiche préparée pour une future app Android (Google Play) et iOS.",
+  "avoid": [
+    "Take App",
+    "TakeApp",
+    "Wallan"
+  ],
+  "app_store": {
+    "name": "Wanllan: boutique WhatsApp",
+    "subtitle": "Vendez en GNF, faites livrer",
+    "promotional_text": "Le paiement à la livraison sous votre contrôle : montant maximum, zones, clients. Prix en GNF, Orange Money et MTN MoMo.",
+    "description": "Wanllan crée votre boutique en ligne en 2 minutes, pour vendre sur WhatsApp en Guinée.\n\nVos clients ouvrent votre lien depuis Facebook, TikTok ou WhatsApp, voient vos produits, vos tailles et vos prix en GNF, et la commande arrive toute prête sur votre WhatsApp.\n\nFait pour la Guinée :\n- Prix en GNF, numéros +224\n- Orange Money, MTN MoMo et paiement à la livraison\n- Livraison par commune de Conakry et par ville\n- Pages légères, même en 3G\n\nLe paiement à la livraison sous votre contrôle :\n- Activez-le ou bloquez-le\n- Fixez un montant maximum\n- Choisissez les zones\n- Bloquez un client qui a refusé un colis\n\nSavoir quelle pub fait vendre : visites et ventes par réseau.\n\nAbonnement prépayé en GNF par Orange Money, un mois ou un an à la fois. Aucune carte, aucun prélèvement automatique. Formule Découverte gratuite.\n\nWanllan veut dire « aide-moi » en poular. C'est ce que l'app fait : vous aider à vendre.",
+    "keywords": "guinee,orange money,mtn,commande,livraison,vente,commerce,catalogue,conakry,magasin",
+    "whats_new": "Première version : boutique, commandes WhatsApp et paiement à la livraison contrôlé."
+  },
+  "google_play": {
+    "title": "Wanllan: boutique WhatsApp",
+    "short_description": "Votre boutique WhatsApp en GNF : commandes, livraison, Orange Money.",
+    "full_description": "Wanllan crée votre boutique en ligne en 2 minutes, pour vendre sur WhatsApp en Guinée.\n\nVos clients ouvrent votre lien depuis Facebook, TikTok ou WhatsApp, voient vos produits, vos tailles et vos prix en GNF, et la commande arrive toute prête sur votre WhatsApp.\n\nFait pour la Guinée : prix en GNF, Orange Money, MTN MoMo, paiement à la livraison sous votre contrôle (montant maximum, zones, clients bloqués), livraison par commune et par ville, pages légères en 3G.\n\nAbonnement prépayé en GNF, sans carte et sans prélèvement automatique. Formule Découverte gratuite.\n\nWanllan veut dire « aide-moi » en poular."
+  }
+}
