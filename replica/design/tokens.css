@@ -7,9 +7,9 @@
   --color-border-input: #7b8591;
   --color-text: #14171c;
   --color-text-muted: #5b6470;
-  --color-accent: #c2410c;
-  --color-accent-strong: #9a3412;
-  --color-accent-soft: #ffedd5;
+  --color-accent: #3730a3;
+  --color-accent-strong: #312e81;
+  --color-accent-soft: #e0e7ff;
   --color-on-accent: #ffffff;
   --color-whatsapp: #15803d;
   --color-on-whatsapp: #ffffff;
@@ -25,7 +25,9 @@
   --color-on-info-soft: #1e40af;
   --color-neutral-soft: #f1f5f9;
   --color-on-neutral-soft: #475569;
-  --color-focus: #2563eb;
+  --color-focus: #b45309;
+  --color-gold: #f59e0b;
+  --color-on-gold: #1c1407;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
   --font-mono: ui-monospace, 'Roboto Mono', Menlo, monospace;
   --text-xs: 12px;

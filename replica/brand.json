@@ -1,0 +1,24 @@
+{
+  "name": "Wanllan",
+  "tagline": "Votre boutique sur WhatsApp",
+  "meaning": "« aide-moi » en poular",
+  "avoid": [
+    "Take App",
+    "TakeApp",
+    "Take-App",
+    "Boutique WA",
+    "Wallan"
+  ],
+  "domains": [
+    "take.app"
+  ],
+  "colors": [
+    "#027A6D",
+    "#111B21"
+  ],
+  "palette": {
+    "accent": "#3730a3",
+    "accent-strong": "#312e81",
+    "gold": "#f59e0b"
+  }
+}

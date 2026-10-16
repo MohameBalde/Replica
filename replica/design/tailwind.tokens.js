@@ -28,6 +28,8 @@ module.exports = {
     "neutral-soft": "var(--color-neutral-soft)",
     "on-neutral-soft": "var(--color-on-neutral-soft)",
     "focus": "var(--color-focus)",
+    "gold": "var(--color-gold)",
+    "on-gold": "var(--color-on-gold)",
     "transparent": "transparent",
     "current": "currentColor"
   },

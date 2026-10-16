@@ -54,13 +54,15 @@ Le dépôt contient les 11 skills **Replica** dans `.claude/skills/` (MIT, copi�
 
 Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**, jamais le code, le logo, les textes ni le contenu de l'original.
 
-### Projet en cours : boutique WhatsApp pour la Guinée (modèle : Take App)
+### Projet en cours : **Wanllan**, boutique WhatsApp pour la Guinée (modèle : Take App)
+
+- **Nom : Wanllan** (orthographe exacte : W-a-n-l-l-a-n), « aide-moi » en poular. Signature : « Wanllan · Votre boutique sur WhatsApp ». Couleurs : indigo du leppi `#3730a3` + or `#f59e0b`. Détails : `replica/brand.md`.
 
 - Code : `boutique/` (Laravel 12, MySQL, Tailwind 4). Tests : `cd boutique && php artisan test`. Démo : `php artisan migrate:fresh --seed` (connexion 620 00 00 00 / password).
 - Fait : recon, architecture, design, construction (22 fonctions indispensables sur 22), avis des utilisateurs de Take App (`replica/fixes.md`).
 - Demande de Mohamed : le paiement à la livraison est activable / bloquable par le commerçant (boutique, plafond, zone, client).
 - Angle retenu : « Votre boutique WhatsApp, faite pour la Guinée » + promesse « payé en GNF par Orange Money, sans carte, sans prélèvement ».
-- Suite : `/replica-brand` (nom, couleurs), `/replica-launch` (prix en GNF), `/replica-deploy` (Railway), puis brique 2 (caisse et stock hors ligne) en janvier 2027.
+- Suite : `/replica-launch` (prix en GNF), `/replica-deploy` (Railway), puis brique 2 (caisse et stock hors ligne) en janvier 2027.
 
 ### Autres pistes
 
