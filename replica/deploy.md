@@ -44,7 +44,7 @@ Hébergement : AWS Lightsail, région Paris, serveur Ubuntu 24.04 de 1 Go à 7 $
 
 Testé sur le serveur de répétition : mise à jour normale (20 s), code cassé refusé, test en échec refusé, site cassé après bascule remis en arrière, base de production intacte.
 
-GitHub Actions (`.github/workflows/ci.yml`) teste aussi sur MySQL 8, mais **ne tourne pas pour l'instant** : GitHub indique « The job was not started because your account is locked due to a billing issue ». Le serveur ne dépend donc pas de GitHub Actions. Quand le compte sera débloqué, mettre `CHECK_NAME=tests` dans `/etc/wanllan/deploy.conf` pour une double vérification.
+GitHub Actions (`.github/workflows/ci.yml`) teste aussi sur MySQL 8, mais **ne tourne pas pour l'instant** (passé en lancement manuel pour éviter les e-mails d'échec) : GitHub indique « The job was not started because your account is locked due to a billing issue ». Le serveur ne dépend donc pas de GitHub Actions. Quand le compte sera débloqué, mettre `CHECK_NAME=tests` dans `/etc/wanllan/deploy.conf` pour une double vérification.
 
 ## Domaine
 

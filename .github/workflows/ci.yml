@@ -1,11 +1,15 @@
-# Tests de Wanllan à chaque envoi sur GitHub. Le serveur ne met en ligne
-# un commit que si la vérification « tests » ci-dessous est verte
-# (deploy/lightsail/bin/wanllan-deploy).
+# Tests de Wanllan sur GitHub, en plus de ceux que le serveur lance avant
+# chaque mise en ligne (deploy/lightsail/bin/wanllan-deploy).
+# Lancement manuel seulement tant que GitHub Actions est bloqué sur le compte
+# (problème de facturation) : sinon chaque envoi produit un e-mail d'échec.
+# Une fois débloqué, remettre :
+#   on:
+#     push:
+#     pull_request:
 name: CI
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   tests:
