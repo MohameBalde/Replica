@@ -63,7 +63,8 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - Demande de Mohamed : le paiement à la livraison est activable / bloquable par le commerçant (boutique, plafond, zone, client).
 - Angle retenu : « Votre boutique WhatsApp, faite pour la Guinée » + promesse « payé en GNF par Orange Money, sans carte, sans prélèvement ».
 - Lancement préparé : prix en GNF (`replica/launch/pricing.md`), page d'accueil à `/`, plan daté (`replica/launch/launch-plan.md`). Activer un abonnement : `php artisan wanllan:abonnement <boutique> merchant 1 --ref=...`.
-- Suite : `/replica-deploy` (Railway), puis brique 2 (caisse et stock hors ligne) en janvier 2027.
+- Hébergement choisi : **AWS Lightsail, région Paris** (serveur 1 Go à 7 $/mois, sauvegardes quotidiennes). Étude comparative et raisons : `replica/hosting.md`. Mohamed a une carte qui paie en dollars.
+- Suite : `/replica-deploy` sur Lightsail, puis brique 2 (caisse et stock hors ligne) en janvier 2027.
 
 ### Autres pistes
 

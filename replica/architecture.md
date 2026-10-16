@@ -21,7 +21,7 @@ Choix imposé : ce que Mohamed connaît déjà (Laravel, MySQL, Railway). Pas de
 | WhatsApp | liens **`wa.me`** préremplis | Gratuit, sans validation Meta. L'API WhatsApp Business viendra plus tard. |
 | e-mail | aucun en V1 | Pas nécessaire au parcours. Réinitialisation du mot de passe via le support WhatsApp. |
 | jobs | **file `sync`** en V1 | Une seule tâche lourde (compression d'image), faite pendant l'envoi. Passage à une file `database` + un worker Railway si ça ralentit. |
-| hébergement | **Railway** : 1 service web + 1 base MySQL + 1 volume | Déjà connu. Domaine perso branché plus tard avec `/replica-deploy`. |
+| hébergement | ~~Railway~~ → **AWS Lightsail Paris** (décision du 16 oct. 2026) : un serveur Ubuntu avec Nginx, PHP-FPM, MySQL et les fichiers sur le disque | Prix fixe, sauvegardes quotidiennes, code inchangé. Comparatif : `replica/hosting.md`. Les mentions de Railway plus haut (base, fichiers, jobs) valent pour ce serveur. |
 | fuseau | `Africa/Conakry` (UTC+0, pas d'heure d'été) | Aucun piège d'heure d'été. On stocke en UTC, on affiche en heure de Conakry. |
 | langue / monnaie | `fr`, GNF sans décimales, espace pour les milliers : `150 000 GNF` | Un seul helper `gnf()` partout. |
 
