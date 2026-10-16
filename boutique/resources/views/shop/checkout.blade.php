@@ -91,7 +91,7 @@
 
         <div class="sticky-bar mt-auto">
             <button class="btn btn-whatsapp btn-lg" type="submit"><x-icon name="message" :size="20" /> Valider ma commande</button>
-            <p class="help text-center">Ensuite, vous envoyez la commande sur le WhatsApp de {{ $store->name }}.</p>
+            <p class="help text-center">Ensuite, vous envoyez la commande sur le WhatsApp de {{ $store->name }}. Vos coordonnées servent seulement à cette commande (<a class="underline" href="{{ route('legal.privacy') }}">confidentialité</a>).</p>
         </div>
     </form>
 

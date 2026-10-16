@@ -20,6 +20,11 @@ class ImageProcessor
 
     public const QUALITY = 75;
 
+    /** Aperçu des liens partagés (WhatsApp, Facebook) : 1200 × 630, format conseillé par ces apps. */
+    public const PREVIEW_WIDTH = 1200;
+
+    public const PREVIEW_HEIGHT = 630;
+
     /**
      * @return array{path:string, thumb_path:string}
      */
@@ -46,6 +51,50 @@ class ImageProcessor
         imagedestroy($image);
 
         return $path;
+    }
+
+    /**
+     * Aperçu JPEG d'une photo, créé à la première demande puis gardé à côté d'elle.
+     * WhatsApp n'affiche pas toujours le WebP et ignore les images de plus de 300 Ko :
+     * on livre un JPEG d'environ 100 Ko, la photo entière sur fond indigo.
+     */
+    public function preview(string $path, string $disk = 'public'): ?string
+    {
+        $storage = Storage::disk($disk);
+        $target = self::previewPath($path);
+
+        if ($storage->exists($target)) {
+            return $target;
+        }
+
+        $src = $storage->exists($path) ? @imagecreatefromstring((string) $storage->get($path)) : false;
+        if (! $src) {
+            return null;
+        }
+
+        $canvas = imagecreatetruecolor(self::PREVIEW_WIDTH, self::PREVIEW_HEIGHT);
+        imagefill($canvas, 0, 0, imagecolorallocate($canvas, 0x1E, 0x1B, 0x4B));
+
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $ratio = min(self::PREVIEW_WIDTH / $w, self::PREVIEW_HEIGHT / $h);
+        $nw = (int) round($w * $ratio);
+        $nh = (int) round($h * $ratio);
+        imagecopyresampled($canvas, $src, intdiv(self::PREVIEW_WIDTH - $nw, 2), intdiv(self::PREVIEW_HEIGHT - $nh, 2), 0, 0, $nw, $nh, $w, $h);
+        imagedestroy($src);
+
+        ob_start();
+        imagejpeg($canvas, null, 80);
+        imagedestroy($canvas);
+        $storage->put($target, (string) ob_get_clean());
+
+        return $target;
+    }
+
+    /** stores/1/products/abc.webp -> stores/1/products/abc-og.jpg */
+    public static function previewPath(string $path): string
+    {
+        return preg_replace('/\.[a-z0-9]+$/i', '', $path).'-og.jpg';
     }
 
     private function load(UploadedFile $file): \GdImage

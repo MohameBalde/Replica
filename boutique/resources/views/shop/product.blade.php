@@ -1,4 +1,6 @@
-<x-layouts.shop :store="$store" :title="$product->name.' · '.$store->name" :description="\Illuminate\Support\Str::limit($product->description, 150)">
+<x-layouts.shop :store="$store" :title="$product->name.' · '.$store->name"
+    :description="collect([($product->variants->count() > 1 ? 'À partir de ' : '').gnf($product->fromPrice()), \Illuminate\Support\Str::limit($product->description, 150)])->filter()->implode(' · ')"
+    :image="preview_url($product->images->first()?->path)">
     <header class="flex h-14 items-center gap-2 px-2">
         <a href="{{ route('shop.show', $store) }}" class="inline-flex min-h-tap min-w-tap items-center justify-center" aria-label="Retour à la boutique"><x-icon name="back" /></a>
         <span class="truncate font-semibold">{{ $store->name }}</span>

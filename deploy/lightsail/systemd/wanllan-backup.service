@@ -1,0 +1,7 @@
+[Unit]
+Description=Wanllan : copie de la base
+After=mysql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wanllan-backup

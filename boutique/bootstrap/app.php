@@ -14,8 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias(['store' => \App\Http\Middleware\EnsureUserHasStore::class]);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('admin.orders.index'));
-        // Railway sert l'app derrière son proxy HTTPS.
-        $middleware->trustProxies(at: '*');
+        // Proxys de confiance : config/trustedproxy.php (variable TRUSTED_PROXIES).
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

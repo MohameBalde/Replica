@@ -1,0 +1,2 @@
+# Tâches planifiées de Laravel (aucune pour l'instant, prêt pour la suite).
+* * * * * wanllan cd /var/www/wanllan/current && php artisan schedule:run >/dev/null 2>&1

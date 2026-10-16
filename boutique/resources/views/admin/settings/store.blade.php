@@ -49,4 +49,25 @@
         @csrf
         <button class="btn btn-ghost w-full" type="submit">Se déconnecter</button>
     </form>
+
+    {{-- Fermé par défaut : on ne supprime pas son compte par erreur. --}}
+    <details class="mx-4 mb-4 rounded-md border border-danger p-4" @if ($errors->has('password')) open @endif>
+        <summary class="cursor-pointer font-bold text-danger">Supprimer mon compte</summary>
+        <form method="POST" action="{{ route('admin.account.destroy') }}" class="mt-3" novalidate>
+            @csrf @method('DELETE')
+            <p class="text-sm">Tout sera effacé : la boutique, les produits et leurs photos, les commandes, les clients et les captures de paiement. <strong>Impossible de revenir en arrière.</strong></p>
+            <div class="field mt-3">
+                <label class="label" for="delete-password">Votre mot de passe</label>
+                <input class="input @error('password') is-invalid @enderror" id="delete-password" name="password" type="password" autocomplete="current-password" required
+                       @error('password') aria-invalid="true" aria-describedby="delete-password-error" @enderror>
+                @error('password')<p class="error" id="delete-password-error">{{ $message }}</p>@enderror
+            </div>
+            <button class="btn btn-danger" type="submit">Supprimer définitivement</button>
+        </form>
+    </details>
+
+    <p class="px-4 pb-8 text-center text-xs text-text-muted">
+        <a href="{{ route('legal.terms') }}" class="font-semibold text-accent">Conditions</a> ·
+        <a href="{{ route('legal.privacy') }}" class="font-semibold text-accent">Confidentialité</a>
+    </p>
 </x-layouts.admin>

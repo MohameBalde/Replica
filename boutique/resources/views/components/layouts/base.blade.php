@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null])
+@props(['title' => null, 'description' => null, 'image' => null])
 <!doctype html>
 <html lang="fr">
 <head>
@@ -9,6 +9,18 @@
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <title>{{ $title ? $title.' · ' : '' }}{{ config('app.name') }}</title>
     @if ($description)<meta name="description" content="{{ $description }}">@endif
+    {{-- Aperçu affiché quand le lien est collé dans WhatsApp, Facebook ou TikTok. --}}
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $title ?? config('app.name').' · Votre boutique sur WhatsApp' }}">
+    @if ($description)<meta property="og:description" content="{{ $description }}">@endif
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ $image ?? asset('og-wanllan.jpg') }}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     @vite('resources/css/app.css')
 </head>
 <body {{ $attributes }}>

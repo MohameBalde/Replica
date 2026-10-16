@@ -14,6 +14,11 @@ return [
     'support_whatsapp' => env('WANLLAN_SUPPORT_WHATSAPP', '224620000000'),
     'support_hours' => env('WANLLAN_SUPPORT_HOURS', '8 h – 20 h, réponse en moins de 2 h'),
 
+    // Éditeur du service, affiché dans les pages Conditions et Confidentialité.
+    'legal_name' => env('WANLLAN_LEGAL_NAME', 'Mohamed Baldé'),
+    'legal_city' => env('WANLLAN_LEGAL_CITY', 'Conakry, Guinée'),
+    'contact_email' => env('WANLLAN_CONTACT_EMAIL'),
+
     // Rappel affiché dans l'espace commerçant avant la fin de l'abonnement.
     'reminder_days' => 3,
 ];

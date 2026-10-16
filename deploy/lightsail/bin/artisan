@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Lance une commande Laravel sur la version en ligne, avec le bon utilisateur.
+#   artisan wanllan:abonnement nimstore merchant 1 --montant=50000 --ref=MP2410.1234.A12345
+set -euo pipefail
+cd /var/www/wanllan/current
+if [[ "$(id -un)" == wanllan ]]; then
+    exec php artisan "$@"
+fi
+exec sudo -u wanllan -H php artisan "$@"

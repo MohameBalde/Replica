@@ -1,0 +1,2 @@
+# L'app peut seulement recharger PHP après une mise en ligne.
+wanllan ALL=(root) NOPASSWD: /usr/bin/systemctl reload php8.3-fpm

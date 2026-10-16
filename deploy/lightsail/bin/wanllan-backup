@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Copie de la base chaque nuit (wanllan-backup.timer), gardée 7 jours.
+# Les instantanés automatiques de Lightsail copient en plus tout le serveur.
+#   sudo wanllan-backup      fait une copie tout de suite
+set -euo pipefail
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+
+DIR=/var/backups/wanllan
+FILE="$DIR/wanllan-$(date +%F-%H%M).sql.gz"
+mysqldump --single-transaction --quick --no-tablespaces wanllan | gzip > "$FILE.tmp"
+mv "$FILE.tmp" "$FILE"
+chmod 600 "$FILE"
+find "$DIR" -name 'wanllan-*.sql.gz' -mtime +7 -delete
+echo "Copie de la base : $FILE ($(du -h "$FILE" | cut -f1))"

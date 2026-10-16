@@ -1,0 +1,8 @@
+/var/www/wanllan/state/deploy.log {
+    weekly
+    rotate 8
+    compress
+    missingok
+    notifempty
+    su wanllan wanllan
+}

@@ -36,6 +36,7 @@
         </div>
 
         <button class="btn btn-primary btn-lg mt-2" type="submit">Créer mon compte</button>
+        <p class="help text-center">En créant un compte, vous acceptez les <a class="font-semibold text-accent" href="{{ route('legal.terms') }}">conditions d'utilisation</a> et la <a class="font-semibold text-accent" href="{{ route('legal.privacy') }}">politique de confidentialité</a>.</p>
     </form>
 
     <p class="mt-6 text-center text-sm text-text-muted">Déjà un compte ? <a class="font-semibold text-accent" href="{{ route('login') }}">Se connecter</a></p>

@@ -9,6 +9,7 @@
     </header>
 
     <main class="mx-auto max-w-admin">
+        <x-flash />
         {{-- 1. Hero --}}
         <section class="px-4 pt-6 pb-10">
             <p class="badge badge-accent mb-3">Fait pour la Guinée 🇬🇳</p>
@@ -123,5 +124,9 @@
 
     <footer class="border-t border-border px-4 py-6 text-center text-xs text-text-muted">
         Wanllan · Conakry, Guinée · Support {{ config('wanllan.support_hours') }}
+        <span class="mt-2 block">
+            <a href="{{ route('legal.terms') }}" class="font-semibold text-accent">Conditions</a> ·
+            <a href="{{ route('legal.privacy') }}" class="font-semibold text-accent">Confidentialité</a>
+        </span>
     </footer>
 </x-layouts.base>

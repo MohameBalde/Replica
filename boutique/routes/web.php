@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 
 // Page d'accueil publique de Wanllan ; un commerçant connecté va droit à ses commandes.
 Route::get('/', fn () => auth()->check() ? redirect()->route('admin.orders.index') : view('landing'))->name('home');
+Route::view('/confidentialite', 'legal.privacy')->name('legal.privacy');
+Route::view('/conditions', 'legal.terms')->name('legal.terms');
 
 // S10 : compte commerçant
 Route::middleware('guest')->group(function () {
@@ -35,6 +38,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // S11 : création de la boutique
     Route::get('/boutique/creer', [StoreSetupController::class, 'create'])->name('store.create');
     Route::post('/boutique/creer', [StoreSetupController::class, 'store'])->name('store.store');
+    Route::delete('/compte', [AccountController::class, 'destroy'])->name('account.destroy');
 
     Route::middleware('store')->group(function () {
         Route::get('/', fn () => redirect()->route('admin.orders.index'))->name('home');

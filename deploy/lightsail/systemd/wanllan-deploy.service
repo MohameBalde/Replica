@@ -1,0 +1,12 @@
+[Unit]
+Description=Wanllan : mise en ligne du dernier commit aux tests verts
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=wanllan
+Group=wanllan
+ExecStart=/usr/local/bin/wanllan-deploy
+TimeoutStartSec=20min
+Nice=10

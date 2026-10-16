@@ -1,5 +1,5 @@
-@props(['store', 'title' => null, 'description' => null])
-<x-layouts.base :title="$title ?? $store->name" :description="$description ?? $store->description" class="min-h-dvh">
+@props(['store', 'title' => null, 'description' => null, 'image' => null])
+<x-layouts.base :title="$title ?? $store->name" :description="$description ?? ($store->description ?: 'Commandez en ligne, la commande arrive sur WhatsApp.')" :image="$image" class="min-h-dvh">
     <div class="mx-auto flex min-h-dvh max-w-content flex-col bg-bg">
         {{ $slot }}
         {{-- Chaque vitrine fait connaître Wanllan auprès d'autres commerçants. --}}

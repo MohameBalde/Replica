@@ -72,4 +72,12 @@
     .price { @apply font-bold whitespace-nowrap; }
     .sticky-bar { @apply sticky bottom-0 z-20 bg-bg p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-pop; }
     .toast { @apply mx-4 mt-3 rounded-md px-4 py-3 text-sm font-semibold; }
+
+    /* Pages Conditions et Confidentialité : texte long, lisible sur téléphone. */
+    .legal { @apply text-sm leading-relaxed; }
+    .legal h1 { @apply text-2xl font-extrabold; }
+    .legal h2 { @apply mt-7 text-lg font-bold; }
+    .legal p, .legal ul { @apply mt-2; }
+    .legal ul { @apply list-disc space-y-1 pl-5; }
+    .legal a { @apply font-semibold text-accent underline; }
 }

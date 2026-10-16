@@ -106,7 +106,7 @@ class ProductController extends Controller
         // Photos retirées : supprimées du disque aussi.
         $remove = collect($request->input('remove_images', []))->map(fn ($id) => (int) $id);
         foreach ($model->images->whereIn('id', $remove) as $image) {
-            Storage::disk('public')->delete([$image->path, $image->thumb_path]);
+            Storage::disk('public')->delete([$image->path, $image->thumb_path, ImageProcessor::previewPath($image->path)]);
             $image->delete();
         }
 

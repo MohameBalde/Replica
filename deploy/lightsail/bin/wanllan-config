@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Pose les questions sur les numéros de Wanllan et les écrit dans le .env de production.
+#   sudo wanllan-config
+set -euo pipefail
+source /etc/wanllan/deploy.conf
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+
+ENV_FILE="$BASE/shared/.env"
+exec 3</dev/tty
+
+current() { grep "^$1=" "$ENV_FILE" | cut -d= -f2- | sed 's/^"//; s/"$//'; }
+
+set_env() {
+    local key="$1" value="${2//\"/}"
+    if grep -q "^$key=" "$ENV_FILE"; then
+        KEY="$key" VALUE="$value" perl -pi -e 's/^\Q$ENV{KEY}\E=.*/$ENV{KEY}="$ENV{VALUE}"/' "$ENV_FILE"
+    else
+        printf '%s="%s"\n' "$key" "$value" >> "$ENV_FILE"
+    fi
+}
+
+# 620 00 00 00, +224 620..., 00224 620... -> 224620000000
+ask_phone() {
+    local label="$1" key="$2" answer digits
+    while :; do
+        read -r -u 3 -p "$label [$(current "$key")] : " answer
+        [[ -z "$answer" ]] && return
+        digits="${answer//[^0-9]/}"
+        digits="${digits#00}"
+        [[ ${#digits} -eq 9 ]] && digits="224$digits"
+        if [[ "$digits" =~ ^2246[0-9]{8}$ ]]; then set_env "$key" "$digits"; return; fi
+        echo "  Numéro guinéen attendu, par exemple 620 00 00 00."
+    done
+}
+
+ask_text() {
+    local label="$1" key="$2" answer
+    read -r -u 3 -p "$label [$(current "$key")] : " answer
+    [[ -n "$answer" ]] && set_env "$key" "$answer"
+    return 0
+}
+
+echo "Laissez vide et appuyez sur Entrée pour garder la valeur entre crochets."
+ask_phone "Numéro Orange Money qui reçoit les abonnements" WANLLAN_PAY_ORANGE_MONEY
+ask_text  "Nom affiché sur ce compte Orange Money" WANLLAN_PAY_NAME
+ask_phone "Numéro WhatsApp du support Wanllan" WANLLAN_SUPPORT_WHATSAPP
+ask_text  "Horaires du support" WANLLAN_SUPPORT_HOURS
+ask_text  "E-mail de contact affiché dans les pages légales (facultatif)" WANLLAN_CONTACT_EMAIL
+
+chown "$APP_USER:$APP_USER" "$ENV_FILE"
+chmod 640 "$ENV_FILE"
+if [[ -d "$BASE/current" ]]; then
+    sudo -u "$APP_USER" -H bash -c "cd '$BASE/current' && php artisan config:cache --quiet"
+    systemctl reload php8.3-fpm
+fi
+echo "Réglages enregistrés."

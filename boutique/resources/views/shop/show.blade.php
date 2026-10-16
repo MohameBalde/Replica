@@ -1,4 +1,4 @@
-<x-layouts.shop :store="$store">
+<x-layouts.shop :store="$store" :image="preview_url($products->first(fn ($p) => $p->firstImage)?->firstImage->path)">
     <header class="flex items-center gap-3 px-4 pt-5 pb-3">
         <div class="grid size-12 shrink-0 place-items-center rounded-pill bg-accent-soft text-xl font-bold text-accent-strong" aria-hidden="true">
             {{ mb_strtoupper(mb_substr($store->name, 0, 1)) }}

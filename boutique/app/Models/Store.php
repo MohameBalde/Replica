@@ -16,6 +16,7 @@ class Store extends Model
     public const RESERVED_SLUGS = [
         'admin', 'c', 'connexion', 'inscription', 'deconnexion', 'api', 'up', 'storage',
         'build', 'login', 'register', 'logout', 'aide', 'support', 'contact', 'tarifs',
+        'confidentialite', 'conditions', 'mentions-legales', 'cgu',
     ];
 
     protected $fillable = ['name', 'slug', 'whatsapp_number', 'city', 'description', 'is_open', 'welcome_message'];
