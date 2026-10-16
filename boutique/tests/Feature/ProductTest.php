@@ -53,7 +53,7 @@ class ProductTest extends TestCase
             'name' => 'X', 'price' => '1000', 'photos' => [UploadedFile::fake()->create('virus.pdf', 10, 'application/pdf')],
         ])->assertSessionHasErrors('photos.0');
 
-        $six = array_map(fn ($i) => UploadedFile::fake()->image("p{$i}.jpg", 50, 50), range(1, 6));
+        $six = array_map(fn ($i) => UploadedFile::fake()->image("p{$i}.jpg", 50, 50), range(1, 11));
         $this->actingAs($this->merchant)->post('/admin/produits', ['name' => 'X', 'price' => '1000', 'photos' => $six])
             ->assertSessionHasErrors('photos');
         $this->assertSame(0, Product::count());

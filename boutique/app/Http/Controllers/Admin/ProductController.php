@@ -24,7 +24,7 @@ use Illuminate\View\View;
  */
 class ProductController extends Controller
 {
-    public const MAX_PHOTOS = 5;
+    public const MAX_PHOTOS = 10;
 
     public const MAX_VARIANTS = 30;
 

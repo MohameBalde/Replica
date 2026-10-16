@@ -56,3 +56,8 @@ Paiement à la livraison activable / bloquable par le commerçant,paiement,must,
 Plafond de montant pour le paiement à la livraison,paiement,should,no,yes,ajout : limite le risque de colis refusé | testé
 Paiement à la livraison autorisé ou non par mode de livraison,paiement,should,yes,yes,ex. Conakry oui / intérieur non | case dans S18
 Bloquer le paiement à la livraison pour un client,paiement,could,no,yes,ajout : client qui a déjà refusé un colis | bouton dans S17
+Abonnement prépayé en GNF par Orange Money / MTN sans carte ni prélèvement automatique,confiance,must,no,no,replica-entrepreneur : prélèvements non voulus (3 avis / 3 sources)
+Arrêter son abonnement en un bouton,confiance,should,no,no,replica-entrepreneur : résiliation qui ne s'arrête pas
+Support WhatsApp humain avec délai de réponse affiché,confiance,should,no,no,replica-entrepreneur : support qui ne répond pas (mince)
+Démarrage gratuit sans plafond caché de commandes,offre,should,no,no,replica-entrepreneur : prix / formule au pourcentage (mince) ; à décider avec les interviews
+Jusqu'à 10 photos par produit,produits,could,no,yes,replica-entrepreneur : « a large number of pictures » (mince)

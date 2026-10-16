@@ -54,7 +54,15 @@ Le dépôt contient les 11 skills **Replica** dans `.claude/skills/` (MIT, copi�
 
 Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**, jamais le code, le logo, les textes ni le contenu de l'original.
 
-### Pistes retenues
+### Projet en cours : boutique WhatsApp pour la Guinée (modèle : Take App)
+
+- Code : `boutique/` (Laravel 12, MySQL, Tailwind 4). Tests : `cd boutique && php artisan test`. Démo : `php artisan migrate:fresh --seed` (connexion 620 00 00 00 / password).
+- Fait : recon, architecture, design, construction (22 fonctions indispensables sur 22), avis des utilisateurs de Take App (`replica/fixes.md`).
+- Demande de Mohamed : le paiement à la livraison est activable / bloquable par le commerçant (boutique, plafond, zone, client).
+- Angle retenu : « Votre boutique WhatsApp, faite pour la Guinée » + promesse « payé en GNF par Orange Money, sans carte, sans prélèvement ».
+- Suite : `/replica-brand` (nom, couleurs), `/replica-launch` (prix en GNF), `/replica-deploy` (Railway), puis brique 2 (caisse et stock hors ligne) en janvier 2027.
+
+### Autres pistes
 
 1. **App de caisse et de stock pour boutiques guinéennes**, sur le modèle de Loyverse. En plus : français et GNF, carnet de crédit clients, reçu par WhatsApp, Orange Money / MTN MoMo. Premiers clients : la boutique familiale et Nimaga. Stack : Laravel + MySQL sur Railway.
 2. **Portail de vente de tickets Wi-Fi**, sur le modèle de XenFi (références secondaires : Powerlynx, PHPNuxBill). Le client paie par Orange Money / MTN MoMo et le compte est créé automatiquement sur le MikroTik. À vérifier d'abord : l'accès à une API de paiement qui couvre la Guinée. Plan B : génération et envoi automatique du ticket après confirmation manuelle du paiement.
