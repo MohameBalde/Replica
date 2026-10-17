@@ -57,4 +57,16 @@ class Plans
     {
         return self::get($plan)['monthly'] * self::YEAR_PRICE_MONTHS;
     }
+
+    /** Prix de N mois : chaque année entière au prix annuel, le reste au mois. */
+    public static function price(string $plan, int $months): int
+    {
+        return intdiv($months, 12) * self::yearly($plan) + ($months % 12) * self::get($plan)['monthly'];
+    }
+
+    /** Les formules payantes, celles qu'on peut enregistrer. */
+    public static function paid(): array
+    {
+        return [self::MERCHANT, self::PRO];
+    }
 }

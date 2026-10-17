@@ -13,13 +13,14 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    // is_team n'est pas modifiable par formulaire : seulement par `artisan wanllan:equipe`.
     protected $fillable = ['name', 'phone', 'email', 'password'];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
-        return ['password' => 'hashed'];
+        return ['password' => 'hashed', 'is_team' => 'boolean'];
     }
 
     /** V1 : un commerçant = une boutique. */

@@ -17,6 +17,7 @@ use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\InvoiceController;
 use App\Http\Controllers\Shop\StorefrontController;
+use App\Http\Controllers\Team\StoreController as TeamStoreController;
 use Illuminate\Support\Facades\Route;
 
 // Page d'accueil publique de Wanllan ; un commerçant connecté va droit à ses commandes.
@@ -95,13 +96,24 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     });
 });
 
+// Espace « Gestion » de l'équipe Wanllan : abonnements, suspensions, relances.
+// Accès donné par `artisan wanllan:equipe <numéro>` ; pour les autres, 404.
+Route::middleware(['auth', 'team'])->prefix('gestion')->name('team.')->group(function () {
+    Route::get('/', [TeamStoreController::class, 'index'])->name('dashboard');
+    Route::get('/boutiques/{store:id}', [TeamStoreController::class, 'show'])->whereNumber('store')->name('stores.show');
+    Route::post('/boutiques/{store:id}/paiements', [TeamStoreController::class, 'recordPayment'])->whereNumber('store')->name('stores.payments');
+    Route::delete('/boutiques/{store:id}/paiements/dernier', [TeamStoreController::class, 'cancelPayment'])->whereNumber('store')->name('stores.payments.cancel');
+    Route::post('/boutiques/{store:id}/suspendre', [TeamStoreController::class, 'suspend'])->whereNumber('store')->name('stores.suspend');
+    Route::post('/boutiques/{store:id}/reactiver', [TeamStoreController::class, 'reactivate'])->whereNumber('store')->name('stores.reactivate');
+});
+
 // S06, S07 : facture publique (lien non devinable) et envoi WhatsApp
 Route::get('/c/{order}', [InvoiceController::class, 'show'])->name('invoice.show');
 Route::get('/c/{order}/whatsapp', [InvoiceController::class, 'whatsapp'])->name('invoice.whatsapp');
 Route::post('/c/{order}/preuve', [InvoiceController::class, 'storeProof'])->middleware('throttle:proof')->name('invoice.proof');
 
 // Boutique publique : en dernier, car /{store} attrape tout le reste.
-Route::prefix('{store}')->name('shop.')->group(function () {
+Route::prefix('{store}')->name('shop.')->middleware('store.available')->group(function () {
     Route::get('/', [StorefrontController::class, 'show'])->name('show');
     Route::get('/p/{product:slug}', [StorefrontController::class, 'product'])->scopeBindings()->name('product');
     Route::get('/panier', [CartController::class, 'show'])->name('cart');

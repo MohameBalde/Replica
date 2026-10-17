@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Support\Plans;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Store extends Model
 {
@@ -16,14 +18,19 @@ class Store extends Model
     public const RESERVED_SLUGS = [
         'admin', 'c', 'connexion', 'inscription', 'deconnexion', 'api', 'up', 'storage',
         'build', 'login', 'register', 'logout', 'aide', 'support', 'contact', 'tarifs',
-        'confidentialite', 'conditions', 'mentions-legales', 'cgu',
+        'confidentialite', 'conditions', 'mentions-legales', 'cgu', 'gestion',
     ];
+
+    /** Espace Gestion : on relance de 7 jours avant la fin jusqu'à 30 jours après. */
+    public const REMIND_BEFORE_DAYS = 7;
+
+    public const REMIND_AFTER_DAYS = 30;
 
     protected $fillable = ['name', 'slug', 'whatsapp_number', 'city', 'description', 'is_open', 'welcome_message'];
 
     protected function casts(): array
     {
-        return ['is_open' => 'boolean', 'next_order_number' => 'integer', 'plan_expires_at' => 'datetime'];
+        return ['is_open' => 'boolean', 'next_order_number' => 'integer', 'plan_expires_at' => 'datetime', 'suspended_at' => 'datetime'];
     }
 
     public function getRouteKeyName(): string
@@ -112,6 +119,7 @@ class Store extends Model
     {
         $start = ($this->activePlan() === $plan) ? $this->plan_expires_at : now();
         $end = $start->copy()->addMonthsNoOverflow($months);
+        $reference = mb_strtoupper(trim((string) $reference)) ?: null; // même écriture partout, pour repérer les doublons
 
         $payment = $this->subscriptionPayments()->create([
             'plan' => $plan, 'months' => $months, 'amount' => $amount, 'method' => $method,
@@ -120,6 +128,66 @@ class Store extends Model
         $this->forceFill(['plan' => $plan, 'plan_expires_at' => $end])->save();
 
         return $payment;
+    }
+
+    /**
+     * Annule le dernier paiement (erreur de saisie) : la boutique revient à
+     * l'état d'avant, c'est-à-dire la fin du paiement précédent, ou Découverte.
+     */
+    public function cancelLatestSubscription(): ?SubscriptionPayment
+    {
+        return DB::transaction(function () {
+            $payments = $this->subscriptionPayments()->reorder()->orderByDesc('id')->limit(2)->get();
+            $latest = $payments->first();
+            if (! $latest) {
+                return null;
+            }
+
+            $previous = $payments->get(1);
+            $latest->delete();
+            $this->forceFill([
+                'plan' => $previous?->plan ?? Plans::FREE,
+                'plan_expires_at' => $previous?->period_end,
+            ])->save();
+
+            return $latest;
+        });
+    }
+
+    /** Boutiques dont une formule payante est en cours. */
+    public function scopePaid(Builder $query): void
+    {
+        $query->where('plan', '!=', Plans::FREE)->where('plan_expires_at', '>', now());
+    }
+
+    /** Formule payante qui se termine bientôt ou vient de se terminer. */
+    public function scopeToRemind(Builder $query): void
+    {
+        $query->where('plan', '!=', Plans::FREE)
+            ->whereBetween('plan_expires_at', [now()->subDays(self::REMIND_AFTER_DAYS), now()->addDays(self::REMIND_BEFORE_DAYS)]);
+    }
+
+    /** Formule payante qui finit dans moins de 7 jours, ou déjà terminée : à relancer. */
+    public function needsReminder(): bool
+    {
+        return $this->plan !== Plans::FREE && $this->plan_expires_at
+            && $this->plan_expires_at->lte(now()->addDays(self::REMIND_BEFORE_DAYS));
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
+    }
+
+    /** Suspendue : vitrine et espace commerçant fermés, mais rien n'est effacé. */
+    public function suspend(string $reason): void
+    {
+        $this->forceFill(['suspended_at' => now(), 'suspension_reason' => $reason])->save();
+    }
+
+    public function reactivate(): void
+    {
+        $this->forceFill(['suspended_at' => null, 'suspension_reason' => null])->save();
     }
 
     public function dailyVisits(): HasMany

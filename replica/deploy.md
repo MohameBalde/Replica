@@ -108,12 +108,29 @@ Faite par Mohamed sur son ordinateur, guidé pas à pas, en un peu plus d'une he
 7. **HTTPS.** Si l'installation ne l'a pas activé (domaine pas encore visible) : attendre 10 à 30 minutes, puis `sudo wanllan-https`.
 8. **Vérifier.** `sudo wanllan-status` : tout doit être vert. Puis ouvrir `https://wanllan.com` sur le téléphone et créer une première boutique.
 
+## Espace « Gestion » (sur le téléphone, https://wanllan.com/gestion)
+
+Réservé à l'équipe Wanllan ; pour tout autre compte, la page n'existe pas (404). Un lien « Gestion » apparaît en haut de l'espace commerçant des comptes de l'équipe.
+
+| écran | ce qu'on y fait |
+| --- | --- |
+| Tableau | nombre de boutiques, abonnées payantes, argent encaissé ce mois-ci, boutiques à relancer, dernières actions |
+| Liste | recherche par nom, lien ou numéro ; filtres Payantes, À relancer (de 7 jours avant la fin à 30 jours après), Suspendues |
+| Fiche d'une boutique | **Enregistrer un paiement** (formule, durée, montant, Orange Money / MTN / espèces, n° de transaction), puis bouton **« Envoyer la confirmation »** (WhatsApp prêt avec la date de fin) ; **Relancer sur WhatsApp** (message prêt selon l'abonnement) ; **Annuler le dernier paiement** (erreur de saisie) ; **Suspendre** avec un motif / **Réactiver** ; historique |
+
+Protections : un n° de transaction ne peut servir qu'une fois ; un double appui sur un réseau lent n'enregistre pas deux paiements ; un montant inférieur au prix demande une case cochée. Chaque action est gardée avec la date et le nom de qui l'a faite (table `team_actions`).
+
+Boutique suspendue : la vitrine affiche « Boutique momentanément indisponible » et n'accepte plus de commande ; le commerçant ne voit qu'un écran avec le motif et le bouton du support. Rien n'est effacé, et les factures déjà envoyées aux clients restent lisibles.
+
+Donner l'accès (une fois, dans le terminal, après la mise en ligne de cet espace) : `artisan wanllan:equipe <numéro du compte>`, avec le numéro qui sert à se connecter à wanllan.com. Le retirer : ajouter `--retirer`. Aucun formulaire du site ne peut donner ce droit.
+
 ## Commandes du quotidien (dans le terminal Lightsail)
 
 | commande | à quoi elle sert |
 | --- | --- |
 | `sudo wanllan-status` | état du site, version en ligne, disque, mémoire, dernière sauvegarde |
-| `artisan wanllan:abonnement <boutique> merchant 1 --montant=50000 --ref=<n° transaction>` | activer un abonnement payé |
+| `artisan wanllan:equipe <numéro>` | donner l'accès à l'espace Gestion (`--retirer` pour l'enlever) |
+| `artisan wanllan:abonnement <boutique> merchant 1 --montant=50000 --ref=<n° transaction>` | activer un abonnement payé sans le téléphone (l'espace Gestion fait la même chose) |
 | `sudo wanllan-config` | changer les numéros Orange Money et WhatsApp du support |
 | `sudo wanllan-deploy` | regarder `main` tout de suite au lieu d'attendre 2 minutes |
 | `sudo wanllan-backup` | copie de la base tout de suite (avant une grosse opération) |

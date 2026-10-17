@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['store' => \App\Http\Middleware\EnsureUserHasStore::class]);
+        $middleware->alias([
+            'store' => \App\Http\Middleware\EnsureUserHasStore::class,
+            'store.available' => \App\Http\Middleware\EnsureStoreIsAvailable::class,
+            'team' => \App\Http\Middleware\EnsureUserIsTeam::class,
+        ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('admin.orders.index'));
         // Proxys de confiance : config/trustedproxy.php (variable TRUSTED_PROXIES).

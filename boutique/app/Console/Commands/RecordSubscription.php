@@ -35,16 +35,14 @@ class RecordSubscription extends Command
         }
 
         $plan = $this->argument('formule');
-        if (! in_array($plan, [Plans::MERCHANT, Plans::PRO], true)) {
+        if (! in_array($plan, Plans::paid(), true)) {
             $this->error('Formule inconnue. Utilisez merchant ou pro.');
 
             return self::FAILURE;
         }
 
         $months = max(1, (int) $this->argument('mois'));
-        $expected = $months >= 12
-            ? intdiv($months, 12) * Plans::yearly($plan) + ($months % 12) * Plans::get($plan)['monthly']
-            : $months * Plans::get($plan)['monthly'];
+        $expected = Plans::price($plan, $months);
         $amount = $this->option('montant') !== null ? (int) preg_replace('/\D+/', '', $this->option('montant')) : $expected;
 
         if ($amount < $expected && ! $this->confirm('Montant reçu ('.gnf($amount).') inférieur au prix ('.gnf($expected).'). Enregistrer quand même ?')) {
