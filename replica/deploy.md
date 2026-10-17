@@ -59,7 +59,7 @@ Enregistrements à créer chez Spaceship (gestionnaire de domaines → wanllan.c
 
 - Adresse principale : `https://wanllan.com`. `www.wanllan.com` et `http://` redirigent vers elle (301).
 - HTTPS : Let's Encrypt, renouvelé tout seul, demandé par `sudo wanllan-https` quand le domaine pointe vers le serveur. HSTS d'un an.
-- SPF, DKIM, DMARC : sans objet tant qu'aucun e-mail n'est envoyé. À faire avec le fournisseur le jour où une adresse `@wanllan.com` sera créée.
+- E-mail : **Zoho Mail (formule gratuite), configuré le 18 octobre 2026** sur wanllan.com : contact@wanllan.com (administrateur) et mohamedbalde@wanllan.com. Enregistrements chez Spaceship et visibles sur Internet : vérification Zoho (TXT @), MX mx.zoho.com 10 / mx2.zoho.com 20 / mx3.zoho.com 50, SPF `v=spf1 include:zohomail.com ~all`, DKIM `zmail._domainkey`, DMARC `v=DMARC1; p=none; rua=mailto:contact@wanllan.com` (passer à `p=quarantine` quand les rapports sont propres). Le 22 octobre, répondre **contact@wanllan.com** à la question « E-mail de contact » de `wanllan-config`.
 
 ## Surveillance
 
