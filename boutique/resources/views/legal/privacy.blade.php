@@ -1,4 +1,4 @@
-<x-layouts.guest title="Confidentialité">
+<x-layouts.guest title="Confidentialité" wide>
     @php($support = phone_display(config('wanllan.support_whatsapp')))
     <article class="legal">
         <h1>Politique de confidentialité</h1>

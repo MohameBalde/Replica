@@ -1,6 +1,6 @@
-<x-layouts.admin title="Gestion Wanllan" :back="route('admin.orders.index')">
+<x-layouts.admin title="Gestion Wanllan" :back="route('admin.orders.index')" wide>
     <section class="section">
-        <div class="grid grid-cols-2 gap-2 text-center">
+        <div class="grid grid-cols-2 gap-2 text-center lg:grid-cols-4 lg:gap-3">
             <div class="rounded-md bg-surface p-3">
                 <p class="text-xl font-bold">{{ $stats['stores'] }}</p>
                 <p class="text-xs text-text-muted">boutique{{ $stats['stores'] > 1 ? 's' : '' }} · +{{ $stats['new'] }} en 7 jours</p>

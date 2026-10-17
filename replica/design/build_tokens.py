@@ -60,7 +60,7 @@ def main():
         "boxShadow": dict({k: "var(--shadow-%s)" % k for k in t["shadow"]}, none="none"),
         "screens": {k: "%spx" % v for k, v in t["layout"]["breakpoints"].items()},
         "extend": {
-            "maxWidth": {"content": "var(--layout-content-max)", "admin": "var(--layout-admin-max)"},
+            "maxWidth": {"content": "var(--layout-content-max)", "admin": "var(--layout-admin-max)", "wide": "var(--layout-wide-max)", "form": "var(--layout-form-max)"},
             "minHeight": {"tap": "var(--layout-tap-min)"},
             "minWidth": {"tap": "var(--layout-tap-min)"},
             "height": {"header": "var(--layout-header)", "bottom-nav": "var(--layout-bottom-nav)"},
@@ -94,6 +94,9 @@ def main():
         theme.append("  --breakpoint-%s: %spx;" % (name, px))
     theme.append("  --container-content: %spx;" % t["layout"]["content-max"])
     theme.append("  --container-admin: %spx;" % t["layout"]["admin-max"])
+    theme.append("  --container-wide: %spx;" % t["layout"]["wide-max"])
+    theme.append("  --container-form: %spx;" % t["layout"]["form-max"])
+    theme.append("  --spacing-sidebar: %spx;" % t["layout"]["sidebar"])
     theme.append("  --spacing-tap: %spx;" % t["layout"]["tap-min"])
     theme.append("}")
     app_css = os.path.join(HERE, "..", "..", "boutique", "resources", "css", "theme.css")

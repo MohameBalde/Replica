@@ -71,12 +71,16 @@
   --motion-ease: cubic-bezier(.2,.8,.2,1);
   --layout-content-max: 480px;
   --layout-admin-max: 720px;
+  --layout-wide-max: 1120px;
+  --layout-form-max: 640px;
+  --layout-sidebar: 248px;
   --layout-gutter: 16px;
   --layout-header: 56px;
   --layout-bottom-nav: 64px;
   --layout-tap-min: 44px;
   --layout-grid-columns-mobile: 2px;
   --layout-grid-columns-tablet: 3px;
+  --layout-grid-columns-desktop: 4px;
 }
 @media (prefers-reduced-motion: reduce) {
   :root { --motion-fast: 0ms; --motion-base: 0ms; }

@@ -1,7 +1,7 @@
 <x-layouts.shop :store="$store" :title="$product->name.' · '.$store->name"
     :description="collect([($product->variants->count() > 1 ? 'À partir de ' : '').gnf($product->fromPrice()), \Illuminate\Support\Str::limit($product->description, 150)])->filter()->implode(' · ')"
-    :image="preview_url($product->images->first()?->path)">
-    <header class="flex h-14 items-center gap-2 px-2">
+    :image="preview_url($product->images->first()?->path)" wide>
+    <header class="flex h-14 items-center gap-2 px-2 lg:h-16 lg:px-6">
         <a href="{{ route('shop.show', $store) }}" class="inline-flex min-h-tap min-w-tap items-center justify-center" aria-label="Retour à la boutique"><x-icon name="back" /></a>
         <span class="truncate font-semibold">{{ $store->name }}</span>
     </header>
@@ -14,8 +14,10 @@
         $multi = $product->variants->count() > 1;
     @endphp
 
+    {{-- Ordinateur : photos à gauche, choix et bouton à droite. --}}
+    <div class="flex flex-1 flex-col lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:px-8 lg:pt-2 lg:pb-10">
     {{-- Photos : défilement horizontal natif (pas de carrousel JS). --}}
-    <div class="relative bg-surface {{ $soldOut ? 'opacity-50 grayscale' : '' }}">
+    <div class="relative bg-surface lg:overflow-hidden lg:rounded-lg {{ $soldOut ? 'opacity-50 grayscale' : '' }}">
         @if ($product->images->isNotEmpty())
             <ul class="flex snap-x snap-mandatory overflow-x-auto" aria-label="Photos">
                 @foreach ($product->images as $image)
@@ -35,8 +37,8 @@
 
     <form method="POST" action="{{ route('shop.cart.add', $store) }}" class="flex flex-1 flex-col" id="add-form">
         @csrf
-        <div class="p-4">
-            <h1 class="text-xl font-bold">{{ $product->name }}</h1>
+        <div class="p-4 lg:p-0">
+            <h1 class="text-xl font-bold lg:text-display">{{ $product->name }}</h1>
             <p class="price mt-1 text-lg" id="price">{{ gnf($available->price) }}</p>
 
             @if ($multi)
@@ -72,7 +74,7 @@
             @endif
         </div>
 
-        <div class="sticky-bar mt-auto">
+        <div class="sticky-bar mt-auto lg:static lg:mt-6 lg:p-0 lg:shadow-none">
             @if ($soldOut)
                 <button class="btn btn-secondary btn-lg" type="button" disabled>Épuisé</button>
             @elseif (! $store->is_open)
@@ -85,6 +87,7 @@
             @endif
         </div>
     </form>
+    </div>
 
     @if ($multi)
         <script>

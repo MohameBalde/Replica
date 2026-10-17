@@ -1,4 +1,4 @@
-<x-layouts.guest title="Conditions d'utilisation">
+<x-layouts.guest title="Conditions d'utilisation" wide>
     @php($support = phone_display(config('wanllan.support_whatsapp')))
     <article class="legal">
         <h1>Conditions d'utilisation</h1>

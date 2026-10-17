@@ -66,5 +66,8 @@
   --breakpoint-lg: 960px;
   --container-content: 480px;
   --container-admin: 720px;
+  --container-wide: 1120px;
+  --container-form: 640px;
+  --spacing-sidebar: 248px;
   --spacing-tap: 44px;
 }

@@ -112,7 +112,9 @@ module.exports = {
   "extend": {
     "maxWidth": {
       "content": "var(--layout-content-max)",
-      "admin": "var(--layout-admin-max)"
+      "admin": "var(--layout-admin-max)",
+      "wide": "var(--layout-wide-max)",
+      "form": "var(--layout-form-max)"
     },
     "minHeight": {
       "tap": "var(--layout-tap-min)"
