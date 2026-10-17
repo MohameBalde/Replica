@@ -1,4 +1,4 @@
-<x-layouts.admin title="Clients" :back="route('admin.orders.index')">
+<x-layouts.admin title="Clients" :back="route('admin.orders.index')" wide>
     <form method="GET" class="p-4" role="search">
         <label class="sr-only" for="q">Chercher un client</label>
         <input class="input" type="search" id="q" name="q" value="{{ $search }}" placeholder="Nom ou numéro">

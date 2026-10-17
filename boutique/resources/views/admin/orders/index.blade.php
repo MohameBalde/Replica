@@ -1,4 +1,4 @@
-<x-layouts.admin title="Commandes">
+<x-layouts.admin title="Commandes" wide>
     <nav class="flex gap-5 overflow-x-auto border-b border-border px-4" aria-label="Filtrer les commandes">
         @foreach (\App\Http\Controllers\Admin\OrderController::TABS as $key => $label)
             @php $n = $key === 'all' ? $counts->sum() : ($counts[$key] ?? 0); @endphp

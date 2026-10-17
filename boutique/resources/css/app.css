@@ -70,7 +70,7 @@
     .switch input:focus-visible + span { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
     .price { @apply font-bold whitespace-nowrap; }
-    .sticky-bar { @apply sticky bottom-0 z-20 bg-bg p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-pop; }
+    .sticky-bar { @apply sticky bottom-0 z-20 bg-bg p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-pop lg:border-t lg:border-border lg:shadow-none; }
     .toast { @apply mx-4 mt-3 rounded-md px-4 py-3 text-sm font-semibold; }
 
     /* Pages Conditions et Confidentialité : texte long, lisible sur téléphone. */

@@ -2,7 +2,7 @@
 @php
     $message = 'Bonjour Wanllan, ma boutique « '.$store->name.' » ('.route('shop.show', $store).') est suspendue. Je voudrais en parler.';
 @endphp
-<x-layouts.admin title="Boutique suspendue">
+<x-layouts.admin title="Boutique suspendue" :nav="false">
     <section class="section border-b-0">
         <p class="rounded-md bg-danger-soft p-4 text-on-danger-soft">
             <strong>{{ $store->name }}</strong> est suspendue depuis le {{ $store->suspended_at->timezone('Africa/Conakry')->format('d/m/Y') }}.<br>
