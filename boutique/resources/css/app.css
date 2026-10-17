@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+@import './theme.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* Primitives de replica/design/components.md, écrites avec les tokens uniquement. */
+@layer base {
+    html { -webkit-text-size-adjust: 100%; }
+    body { @apply bg-surface text-text font-sans text-base antialiased; }
+    :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-md px-4 text-base font-semibold;
+        @apply transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+    }
+    .btn-lg { @apply min-h-[52px]; }
+    .btn-primary { @apply bg-accent text-on-accent active:bg-accent-strong; }
+    .btn-secondary { @apply border border-border-input bg-bg text-text active:bg-surface; }
+    .btn-ghost { @apply w-auto text-accent; }
+    .btn-danger { @apply border border-danger bg-bg text-danger; }
+    .btn-whatsapp { @apply bg-whatsapp text-on-whatsapp; }
+
+    .field { @apply mb-4; }
+    .label { @apply mb-1.5 block text-sm font-semibold; }
+    .input {
+        @apply block h-12 w-full rounded-md border border-border-input bg-bg px-3 text-base text-text;
+        @apply placeholder:text-text-muted focus:border-focus focus:outline-2 focus:outline-focus;
+    }
+    textarea.input { @apply h-auto py-3; }
+    .input-group { @apply flex h-12 items-center rounded-md border border-border-input bg-bg focus-within:outline-2 focus-within:outline-focus; }
+    .input-group .input { @apply h-full border-0 focus:outline-none; }
+    .input-addon { @apply px-3 text-text-muted; }
+    .help { @apply mt-1.5 text-sm text-text-muted; }
+    .error { @apply mt-1.5 text-sm font-semibold text-danger; }
+    .is-invalid { @apply border-danger; }
+
+    .card { @apply rounded-lg border border-border bg-bg; }
+    .section { @apply border-b-8 border-surface bg-bg p-4; }
+    .section-title { @apply mb-3 text-base font-bold; }
+
+    .badge { @apply inline-flex items-center rounded-pill px-2 py-0.5 text-xs font-semibold whitespace-nowrap; }
+    .badge-neutral { @apply bg-neutral-soft text-on-neutral-soft; }
+    .badge-warning { @apply bg-warning-soft text-on-warning-soft; }
+    .badge-info { @apply bg-info-soft text-on-info-soft; }
+    .badge-success { @apply bg-success-soft text-on-success-soft; }
+    .badge-danger { @apply bg-danger-soft text-on-danger-soft; }
+    .badge-accent { @apply bg-accent-soft text-accent-strong; }
+
+    .choice {
+        @apply flex cursor-pointer items-start gap-3 rounded-md border border-border bg-bg p-3;
+        @apply has-[:checked]:border-2 has-[:checked]:border-accent has-[:checked]:bg-accent-soft has-[:checked]:p-[11px];
+        @apply has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus;
+    }
+    .choice input[type=radio] { @apply mt-0.5 size-5 shrink-0 accent-accent; }
+
+    .switch { @apply relative inline-flex h-[26px] w-11 shrink-0 cursor-pointer; }
+    .switch input { @apply absolute inset-0 z-10 cursor-pointer opacity-0; }
+    .switch span { @apply absolute inset-0 rounded-pill bg-border-input transition-colors; }
+    .switch span::after { content: ''; @apply absolute top-[2px] left-[2px] size-[22px] rounded-pill bg-white shadow-card transition-transform; }
+    .switch input:checked + span { @apply bg-accent; }
+    .switch input:checked + span::after { transform: translateX(18px); }
+    .switch input:focus-visible + span { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+    .price { @apply font-bold whitespace-nowrap; }
+    .sticky-bar { @apply sticky bottom-0 z-20 bg-bg p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-pop; }
+    .toast { @apply mx-4 mt-3 rounded-md px-4 py-3 text-sm font-semibold; }
+
+    /* Pages Conditions et Confidentialité : texte long, lisible sur téléphone. */
+    .legal { @apply text-sm leading-relaxed; }
+    .legal h1 { @apply text-2xl font-extrabold; }
+    .legal h2 { @apply mt-7 text-lg font-bold; }
+    .legal p, .legal ul { @apply mt-2; }
+    .legal ul { @apply list-disc space-y-1 pl-5; }
+    .legal a { @apply font-semibold text-accent underline; }
+}

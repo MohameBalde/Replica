@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# Met en ligne le dernier commit de la branche suivie, seulement si tous les
+# tests passent. Les tests tournent ici, sur le serveur, avec une base en
+# mémoire (jamais la vraie). Si CHECK_NAME est rempli dans deploy.conf, on
+# attend en plus que ce test GitHub Actions soit vert.
+# Lancé toutes les 2 minutes par wanllan-deploy.timer.
+#
+# À la main :
+#   sudo wanllan-deploy           comme le minuteur
+#   sudo wanllan-deploy --wait    attend jusqu'à 20 min le test GitHub (si CHECK_NAME)
+#   sudo wanllan-deploy --force   met en ligne sans test GitHub ni test serveur (urgence)
+set -euo pipefail
+source /etc/wanllan/deploy.conf
+
+if [[ "$(id -un)" != "$APP_USER" ]]; then
+    exec sudo -u "$APP_USER" -H "$0" "$@"
+fi
+
+WAIT=0
+FORCE=0
+for arg in "$@"; do
+    case "$arg" in
+        --wait) WAIT=1 ;;
+        --force) FORCE=1 ;;
+        *) echo "Option inconnue : $arg" >&2; exit 2 ;;
+    esac
+done
+
+REPO="$BASE/repo"
+STATE="$BASE/state"
+LOG="$STATE/deploy.log"
+
+log() { printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
+
+exec 9>"$STATE/deploy.lock"
+flock -n 9 || exit 0
+
+git -C "$REPO" fetch --quiet origin "$BRANCH"
+SHA="$(git -C "$REPO" rev-parse "origin/$BRANCH")"
+SHORT="${SHA:0:7}"
+
+if [[ $FORCE -eq 0 ]]; then
+    [[ "$SHA" == "$(cat "$STATE/deployed" 2>/dev/null)" ]] && exit 0
+    [[ "$SHA" == "$(cat "$STATE/failed" 2>/dev/null)" ]] && exit 0
+fi
+
+# État des tests du commit sur GitHub : success, pending ou failure.
+ci_status() {
+    local json auth=()
+    [[ -n "${GITHUB_TOKEN:-}" ]] && auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
+    json="$(curl -fsS --max-time 20 -H 'Accept: application/vnd.github+json' "${auth[@]}" \
+        "https://api.github.com/repos/$GITHUB_REPO/commits/$SHA/check-runs?check_name=$CHECK_NAME&filter=latest")" \
+        || { echo pending; return; }
+    jq -r '.check_runs
+        | if length == 0 then "pending"
+          elif any(.[]; .status != "completed") then "pending"
+          elif all(.[]; .conclusion == "success") then "success"
+          else "failure" end' <<<"$json"
+}
+
+if [[ $FORCE -eq 0 && -n "${CHECK_NAME:-}" ]]; then
+    deadline=$(( $(date +%s) + 1200 ))
+    while :; do
+        status="$(ci_status)"
+        [[ "$status" != pending ]] && break
+        if [[ $WAIT -eq 0 ]]; then exit 0; fi
+        if (( $(date +%s) > deadline )); then
+            log "$SHORT : les tests GitHub ne sont pas finis après 20 minutes, on réessaiera."
+            exit 1
+        fi
+        echo "Tests GitHub en cours pour $SHORT, on attend…"
+        sleep 20
+    done
+    if [[ "$status" != success ]]; then
+        echo "$SHA" > "$STATE/failed"
+        log "$SHORT : tests GitHub en échec, pas de mise en ligne."
+        exit 1
+    fi
+fi
+
+log "$SHORT : mise en ligne…"
+RELEASE="$BASE/releases/$(date -u +%Y%m%d%H%M%S)-$SHORT"
+PREVIOUS="$(readlink -f "$BASE/current" 2>/dev/null || true)"
+
+fail() {
+    log "$SHORT : ÉCHEC ($1). Le site reste sur la version précédente."
+    echo "$SHA" > "$STATE/failed"
+    rm -rf "$RELEASE"
+    exit 1
+}
+
+mkdir -p "$RELEASE"
+git -C "$REPO" archive "$SHA" boutique | tar -x -C "$RELEASE" --strip-components=1 || fail "copie du code"
+cd "$RELEASE"
+
+composer install --no-interaction --prefer-dist --no-progress || fail "composer"
+{ npm ci --no-audit --no-fund --loglevel=error && npm run build --silent; } >/dev/null || fail "build des styles"
+rm -rf node_modules
+
+# Les tests tournent avant tout lien vers la production : pas de .env de
+# production, son propre dossier storage, une base SQLite en mémoire.
+if [[ $FORCE -eq 0 && "${RUN_TESTS:-1}" == 1 ]]; then
+    sed -e "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" -e 's|^DB_CONNECTION=.*|DB_CONNECTION=sqlite|' \
+        .env.example > .env.testing
+    echo 'DB_DATABASE=:memory:' >> .env.testing
+    php artisan test --without-tty > "$STATE/tests.log" 2>&1 || { tail -n 30 "$STATE/tests.log"; fail "tests"; }
+    rm -f .env.testing
+    log "$SHORT : $(grep -Eo 'Tests: +[0-9]+ passed' "$STATE/tests.log" | tr -s ' ')."
+fi
+
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress --quiet || fail "composer sans outils de test"
+ln -s "$BASE/shared/.env" .env
+rm -rf storage
+ln -s "$BASE/shared/storage" storage
+echo "$SHA" > public/version.txt
+
+php artisan storage:link --quiet || fail "lien des photos"
+php artisan migrate --force --no-interaction || fail "migration de la base"
+php artisan optimize --quiet || fail "mise en cache"
+
+ln -sfn "$RELEASE" "$BASE/current.new"
+mv -Tf "$BASE/current.new" "$BASE/current"
+sudo /usr/bin/systemctl reload php8.3-fpm || log "$SHORT : rechargement de PHP impossible."
+
+# Le site répond-il ? Sinon, retour immédiat à la version précédente.
+if [[ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]]; then
+    check=(curl -fsS -o /dev/null --max-time 15 --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/up")
+else
+    check=(curl -fsS -o /dev/null --max-time 15 -H "Host: $DOMAIN" "http://127.0.0.1/up")
+fi
+if ! "${check[@]}"; then
+    # On note l'échec avant tout le reste : le minuteur ne doit pas réessayer ce commit.
+    echo "$SHA" > "$STATE/failed"
+    if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
+        ln -sfn "$PREVIOUS" "$BASE/current.new"
+        mv -Tf "$BASE/current.new" "$BASE/current"
+        sudo /usr/bin/systemctl reload php8.3-fpm || true
+        rm -rf "$RELEASE"
+    fi
+    log "$SHORT : ÉCHEC (le site ne répond pas). Retour à la version précédente."
+    exit 1
+fi
+
+echo "$SHA" > "$STATE/deployed"
+rm -f "$STATE/failed"
+log "$SHORT : en ligne."
+
+# On garde les dernières versions pour pouvoir revenir en arrière.
+find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +"$((KEEP_RELEASES + 1))" \
+    | while read -r old; do
+        if [[ "$old" != "$(readlink -f "$BASE/current")" ]]; then rm -rf "$old"; fi
+    done

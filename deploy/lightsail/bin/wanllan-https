@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Active le HTTPS (certificat gratuit Let's Encrypt, renouvelé tout seul).
+# À lancer quand le domaine pointe vers l'IP fixe du serveur.
+#   sudo wanllan-https           demande le certificat et passe le site en https
+#   sudo wanllan-https --check   dit seulement si le domaine pointe bien ici
+set -euo pipefail
+source /etc/wanllan/deploy.conf
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+
+IP="$(curl -fsS --max-time 10 https://checkip.amazonaws.com | tr -d '[:space:]')"
+points_here() { [[ "$(getent ahostsv4 "$1" | awk 'NR==1 {print $1}')" == "$IP" ]]; }
+
+if ! points_here "$DOMAIN"; then
+    echo "$DOMAIN ne pointe pas encore vers ce serveur ($IP)."
+    echo "Vérifiez l'enregistrement A chez votre registrar, attendez 10 à 30 minutes, puis relancez : sudo wanllan-https"
+    exit 1
+fi
+[[ "${1:-}" == "--check" ]] && { echo "$DOMAIN pointe bien vers $IP."; exit 0; }
+
+DOMAINS=(-d "$DOMAIN")
+if points_here "www.$DOMAIN"; then
+    DOMAINS+=(-d "www.$DOMAIN")
+else
+    echo "Note : www.$DOMAIN ne pointe pas ici, le certificat couvrira seulement $DOMAIN."
+fi
+
+certbot certonly --webroot -w /var/www/letsencrypt "${DOMAINS[@]}" \
+    --agree-tos --register-unsafely-without-email --non-interactive --keep-until-expiring \
+    --cert-name "$DOMAIN" --expand --deploy-hook 'systemctl reload nginx'
+
+wanllan-nginx https
+
+# Les cookies de connexion ne voyagent plus qu'en https.
+ENV_FILE="$BASE/shared/.env"
+sed -i 's/^SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/' "$ENV_FILE"
+sudo -u "$APP_USER" -H bash -c "cd '$BASE/current' && php artisan config:cache --quiet"
+systemctl reload php8.3-fpm
+
+echo "HTTPS actif : https://$DOMAIN"

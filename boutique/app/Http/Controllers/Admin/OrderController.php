@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\PaymentProof;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Models\Store;
+use App\Services\OrderPlacer;
+use App\Services\WhatsAppMessage;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+
+class OrderController extends Controller
+{
+    public const TABS = ['all' => 'Toutes', 'pending' => 'En attente', 'confirmed' => 'Confirmées', 'completed' => 'Terminées', 'cancelled' => 'Annulées'];
+
+    public const PAYMENT_FILTERS = ['confirming' => 'À vérifier', 'unpaid' => 'Non payées', 'cod' => 'À la livraison', 'paid' => 'Payées'];
+
+    public function index(Request $request): View
+    {
+        $store = $this->currentStore($request);
+        $tab = array_key_exists($request->query('statut'), self::TABS) ? $request->query('statut') : 'all';
+        $payment = array_key_exists($request->query('paiement'), self::PAYMENT_FILTERS) ? $request->query('paiement') : null;
+
+        $orders = $store->orders()
+            ->when($tab !== 'all', fn ($q) => $q->where('status', $tab))
+            ->when($payment === 'cod', fn ($q) => $q->where('payment_method_type', 'cash_on_delivery')->where('payment_status', 'unpaid'))
+            ->when($payment && $payment !== 'cod', fn ($q) => $q->where('payment_status', $payment))
+            ->withCount('items')
+            ->latest()
+            ->paginate(30)
+            ->withQueryString();
+
+        $counts = $store->orders()->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
+
+        $toVerify = $store->orders()->where('payment_status', 'confirming')->where('status', '!=', 'cancelled')->count();
+
+        return view('admin.orders.index', compact('orders', 'tab', 'counts', 'payment', 'toVerify'));
+    }
+
+    public function show(Request $request, int $order): View
+    {
+        $model = $this->find($request, $order);
+        $model->load('items', 'paymentProofs', 'customer');
+
+        $customerMessage = 'Bonjour '.$model->customer_name.', ici '.$this->currentStore($request)->name.'. '
+            .'Merci pour votre commande #'.$model->number.' ('.gnf($model->total).').';
+
+        return view('admin.orders.show', [
+            'order' => $model,
+            'writeToCustomerUrl' => WhatsAppMessage::url($model->customer_phone, $customerMessage),
+        ]);
+    }
+
+    public function updateStatuses(Request $request, int $order): RedirectResponse
+    {
+        $model = $this->find($request, $order);
+
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'confirmed', 'completed'])],
+            'payment_status' => ['required', Rule::in(array_keys(Order::PAYMENT_STATUSES))],
+            'fulfillment_status' => ['required', Rule::in(array_keys(Order::FULFILLMENT_STATUSES))],
+        ]);
+
+        if ($model->isCancelled()) {
+            return back()->withErrors(['status' => 'Cette commande est annulée.']);
+        }
+
+        $model->update($data);
+
+        return back()->with('status', 'Commande #'.$model->number.' mise à jour.');
+    }
+
+    public function cancel(Request $request, int $order, OrderPlacer $placer): RedirectResponse
+    {
+        $model = $this->find($request, $order);
+        $placer->cancel($model);
+
+        return back()->with('status', 'Commande #'.$model->number.' annulée. Le stock a été remis.');
+    }
+
+    /** Capture de paiement privée : servie seulement au commerçant de la boutique. */
+    public function proof(Request $request, int $order, int $proof): StreamedResponse
+    {
+        $model = $this->find($request, $order)->paymentProofs()->findOrFail($proof);
+
+        return Storage::disk(PaymentProof::DISK)->response($model->path, null, [
+            'Cache-Control' => 'private, max-age=3600',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    /** Une commande d'une autre boutique donne un 404, jamais un accès. */
+    private function find(Request $request, int $order): Order
+    {
+        return $this->currentStore($request)->orders()->findOrFail($order);
+    }
+
+    private function currentStore(Request $request): Store
+    {
+        return $request->attributes->get('store');
+    }
+}

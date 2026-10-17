@@ -1,0 +1,63 @@
+feature,area,priority,original,clone,notes
+Inscription du marchand (téléphone ou e-mail),onboarding,must,yes,yes,téléphone + mot de passe
+Création de boutique : nom + lien unique + numéro WhatsApp,onboarding,must,yes,yes,
+Page boutique publique avec catégories et grille de produits,boutique,must,yes,yes,
+Fiche produit : photos + prix + description,boutique,must,yes,yes,photos à l'étape 2 (initiales en attendant) | photos WebP 1080 + vignettes 400
+Variantes produit (taille / couleur) avec prix et stock propres,produits,must,yes,yes,base et affichage prêts ; admin limité à une variante
+Panier avec quantités et total,boutique,must,yes,yes,
+Formulaire client : nom + téléphone + adresse,commande,must,yes,yes,
+Choix du mode de livraison au moment de commander,commande,must,yes,yes,
+Choix du moyen de paiement au moment de commander,commande,must,yes,yes,
+Envoi de la commande en un message WhatsApp prérempli (wa.me),commande,must,yes,yes,cœur du produit | cœur du produit ; testé de bout en bout
+Facture / page de suivi de commande partageable,commande,must,yes,yes,
+Tableau de bord des commandes avec filtres de paiement,commandes,must,yes,yes,onglets par statut ; filtre paiement à l'étape 2
+Détail commande et changement de statut (commande / paiement / livraison),commandes,must,yes,yes,
+Ajouter / modifier / masquer un produit,produits,must,yes,yes,
+Catégories de produits,produits,must,yes,yes,"S16 : ajouter, renommer, ordonner, supprimer"
+Suivi de stock par produit et variante,produits,must,yes,yes,par produit (variante unique) en V1
+Stock décrémenté à la commande et remis à l'annulation,produits,must,yes,yes,"testé : pas de survente, pas de double remise"
+Rupture de stock affichée côté client,boutique,must,yes,yes,
+Modes de livraison avec frais forfaitaires,livraison,must,yes,yes,appliqués au checkout ; écran S18 à venir | S18
+Envoi d'une preuve de paiement (capture) par le client,paiement,must,yes,yes,stockée en privé
+Interface entièrement en français,guinée,must,no,yes,ajout Guinée
+Prix et totaux en GNF (séparateur de milliers),guinée,must,no,yes,ajout Guinée
+Instructions Orange Money et MTN MoMo (numéro marchand + montant),guinée,must,no,yes,ajout Guinée
+Options / suppléments payants sur un produit,produits,should,yes,no,
+Frais de livraison par zone,livraison,should,yes,yes,via un mode par zone
+Questions personnalisées au checkout (repère),commande,should,yes,no,
+Minimum de commande par mode de livraison,livraison,should,yes,yes,vérifié au checkout ; réglage dans S18 à venir
+Liste clients avec historique,clients,should,yes,yes,S17
+Reçu WhatsApp envoyé au client par le marchand,commandes,should,yes,no,
+Commande manuelle saisie par le marchand,commandes,should,yes,no,
+Changement de statut en masse,commandes,should,yes,no,
+Boutique ouverte / fermée et horaires,réglages,should,yes,partial,bloque les commandes ; interrupteur S20 à venir | ouvert / fermé ; pas d'horaires
+Zones de livraison par commune de Conakry et par ville (Kankan / Labé / Nzérékoré),guinée,should,no,yes,"ajout Guinée | un mode par commune ou ville, suggestions"
+Pages légères pour 3G (images compressées),guinée,should,no,yes,"ajout Guinée | CSS 7,8 Ko gzip, WebP, lazy"
+Crédit client / dettes (achat à crédit),guinée,should,no,no,ajout Guinée : très courant dans les boutiques
+Indicateur stock faible côté client,boutique,could,yes,yes,
+Taxes sur produits et livraison,réglages,could,yes,no,peu utile pour les petits commerçants
+Export des commandes en PDF,commandes,could,yes,no,
+QR code sur la commande confirmée,commandes,could,yes,no,
+Plusieurs boutiques par compte,compte,could,yes,no,
+App marchand avec notifications push,compte,could,yes,no,V1 : site web installable (PWA)
+Synchronisation catalogue WhatsApp Business,intégrations,could,yes,skip,passe par Meta avec validation du compte
+Lien de boutique partageable en image (statut WhatsApp / TikTok),guinée,could,no,no,ajout Guinée : marketing
+Rapport du jour (ventes / commandes),guinée,could,no,no,ajout Guinée
+Paiement automatique par API mobile money,paiement,could,yes,skip,"API Orange Money / MTN Guinée à obtenir, V1 = preuve de paiement"
+Devis de livreurs en temps réel,livraison,could,yes,skip,partenariats de livraison absents en Guinée
+Produits par abonnement,produits,could,yes,skip,usage rare pour la cible
+Étiquettes d'expédition QR,livraison,could,yes,skip,usage rare pour la cible
+Lien direct vers un produit (pour une pub ou un message),partage,must,yes,yes,
+Message d'accueil prêt à copier (WhatsApp Business / Messenger),partage,must,no,yes,"ajout : pont entre la pub Facebook et la boutique | S22, lien {lien} toujours à jour"
+Suivi de la source de chaque commande (?src=facebook / tiktok / whatsapp),partage,should,no,yes,ajout : savoir quelle pub fait vendre
+Visites et ventes par source dans le tableau de bord,partage,could,no,yes,"ajout | S22, 7 jours"
+QR code de la boutique à imprimer,partage,could,yes,yes,SVG
+Paiement à la livraison activable / bloquable par le commerçant,paiement,must,yes,yes,"demande de Mohamed : interrupteur par boutique | testé, vérifié côté serveur"
+Plafond de montant pour le paiement à la livraison,paiement,should,no,yes,ajout : limite le risque de colis refusé | testé
+Paiement à la livraison autorisé ou non par mode de livraison,paiement,should,yes,yes,ex. Conakry oui / intérieur non | case dans S18
+Bloquer le paiement à la livraison pour un client,paiement,could,no,yes,ajout : client qui a déjà refusé un colis | bouton dans S17
+Abonnement prépayé en GNF par Orange Money / MTN sans carte ni prélèvement automatique,confiance,must,no,yes,replica-entrepreneur : prélèvements non voulus (3 avis / 3 sources) | S23 + commande wanllan:abonnement ; rappel 3 jours avant
+Arrêter son abonnement en un bouton,confiance,should,no,yes,replica-entrepreneur : résiliation qui ne s'arrête pas | rien ne se renouvelle : arrêter = ne pas repayer ; retour en Découverte sans perte
+Support WhatsApp humain avec délai de réponse affiché,confiance,should,no,partial,replica-entrepreneur : support qui ne répond pas (mince) | bouton et horaires affichés ; l'humain reste à organiser
+Démarrage gratuit sans plafond caché de commandes,offre,should,no,yes,"replica-entrepreneur : prix / formule au pourcentage (mince) ; à décider avec les interviews | Découverte : 15 produits, commandes illimitées"
+Jusqu'à 10 photos par produit,produits,could,no,yes,replica-entrepreneur : « a large number of pictures » (mince)

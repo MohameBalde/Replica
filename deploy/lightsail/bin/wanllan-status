@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Tout l'état du serveur en un écran, lisible sur un téléphone.
+#   sudo wanllan-status
+set -uo pipefail
+source /etc/wanllan/deploy.conf
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+
+ok() { printf '  \033[32m✔\033[0m %s\n' "$*"; }
+ko() { printf '  \033[31m✘\033[0m %s\n' "$*"; }
+service() { systemctl is-active --quiet "$1" && ok "$2" || ko "$2 arrêté (sudo systemctl restart $1)"; }
+
+echo "Wanllan sur $DOMAIN"
+echo
+echo "Services"
+service nginx "Nginx (site web)"
+service php8.3-fpm "PHP"
+service mysql "Base de données"
+service wanllan-deploy.timer "Mises en ligne automatiques (toutes les 2 min)"
+service wanllan-backup.timer "Copie de la base chaque nuit"
+
+echo
+echo "Version en ligne"
+deployed="$(cat "$BASE/state/deployed" 2>/dev/null || echo aucune)"
+ok "commit ${deployed:0:7} (branche $BRANCH)"
+if [[ -f "$BASE/state/failed" ]]; then
+    ko "dernier commit refusé : $(cut -c1-7 "$BASE/state/failed") (tests en échec ou erreur de mise en ligne)"
+fi
+echo "  Dernières lignes du journal :"
+tail -n 5 "$BASE/state/deploy.log" 2>/dev/null | sed 's/^/    /'
+
+echo
+echo "Site"
+if [[ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]]; then
+    url="https://$DOMAIN/up"
+    curl -fsS -o /dev/null --max-time 10 --resolve "$DOMAIN:443:127.0.0.1" "$url" && ok "$url répond" || ko "$url ne répond pas"
+    expiry="$(openssl x509 -enddate -noout -in "/etc/letsencrypt/live/$DOMAIN/cert.pem" | cut -d= -f2)"
+    ok "certificat HTTPS valable jusqu'au $(date -d "$expiry" +%F)"
+else
+    curl -fsS -o /dev/null --max-time 10 -H "Host: $DOMAIN" http://127.0.0.1/up && ok "le site répond en http" || ko "le site ne répond pas"
+    ko "HTTPS pas encore actif (sudo wanllan-https)"
+fi
+grep -q '^WANLLAN_SUPPORT_WHATSAPP=..*' "$BASE/shared/.env" && ok "numéros Wanllan renseignés" || ko "numéros Wanllan manquants (sudo wanllan-config)"
+
+echo
+echo "Machine"
+ok "disque : $(df -h / | awk 'NR==2 {print $3" utilisés sur "$2" ("$5")"}')"
+ok "mémoire : $(free -m | awk '/Mem:/ {print $3" Mo utilisés sur "$2" Mo"}'), swap : $(free -m | awk '/Swap:/ {print $3" Mo"}')"
+last_backup="$(ls -1t /var/backups/wanllan/*.sql.gz 2>/dev/null | head -n 1)"
+[[ -n "$last_backup" ]] && ok "dernière copie de la base : $(basename "$last_backup")" || ko "aucune copie de la base pour l'instant"
+[[ -f /var/run/reboot-required ]] && ko "redémarrage demandé par une mise à jour (fait seul à 4 h)" || ok "système à jour"
