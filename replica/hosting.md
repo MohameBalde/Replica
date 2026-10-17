@@ -91,7 +91,7 @@ Le KVM 2 (2 processeurs, 8 Go, 100 Go) coûte 8,99 $/mois sur 24 mois (≈ 216 $
 | **Total** | **≈ 8 à 9** | **≈ 70 000 à 79 000** |
 | Plus tard : serveur 2 Go | 12 | ≈ 105 500 |
 
-Le nom de domaine est en plus (environ 10 à 15 $ par an pour un .com).
+Le nom de domaine est en plus : wanllan.com acheté chez Spaceship le 17 octobre 2026, 9,08 $ la première année puis 10,18 $ par an (≈ 89 500 GNF). AWS le vendait environ 15 $ par an, et les crédits AWS ne couvrent pas les noms de domaine.
 
 **Crédits AWS** : les nouveaux comptes reçoivent 100 $, et jusqu'à 100 $ de plus en essayant des services (20 $ pour la création d'une alerte de budget, qu'on fera de toute façon). Le plan gratuit n'ouvre pas tous les services : passer au plan payant à l'ouverture, les crédits restent valables 12 mois. La documentation de Lightsail renvoie à ces crédits ; **à confirmer dans la console** qu'ils couvrent bien Lightsail. Si oui, le serveur est payé pendant plus d'un an.
 

@@ -48,7 +48,9 @@ GitHub Actions (`.github/workflows/ci.yml`) teste aussi sur MySQL 8, mais **ne t
 
 ## Domaine
 
-Enregistrements à créer chez le registrar (ou dans Lightsail, « Domaines et DNS », si le domaine y est acheté) :
+**wanllan.com acheté chez Spaceship le 17 octobre 2026** (9,08 $ la première année, puis 10,18 $ par an, renouvellement automatique, protection de la vie privée incluse). Le DNS se gère chez Spaceship.
+
+Enregistrements à créer chez Spaceship (gestionnaire de domaines → wanllan.com → DNS) :
 
 | type | nom | valeur |
 | --- | --- | --- |
@@ -76,7 +78,7 @@ Enregistrements à créer chez le registrar (ou dans Lightsail, « Domaines et D
 2. **IP fixe.** Onglet « Mise en réseau » → « Créer une adresse IP statique » → l'attacher à `wanllan-1`. Noter l'adresse.
 3. **Ouvrir le HTTPS.** Même onglet, pare-feu IPv4 → « Ajouter une règle » → **HTTPS (TCP 443)**. Faire de même pour IPv6.
 4. **Sauvegardes.** Onglet « Instantanés » → activer les **instantanés automatiques**, heure 03:00.
-5. **Domaine.** Chez le registrar : enregistrements A `@` et `www` vers l'IP fixe.
+5. **Domaine.** Chez Spaceship (gestionnaire de domaines → wanllan.com → DNS) : enregistrements A `@` et `www` vers l'IP fixe.
 6. **Installer.** Onglet « Se connecter » → « Se connecter avec SSH », puis coller :
    ```
    curl -fsSL https://raw.githubusercontent.com/MohameBalde/Replica/main/deploy/lightsail/install.sh | sudo bash -s -- wanllan.com
