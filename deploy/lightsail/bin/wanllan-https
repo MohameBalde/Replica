@@ -33,7 +33,10 @@ wanllan-nginx https
 # Les cookies de connexion ne voyagent plus qu'en https.
 ENV_FILE="$BASE/shared/.env"
 sed -i 's/^SESSION_SECURE_COOKIE=.*/SESSION_SECURE_COOKIE=true/' "$ENV_FILE"
-sudo -u "$APP_USER" -H bash -c "cd '$BASE/current' && php artisan config:cache --quiet"
-systemctl reload php8.3-fpm
+# Sans version en ligne, la prochaine mise en ligne lira ce réglage d'elle-même.
+if [[ -d "$BASE/current" ]]; then
+    sudo -u "$APP_USER" -H bash -c "cd '$BASE/current' && php artisan config:cache --quiet"
+    systemctl reload php8.3-fpm
+fi
 
 echo "HTTPS actif : https://$DOMAIN"

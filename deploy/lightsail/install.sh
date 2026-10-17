@@ -156,6 +156,7 @@ systemctl enable --now wanllan-deploy.timer wanllan-backup.timer >/dev/null
 
 say "10/10 Première mise en ligne (les tests tournent d'abord, 2 à 4 minutes)"
 wanllan-deploy --wait || die "première mise en ligne impossible. Tapez : sudo wanllan-status"
+[[ -d "$BASE/current" ]] || die "aucune version en ligne. Tapez : sudo wanllan-status"
 
 if wanllan-https --check >/dev/null 2>&1; then
     say "Le domaine pointe déjà ici : activation du HTTPS"

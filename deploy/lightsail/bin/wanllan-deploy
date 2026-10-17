@@ -7,7 +7,8 @@
 #
 # À la main :
 #   sudo wanllan-deploy           comme le minuteur
-#   sudo wanllan-deploy --wait    attend jusqu'à 20 min le test GitHub (si CHECK_NAME)
+#   sudo wanllan-deploy --wait    attend la fin d'une mise en ligne déjà lancée par le
+#                                 minuteur, et jusqu'à 20 min le test GitHub (si CHECK_NAME)
 #   sudo wanllan-deploy --force   met en ligne sans test GitHub ni test serveur (urgence)
 set -euo pipefail
 source /etc/wanllan/deploy.conf
@@ -33,7 +34,13 @@ LOG="$STATE/deploy.log"
 log() { printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
 
 exec 9>"$STATE/deploy.lock"
-flock -n 9 || exit 0
+if [[ $WAIT -eq 1 ]]; then
+    # L'installation active le minuteur juste avant : il a pu lancer la même
+    # mise en ligne. On attend qu'elle finisse au lieu de partir tout de suite.
+    flock -w 1500 9 || { echo "Une mise en ligne tourne depuis plus de 25 minutes." >&2; exit 1; }
+else
+    flock -n 9 || exit 0
+fi
 
 git -C "$REPO" fetch --quiet origin "$BRANCH"
 SHA="$(git -C "$REPO" rev-parse "origin/$BRANCH")"
@@ -41,7 +48,10 @@ SHORT="${SHA:0:7}"
 
 if [[ $FORCE -eq 0 ]]; then
     [[ "$SHA" == "$(cat "$STATE/deployed" 2>/dev/null)" ]] && exit 0
-    [[ "$SHA" == "$(cat "$STATE/failed" 2>/dev/null)" ]] && exit 0
+    if [[ "$SHA" == "$(cat "$STATE/failed" 2>/dev/null)" ]]; then
+        [[ $WAIT -eq 1 ]] && { echo "$SHORT a été refusé. Voir : $LOG" >&2; exit 1; }
+        exit 0
+    fi
 fi
 
 # État des tests du commit sur GitHub : success, pending ou failure.
@@ -105,7 +115,9 @@ if [[ $FORCE -eq 0 && "${RUN_TESTS:-1}" == 1 ]]; then
     echo 'DB_DATABASE=:memory:' >> .env.testing
     php artisan test --without-tty > "$STATE/tests.log" 2>&1 || { tail -n 30 "$STATE/tests.log"; fail "tests"; }
     rm -f .env.testing
-    log "$SHORT : $(grep -Eo 'Tests: +[0-9]+ passed' "$STATE/tests.log" | tr -s ' ')."
+    # « Tests: 44 passed », ou « Tests: 1 skipped, 44 passed » quand un test
+    # hors de boutique/ est sauté (le serveur ne reçoit que boutique/).
+    log "$SHORT : tests $(sed -n 's/^ *Tests: *//p' "$STATE/tests.log" | tail -n 1 | tr -s ' ')."
 fi
 
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress --quiet || fail "composer sans outils de test"

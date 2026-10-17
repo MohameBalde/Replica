@@ -8,6 +8,9 @@
                 </a>
             @endif
             <h1 class="flex-1 truncate text-lg font-semibold">{{ $title }}</h1>
+            @if (auth()->user()?->is_team && ! request()->routeIs('team.*'))
+                <a href="{{ route('team.dashboard') }}" class="btn-ghost text-sm font-semibold">Gestion</a>
+            @endif
             @isset($currentStore)
                 <a href="{{ route('shop.show', $currentStore) }}" class="btn-ghost inline-flex items-center gap-1 text-sm font-semibold" target="_blank" rel="noopener">
                     Ma boutique <x-icon name="external" :size="16" />
