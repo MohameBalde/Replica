@@ -70,22 +70,23 @@ Enregistrements à créer chez Spaceship (gestionnaire de domaines → wanllan.c
 | Mesure d'audience | les visites et ventes par réseau sont dans l'app (« Partager ma boutique ») ; pas d'outil externe, donc pas de bandeau cookies |
 | Parcours complet sur le site en ligne | à faire le 23 octobre, sur ordinateur et sur le téléphone de Mohamed |
 
-## Le 22 octobre, pas à pas (environ 1 h, sur téléphone)
+## La mise en ligne, pas à pas (avancée au dimanche 18 octobre à la demande de Mohamed, environ 1 h 15, sur téléphone)
 
-**Avant** : le domaine est acheté, le compte AWS est ouvert (double authentification, plan payant, alerte de budget à 10 $), et la pull request #1 est fusionnée dans `main`.
+**Déjà fait** : domaine acheté, DNS chez Spaceship, e-mail Zoho, compte AWS (double authentification, alerte de budget à 10 $).
 
+0. **Feu vert.** Sur GitHub, fusionner la pull request #1 dans `main` (« Merge pull request » → « Confirm merge »).
 1. **Créer le serveur.** Console Lightsail → « Créer une instance » : région **Paris (eu-west-3)** ; plateforme **Linux/Unix** ; « Système d'exploitation uniquement » → **Ubuntu 24.04 LTS** ; réseau **double pile** ; offre **7 $** (1 Go) ; nom `wanllan-1` → Créer.
 2. **IP fixe.** Onglet « Mise en réseau » → « Créer une adresse IP statique » → l'attacher à `wanllan-1`. Noter l'adresse.
 3. **Ouvrir le HTTPS.** Même onglet, pare-feu IPv4 → « Ajouter une règle » → **HTTPS (TCP 443)**. Faire de même pour IPv6.
 4. **Sauvegardes.** Onglet « Instantanés » → activer les **instantanés automatiques**, heure 03:00.
-5. **Domaine.** Chez Spaceship (gestionnaire de domaines → wanllan.com → DNS) : enregistrements A `@` et `www` vers l'IP fixe.
-6. **Installer.** Onglet « Se connecter » → « Se connecter avec SSH », puis coller :
+5. **Domaine (avant l'installation, pour que le HTTPS s'active tout seul).** Chez Spaceship, DNS avancé : ajouter **A `@`** et **A `www`** vers l'IP fixe. **Ne pas toucher aux 7 lignes de l'e-mail** (TXT, MX, DKIM, DMARC).
+6. **Installer.** Sur l'iPhone, mettre le verrouillage automatique sur « Jamais » (Réglages → Luminosité et affichage). Onglet « Se connecter » → « Se connecter avec SSH », taper `tmux` puis Entrée, puis coller :
    ```
    curl -fsSL https://raw.githubusercontent.com/MohameBalde/Replica/main/deploy/lightsail/install.sh | sudo bash -s -- wanllan.com
    ```
-   Compter 10 à 15 minutes. À la fin, répondre aux questions : numéro Orange Money des abonnements, nom du compte, numéro WhatsApp du support.
-7. **HTTPS.** Quand le domaine pointe vers le serveur (10 à 30 minutes après l'étape 5) : `sudo wanllan-https`.
-8. **Vérifier.** `sudo wanllan-status` : tout doit être vert. Puis ouvrir `https://wanllan.com` sur le téléphone.
+   Compter 10 à 20 minutes. À la fin, répondre aux questions : numéro Orange Money des abonnements, nom du compte, numéro WhatsApp du support, horaires (Entrée), e-mail de contact **contact@wanllan.com**. Si la connexion coupe : se reconnecter, taper `tmux attach` ; si l'installation s'est arrêtée, relancer la même commande (sans risque).
+7. **HTTPS.** Si l'installation ne l'a pas activé (domaine pas encore visible) : attendre 10 à 30 minutes, puis `sudo wanllan-https`.
+8. **Vérifier.** `sudo wanllan-status` : tout doit être vert. Puis ouvrir `https://wanllan.com` sur le téléphone et créer une première boutique.
 
 ## Commandes du quotidien (dans le terminal Lightsail)
 

@@ -5,8 +5,13 @@
 #   curl -fsSL https://raw.githubusercontent.com/MohameBalde/Replica/main/deploy/lightsail/install.sh | sudo bash -s -- wanllan.com
 #
 # On peut le relancer sans risque : il garde la clé de l'app, le mot de passe
-# de la base et les réglages déjà faits.
+# de la base et les réglages déjà faits. Si la connexion coupe en route,
+# reconnectez-vous et relancez la même commande.
 set -euo pipefail
+
+# Tout le script est entre accolades : bash le lit en entier avant de
+# commencer, donc aucune commande ne peut avaler la suite par « curl | bash ».
+{
 
 DOMAIN="${1:-}"
 BRANCH="${2:-main}"
@@ -38,6 +43,8 @@ sysctl -q -w vm.swappiness=10
 echo 'vm.swappiness=10' > /etc/sysctl.d/90-wanllan.conf
 
 say "2/10 Mises à jour et logiciels (5 à 10 minutes)"
+# Termine une installation interrompue (connexion coupée pendant un premier essai).
+dpkg --configure -a
 apt-get update -q
 apt-get -y -q -o Dpkg::Options::=--force-confold upgrade
 apt-get -y -q install ca-certificates curl git unzip jq gzip \
@@ -172,3 +179,5 @@ Commandes utiles :
   sudo wanllan-config      change les numéros Orange Money et WhatsApp du support
   artisan wanllan:abonnement <boutique> merchant 1 --ref=<n° transaction>
 EOF
+exit 0
+}
