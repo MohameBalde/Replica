@@ -33,6 +33,7 @@
 - **Intermédiaire commercial** (marge par vente) : maillots, PC et sacs (boutique familiale), chaussures et habits (avec mon partenaire Nimaga).
 - **Services informatiques** : installation de logiciels, licences, mises à jour, dépannage logiciel.
 - **E-commerce** : NimStore, SoumamoShop, NimsDecore (dropshipping). Promotion via TikTok et Canva.
+- **Balde Tech** (choisi le 18 octobre 2026) : nom de l'entreprise qui porte tous les projets logiciels (Wanllan, caisse, portail Wi-Fi, micro-logiciels). Signature : « Wanllan, un produit Balde Tech ». Domaine **baldetech.com** libre au 18/10, à acheter plus tard (≈ 9 $), quand Wanllan aura ses premiers abonnés. Pas encore d'entreprise déclarée.
 - **Balde Media** : média digital (TikTok @balde_media), présentateur virtuel 3D « Monsieur Macro ».
 - **Développement** : application Laravel pour un centre de formation.
 - Stack que je connais : **Laravel, MySQL, Railway, Python/Flask, Vercel**.
@@ -64,7 +65,7 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - Angle retenu : « Votre boutique WhatsApp, faite pour la Guinée » + promesse « payé en GNF par Orange Money, sans carte, sans prélèvement ».
 - Lancement préparé : prix en GNF (`replica/launch/pricing.md`), page d'accueil à `/`, plan daté (`replica/launch/launch-plan.md`). Activer un abonnement : `php artisan wanllan:abonnement <boutique> merchant 1 --ref=...`.
 - Hébergement choisi : **AWS Lightsail, région Paris** (serveur 1 Go à 7 $/mois, sauvegardes quotidiennes). Étude comparative et raisons : `replica/hosting.md`. Mohamed a une carte qui paie en dollars. Compte AWS ouvert le 16 octobre (double authentification par passkey, alerte de budget à 10 $).
-- Domaine **wanllan.com** acheté chez **Spaceship** le 17 octobre 2026 (9,08 $, puis 10,18 $/an, renouvellement automatique) ; DNS chez Spaceship. E-mail pro prévu : Zoho Mail (formule gratuite si disponible en Guinée).
+- Domaine **wanllan.com** acheté chez **Spaceship** le 17 octobre 2026 (9,08 $, puis 10,18 $/an, renouvellement automatique) ; DNS chez Spaceship. E-mail pro : Zoho Mail formule gratuite (disponible), sur wanllan.com en attendant baldetech.com ; adresse principale contact@wanllan.com.
 - Déploiement préparé (`replica/deploy.md`, scripts dans `deploy/lightsail/`) : mise en ligne le **22 octobre** en fusionnant la PR #1 dans `main`. Ensuite, le serveur regarde `main` toutes les 2 minutes, lance les 44 tests sur place et revient seul à la version précédente si le site ne répond plus. Les mises à jour passent par une PR que Mohamed fusionne.
 - Le compte GitHub de Mohamed est bloqué pour facturation : GitHub Actions ne tourne pas (le serveur n'en dépend pas).
 - Suite : mise en ligne, bêta du 26 octobre, puis brique 2 (caisse et stock hors ligne) en janvier 2027.
