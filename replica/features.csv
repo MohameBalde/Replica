@@ -61,3 +61,4 @@ Arrêter son abonnement en un bouton,confiance,should,no,yes,replica-entrepreneu
 Support WhatsApp humain avec délai de réponse affiché,confiance,should,no,partial,replica-entrepreneur : support qui ne répond pas (mince) | bouton et horaires affichés ; l'humain reste à organiser
 Démarrage gratuit sans plafond caché de commandes,offre,should,no,yes,"replica-entrepreneur : prix / formule au pourcentage (mince) ; à décider avec les interviews | Découverte : 15 produits, commandes illimitées"
 Jusqu'à 10 photos par produit,produits,could,no,yes,replica-entrepreneur : « a large number of pictures » (mince)
+"Accueil du commerçant : à faire maintenant, ventes du jour / 7 / 30 jours, ce qui se vend, stock bas",commandes,should,yes,yes,"S24 Accueil | chaque nombre ouvre la liste qui affiche le même nombre ; guide « Bien démarrer » pour une boutique neuve"

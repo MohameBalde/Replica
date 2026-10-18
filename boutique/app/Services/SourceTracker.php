@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DailyVisit;
 use App\Models\Order;
 use App\Models\Store;
+use App\Support\Period;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,7 +45,7 @@ class SourceTracker
 
     private static function countVisit(Store $store, string $source): void
     {
-        $day = now()->toDateString();
+        $day = Period::today();
         $visit = DailyVisit::firstOrCreate(['store_id' => $store->id, 'day' => $day, 'source' => $source]);
         DailyVisit::whereKey($visit->id)->update(['visits' => DB::raw('visits + 1')]);
     }

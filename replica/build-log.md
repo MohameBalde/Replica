@@ -1,8 +1,23 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 33 tests, 270 vérifications, verts sur SQLite et sur MariaDB. Parcours rejoués dans Chromium à 390 px, zéro erreur console.
-Parité (`replica-diff/parity.py`) : **82,8 / 100**, indispensables **22 sur 22**.
+Tests : 76 tests, 728 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Parité (`replica-diff/parity.py`) : **83,2 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-18 : Accueil, le poste de pilotage du commerçant
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| Accueil (`/admin`) | fait | — | chaque nombre « à faire » doit ouvrir une liste qui affiche le même nombre : les filtres de la liste Commandes excluent maintenant les commandes annulées pour « à vérifier », « non payées » et « à la livraison » |
+| Bien démarrer | fait | — | étapes cochées d'après les vraies données ; une commande d'essai annulée ne fait pas quitter le guide |
+| Menu à 5 onglets | fait | — | « Commandes » coupé sur les écrans de 320 à 360 px : lettres resserrées sur ces écrans |
+
+- **À faire maintenant** : paiements à vérifier, commandes en attente (depuis plus de 2 jours, ou WhatsApp jamais ouvert), argent à encaisser à la livraison, stock bas par taille / couleur.
+- **Vos ventes** sur aujourd'hui, 7 jours ou 30 jours (jours de Conakry) : commandes, visites, déjà payé / pas encore payé, valeur des commandes, barres par jour, réseau qui apporte le plus de commandes. Hors commandes annulées et remboursées, même règle que la page Partager.
+- **Dernières commandes** et **Ce qui se vend** (3 produits, en quantités).
+- 8 requêtes par affichage, toutes limitées à la boutique, sans JavaScript.
+
+**Bug corrigé (en production depuis le 17 octobre)** : la colonne `payment_status` faisait 12 caractères, mais « partially_paid » en fait 14. Sur MySQL, choisir « Payée en partie » sur une commande donnait une page d'erreur. SQLite (tests) ne vérifie pas la longueur, d'où le passage inaperçu. Migration `2026_10_19_000001` : colonne portée à 20 caractères. Les tests de l'Accueil tournent aussi sur MariaDB.
 
 ## 2026-10-16 : étape 2
 

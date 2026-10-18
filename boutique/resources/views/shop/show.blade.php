@@ -50,7 +50,7 @@
                             <p class="price mt-1">{{ $product->variants->min('price') !== $product->variants->max('price') ? 'Dès ' : '' }}{{ gnf($product->fromPrice()) }}</p>
                             @if ($soldOut)
                                 <span class="badge badge-neutral mt-1.5">Épuisé</span>
-                            @elseif ($stock !== null && $stock <= 3)
+                            @elseif ($stock !== null && $stock <= \App\Models\Product::LOW_STOCK)
                                 <span class="badge badge-warning mt-1.5">Plus que {{ $stock }}</span>
                             @endif
                         </div>

@@ -29,6 +29,7 @@ class OrderController extends Controller
 
         $orders = $store->orders()
             ->when($tab !== 'all', fn ($q) => $q->where('status', $tab))
+            ->when($tab === 'all' && in_array($payment, ['confirming', 'unpaid', 'cod'], true), fn ($q) => $q->where('status', '!=', 'cancelled'))
             ->when($payment === 'cod', fn ($q) => $q->where('payment_method_type', 'cash_on_delivery')->where('payment_status', 'unpaid'))
             ->when($payment && $payment !== 'cod', fn ($q) => $q->where('payment_status', $payment))
             ->withCount('items')

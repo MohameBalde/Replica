@@ -4,6 +4,7 @@
     // Menu de la boutique : sur ses propres pages, et depuis l'espace Gestion pour y revenir.
     $menuStore = ! $nav ? null : (request()->routeIs('team.*') ? $user?->store : ($currentStore ?? null));
     $items = [
+        ['admin.home', ['admin.home'], 'home', 'Accueil'],
         ['admin.orders.index', ['admin.orders.*', 'admin.customers.*'], 'inbox', 'Commandes'],
         ['admin.products.index', ['admin.products.*', 'admin.categories.*'], 'tag', 'Produits'],
         ['admin.share', ['admin.share*'], 'share', 'Partager'],
@@ -16,7 +17,7 @@
     {{-- Ordinateur : menu fixe à gauche. Téléphone : barre d'onglets en bas (plus bas). --}}
     @if ($user)
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-sidebar flex-col border-r border-border bg-bg lg:flex" aria-label="Menu principal">
-            <a href="{{ $menuStore ? route('admin.orders.index') : route('home') }}" class="flex h-14 shrink-0 items-center gap-2 border-b border-border px-5">
+            <a href="{{ $menuStore ? route('admin.home') : route('home') }}" class="flex h-14 shrink-0 items-center gap-2 border-b border-border px-5">
                 <img src="{{ asset('favicon.svg') }}" alt="" class="size-7" width="28" height="28">
                 <span class="text-lg font-extrabold text-accent">Wanllan</span>
             </a>
@@ -99,8 +100,8 @@
                     @foreach ($items as [$route, $patterns, $icon, $label])
                         @php $active = request()->routeIs(...$patterns); @endphp
                         <a href="{{ route($route) }}" @if ($active) aria-current="page" @endif
-                           class="flex flex-1 flex-col items-center justify-center gap-1 text-xs font-semibold {{ $active ? 'text-accent' : 'text-text-muted' }}">
-                            <x-icon :name="$icon" />{{ $label }}
+                           class="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-xs font-semibold {{ $active ? 'text-accent' : 'text-text-muted' }}">
+                            <x-icon :name="$icon" /><span class="max-w-full truncate tracking-tight max-[359px]:text-[11px] max-[359px]:tracking-tighter">{{ $label }}</span>
                         </a>
                     @endforeach
                 </nav>

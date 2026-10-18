@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -40,6 +41,14 @@ class Order extends Model
         'qr' => 'QR code',
         'direct' => 'Direct',
     ];
+
+    /**
+     * Ce qui compte dans les chiffres de ventes (Accueil, Partager) : les commandes
+     * ni annulées ni remboursées, payées ou non. Montant compté : total, livraison comprise.
+     */
+    public const COUNTED_STATUSES = ['pending', 'confirmed', 'completed'];
+
+    public const COUNTED_PAYMENTS = ['unpaid', 'confirming', 'partially_paid', 'paid'];
 
     protected $fillable = [
         'customer_id', 'number', 'public_token', 'status', 'payment_status', 'fulfillment_status',
@@ -88,6 +97,11 @@ class Order extends Model
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
+    }
+
+    public function scopeCounted(Builder $query): void
+    {
+        $query->whereIn('status', self::COUNTED_STATUSES)->whereIn('payment_status', self::COUNTED_PAYMENTS);
     }
 
     public function isCashOnDelivery(): bool

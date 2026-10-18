@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'team' => \App\Http\Middleware\EnsureUserIsTeam::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(fn () => route('admin.orders.index'));
+        $middleware->redirectUsersTo(fn () => route('admin.home'));
         // Proxys de confiance : config/trustedproxy.php (variable TRUSTED_PROXIES).
     })
     ->withExceptions(function (Exceptions $exceptions): void {

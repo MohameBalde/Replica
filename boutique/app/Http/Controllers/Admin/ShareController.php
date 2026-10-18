@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Store;
+use App\Support\Period;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -33,11 +34,11 @@ class ShareController extends Controller
     public function show(Request $request): View
     {
         $store = $this->currentStore($request);
-        $since = now()->subDays(7)->startOfDay();
+        $since = Period::start(7);
 
         $visits = $store->dailyVisits()->where('day', '>=', $since->toDateString())
             ->selectRaw('source, SUM(visits) as n')->groupBy('source')->pluck('n', 'source');
-        $orders = $store->orders()->where('created_at', '>=', $since)->where('status', '!=', 'cancelled')
+        $orders = $store->orders()->counted()->where('created_at', '>=', $since->utc())
             ->selectRaw('source, COUNT(*) as n, SUM(total) as revenue')->groupBy('source')->get()->keyBy('source');
 
         $stats = collect(Order::SOURCES)->map(fn ($label, $key) => [

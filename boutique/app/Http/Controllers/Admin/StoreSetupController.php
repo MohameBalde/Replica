@@ -21,7 +21,7 @@ class StoreSetupController extends Controller
     public function create(Request $request): View|RedirectResponse
     {
         if ($request->user()->store()->exists()) {
-            return redirect()->route('admin.orders.index');
+            return redirect()->route('admin.home');
         }
 
         return view('admin.store.create', [
@@ -33,7 +33,7 @@ class StoreSetupController extends Controller
     public function store(Request $request): RedirectResponse
     {
         if ($request->user()->store()->exists()) {
-            return redirect()->route('admin.orders.index');
+            return redirect()->route('admin.home');
         }
 
         $request->merge([

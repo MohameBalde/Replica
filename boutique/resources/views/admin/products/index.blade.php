@@ -32,7 +32,7 @@
                                     <span class="badge badge-neutral">Stock non suivi</span>
                                 @elseif ($stock <= 0)
                                     <span class="badge badge-danger">Épuisé</span>
-                                @elseif ($stock <= 3)
+                                @elseif ($stock <= \App\Models\Product::LOW_STOCK)
                                     <span class="badge badge-warning">Plus que {{ $stock }}</span>
                                 @else
                                     <span class="badge badge-success">{{ $stock }} en stock</span>

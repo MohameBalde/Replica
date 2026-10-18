@@ -65,7 +65,7 @@
                     <label for="quantity" class="label mb-0">Quantité</label>
                     <input class="input w-24 text-center" id="quantity" name="quantity" type="number" inputmode="numeric" min="1"
                            max="{{ $available->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="1">
-                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= 3) hidden @endunless>Plus que&nbsp;<span>{{ $available->stock }}</span></span>
+                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= \App\Models\Product::LOW_STOCK) hidden @endunless>Plus que&nbsp;<span>{{ $available->stock }}</span></span>
                 </div>
             @endif
 
@@ -96,7 +96,7 @@
                 document.getElementById('price').textContent = e.target.dataset.price;
                 const stock = e.target.dataset.stock, low = document.getElementById('low-stock'), qty = document.getElementById('quantity');
                 if (qty) qty.max = stock || {{ \App\Services\Cart::MAX_QUANTITY }};
-                if (low) { low.hidden = !(stock !== '' && Number(stock) <= 3); low.querySelector('span').textContent = stock; }
+                if (low) { low.hidden = !(stock !== '' && Number(stock) <= {{ \App\Models\Product::LOW_STOCK }}); low.querySelector('span').textContent = stock; }
             });
         </script>
     @endif
