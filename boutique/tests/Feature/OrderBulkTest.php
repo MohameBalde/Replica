@@ -66,7 +66,8 @@ class OrderBulkTest extends TestCase
         $b = $this->order(phone: '621 00 00 02');
 
         $this->actingAs($this->merchant)->get('/admin/commandes')->assertOk()
-            ->assertSee('name="orders[]" value="'.$a->id.'"', false)
+            ->assertSee('form="bulk" name="orders[]" value="'.$a->id.'"', false)   // les cases sont hors du <form> : form="bulk" les y rattache
+            ->assertSee('<form id="bulk"', false)
             ->assertSee('name="orders[]" value="'.$b->id.'"', false)
             ->assertSee('data-bulk-all', false)
             ->assertSee('action="'.route('admin.orders.bulk').'"', false)
@@ -121,11 +122,11 @@ class OrderBulkTest extends TestCase
         $this->actingAs($this->merchant)->post("/admin/commandes/{$cancelled->id}/annuler");
 
         $this->bulk('paid', [$live->id, $cancelled->id])
-            ->assertSessionHas('status', '1 commande marquée « Payée ». 1 commande annulée n\'a pas été modifiée.');
+            ->assertSessionHas('status', '1 commande marquée « Payée ». 1 commande n\'a pas changé (déjà à cette étape ou plus loin, ou annulée).');
         $this->assertSame('unpaid', $cancelled->fresh()->payment_status);
 
         // Annuler deux fois ne remet pas le stock deux fois.
-        $this->bulk('cancel', [$cancelled->id])->assertSessionHasErrors(['orders' => 'Aucune commande modifiée : les commandes choisies sont annulées.']);
+        $this->bulk('cancel', [$cancelled->id])->assertSessionHasErrors(['orders' => 'Aucune commande modifiée : les commandes choisies sont déjà à cette étape (ou plus loin), ou annulées.']);
         $this->assertSame(9, $this->stock());
     }
 
@@ -144,6 +145,36 @@ class OrderBulkTest extends TestCase
 
         $this->bulk('paid', [$theirs->id])->assertSessionHasErrors(['orders' => 'Aucune commande modifiée.']);
         $this->assertSame('unpaid', $theirs->fresh()->payment_status);
+    }
+
+    public function test_bulk_actions_never_move_an_order_backwards(): void
+    {
+        $done = $this->order();
+        $new = $this->order(phone: '621 00 00 02');
+        $refunded = $this->order(phone: '621 00 00 03');
+        Order::whereKey($done->id)->update(['status' => 'completed', 'fulfillment_status' => 'fulfilled']);
+        Order::whereKey($refunded->id)->update(['payment_status' => 'refunded']);
+
+        $this->bulk('confirmed', [$done->id, $new->id])->assertSessionHas('status', '1 commande confirmée. 1 commande n\'a pas changé (déjà à cette étape ou plus loin, ou annulée).');
+        $this->assertSame(['completed', 'confirmed'], [$done->fresh()->status, $new->fresh()->status]);
+
+        $this->bulk('ready', [$done->id, $new->id]);
+        $this->assertSame(['fulfilled', 'ready'], [$done->fresh()->fulfillment_status, $new->fresh()->fulfillment_status]);
+
+        $this->bulk('paid', [$refunded->id])->assertSessionHasErrors('orders');
+        $this->assertSame('refunded', $refunded->fresh()->payment_status);
+    }
+
+    public function test_after_an_action_the_list_keeps_its_filters_but_goes_back_to_page_one(): void
+    {
+        $order = $this->order();
+        $this->actingAs($this->merchant)->from('/admin/commandes?statut=pending&page=2')
+            ->post('/admin/commandes/actions', ['action' => 'confirmed', 'orders' => [$order->id]])
+            ->assertRedirect('/admin/commandes?statut=pending');
+        $this->actingAs($this->merchant)->from('/admin/commandes?page=3&paiement=cod')
+            ->post('/admin/commandes/actions', ['action' => 'completed', 'orders' => [$order->id]])
+            ->assertRedirect('/admin/commandes?paiement=cod');
+        $this->assertSame('Suivantes »', __('pagination.next'));   // et non « pagination.next » en français
     }
 
     public function test_bad_requests_are_refused_with_a_clear_message(): void

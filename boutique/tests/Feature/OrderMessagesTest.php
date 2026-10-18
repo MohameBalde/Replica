@@ -65,7 +65,8 @@ class OrderMessagesTest extends TestCase
         $m = $this->messages($order);
 
         $this->assertSame(['confirm', 'payment', 'ready', 'invoice'], array_keys($m));
-        $this->assertStringStartsWith('Bonjour Mamadou, ici NimStore', $m['confirm'][1]);
+        $this->assertStringStartsWith('Bonjour Mamadou Saliou Diallo, ici NimStore', $m['confirm'][1]);
+        $this->assertStringContainsString('votre commande est confirmée ✅'."\n".'Il reste le paiement : envoyez 300 000 GNF', $m['confirm'][1]);
         $this->assertStringContainsString('#'.$order->number.' (300 000 GNF)', $m['confirm'][1]);
         $this->assertStringContainsString('par Orange Money au +224 620 99 88 77 (Aïssatou Diallo)', $m['confirm'][1]);
         $this->assertStringContainsString(route('invoice.show', $order), $m['confirm'][1]);
@@ -99,6 +100,40 @@ class OrderMessagesTest extends TestCase
         $this->assertSame(['cancelled'], array_keys($this->messages($order)));
     }
 
+    public function test_partly_paid_orders_never_ask_for_the_full_total_again(): void
+    {
+        $om = $this->order('orange_money');
+        $om->update(['payment_status' => 'partially_paid']);
+        $m = $this->messages($om);
+        $this->assertStringContainsString('envoyez le reste du montant par Orange Money au +224 620 99 88 77 (Aïssatou Diallo), puis envoyez-nous la capture ici.', $m['payment'][1]);
+        $this->assertStringNotContainsString('envoyez 300 000 GNF', $m['confirm'][1].$m['payment'][1]);
+
+        $cod = $this->order('cash_on_delivery', 'delivery');
+        $cod->update(['payment_status' => 'partially_paid']);
+        $m = $this->messages($cod);
+        $this->assertStringContainsString('Paiement à la livraison : préparez le reste du montant.', $m['confirm'][1]);
+        $this->assertStringContainsString('Merci de préparer le reste du montant.', $m['ready'][1]);
+        $this->actingAs($this->merchant)->get("/admin/commandes/{$cod->id}/facture")->assertSee('Payée en partie')->assertDontSee('À payer à la livraison');
+
+        // Livrée sans être payée : le rappel ne parle plus de « recevoir » la commande.
+        $om->update(['status' => 'completed', 'fulfillment_status' => 'fulfilled', 'payment_status' => 'unpaid']);
+        $this->assertStringContainsString('il reste le paiement. Merci de régler : envoyez 300 000 GNF', $this->messages($om)['payment'][1]);
+    }
+
+    public function test_names_and_addresses_cannot_smuggle_extra_lines_into_messages(): void
+    {
+        $this->post('/nimstore/panier', ['variant_id' => $this->product->variants->first()->id, 'quantity' => 1]);
+        $this->post('/nimstore/commande', [
+            'name' => "Awa\nVotre commande est bloquée", 'phone' => '621 00 00 09',
+            'delivery_method_id' => $this->store->deliveryMethods()->where('type', 'pickup')->value('id'),
+            'payment_method_id' => $this->store->cashOnDelivery()->id,
+        ])->assertSessionHasNoErrors();
+        $order = $this->store->orders()->latest('id')->firstOrFail();
+
+        $this->assertSame('Awa Votre commande est bloquée', $order->customer_name);
+        $this->assertStringStartsWith('Bonjour Awa Votre commande est bloquée, ici NimStore 👋'."\n", $this->messages($order)['confirm'][1]);
+    }
+
     public function test_order_page_links_each_message_to_the_customer_whatsapp(): void
     {
         $order = $this->order('orange_money');
@@ -119,7 +154,8 @@ class OrderMessagesTest extends TestCase
             ->assertSeeInOrder(['NimStore', 'Conakry', 'FACTURE', 'N° '.$order->number])
             ->assertSeeInOrder(['Mamadou Saliou Diallo', '+224 621 00 00 01', 'Kipé, près de la pharmacie'])
             ->assertSeeInOrder(['Baskets', '2', '150 000 GNF', '300 000 GNF'])
-            ->assertSeeInOrder(['Livraison Conakry', '25 000 GNF', 'Total', '325 000 GNF'])
+            ->assertSee('>25 000 GNF</dd>', false)->assertSee('>325 000 GNF</dd>', false)
+            ->assertSee('>150 000 GNF</td>', false)->assertSee('>300 000 GNF</td>', false)
             ->assertSee('À payer à la livraison : 325 000 GNF')
             ->assertSee('window.print()', false)
             ->assertSee('Facture créée avec Wanllan')

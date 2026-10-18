@@ -36,6 +36,17 @@ class OrderController extends Controller
         'fulfilled' => ['fulfillment_status', 'fulfilled', 'Livraison', 'Livrée', ['marquée « Livrée »', 'marquées « Livrée »']],
     ];
 
+    /** États d'où chaque action peut partir : une action en masse ne fait jamais reculer une commande. */
+    public const BULK_FROM = [
+        'confirmed' => ['status', ['pending']],
+        'completed' => ['status', ['pending', 'confirmed']],
+        'cancel' => ['status', ['pending', 'confirmed', 'completed']],
+        'paid' => ['payment_status', ['unpaid', 'confirming', 'partially_paid']],
+        'ready' => ['fulfillment_status', ['unfulfilled']],
+        'out_for_delivery' => ['fulfillment_status', ['unfulfilled', 'ready']],
+        'fulfilled' => ['fulfillment_status', ['unfulfilled', 'ready', 'out_for_delivery']],
+    ];
+
     public const BULK_MAX = 100;
 
     public function index(Request $request): View
@@ -138,29 +149,37 @@ class OrderController extends Controller
         ]);
 
         $orders = $this->currentStore($request)->orders()->whereIn('id', array_unique($data['orders']))->get();
-        $active = $orders->reject(fn (Order $order) => $order->isCancelled());
         [$field, $value, , , [$one, $many]] = self::BULK_ACTIONS[$data['action']];
-
-        if ($active->isEmpty()) {
-            return back()->withErrors(['orders' => $orders->isEmpty()
-                ? 'Aucune commande modifiée.'
-                : 'Aucune commande modifiée : les commandes choisies sont annulées.']);
-        }
+        [$fromField, $from] = self::BULK_FROM[$data['action']];
+        $eligible = $orders->filter(fn (Order $order) => ! $order->isCancelled() && in_array($order->{$fromField}, $from, true));
 
         if ($field === null) {
-            $active->each(fn (Order $order) => $placer->cancel($order));
+            $eligible->each(fn (Order $order) => $placer->cancel($order));
+            $n = $eligible->count();
         } else {
-            Order::whereKey($active->modelKeys())->update([$field => $value]);
+            // Revérifié à l'écriture : une commande annulée entre-temps (autre onglet, autre téléphone) ne revit pas.
+            $n = Order::whereKey($eligible->modelKeys())->where('status', '!=', 'cancelled')->whereIn($fromField, $from)->update([$field => $value]);
         }
 
-        $n = $active->count();
+        if ($n === 0) {
+            return $this->backToList()->withErrors(['orders' => $orders->isEmpty()
+                ? 'Aucune commande modifiée.'
+                : 'Aucune commande modifiée : les commandes choisies sont déjà à cette étape (ou plus loin), ou annulées.']);
+        }
+
         $skipped = $orders->count() - $n;
         $message = $n.' '.($n > 1 ? 'commandes '.$many : 'commande '.$one).'.';
         if ($skipped > 0) {
-            $message .= ' '.$skipped.' '.($skipped > 1 ? 'commandes annulées n\'ont pas été modifiées.' : 'commande annulée n\'a pas été modifiée.');
+            $message .= ' '.($skipped > 1 ? $skipped.' commandes n\'ont pas changé' : '1 commande n\'a pas changé').' (déjà à cette étape ou plus loin, ou annulée).';
         }
 
-        return back()->with('status', $message);
+        return $this->backToList()->with('status', $message);
+    }
+
+    /** Retour à la liste avec ses filtres, en page 1 : la page d'où l'on vient peut être vide après l'action. */
+    private function backToList(): RedirectResponse
+    {
+        return redirect()->to(rtrim(preg_replace('/([?&])page=\d+&?/', '$1', url()->previous()), '?&'));
     }
 
     /** Capture de paiement privée : servie seulement au commerçant de la boutique. */

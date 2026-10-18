@@ -6,7 +6,7 @@
 @php $link = route('admin.orders.show', $order->id); $date = $order->created_at->timezone(\App\Support\Period::TZ); @endphp
 <li class="relative flex items-start gap-1 py-1 pr-4 pl-1 hover:bg-surface/60 has-checked:bg-accent-soft/40 {{ $grid }} xl:py-0">
     <label class="relative z-10 grid min-h-tap min-w-tap shrink-0 cursor-pointer place-items-center">
-        <input type="checkbox" form="bulk" name="orders[]" value="{{ $order->id }}" data-bulk-item class="size-5 accent-accent"
+        <input type="checkbox" form="bulk" name="orders[]" value="{{ $order->id }}" data-bulk-item class="size-5 accent-accent" autocomplete="off"
                aria-label="Sélectionner la commande #{{ $order->number }}">
     </label>
 

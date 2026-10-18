@@ -12,6 +12,7 @@ use App\Support\Phone;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -53,6 +54,11 @@ class CheckoutController extends Controller
     public function store(Request $request, Store $store, OrderPlacer $placer): RedirectResponse
     {
         $request->merge(['phone' => Phone::normalize($request->input('phone')) ?? $request->input('phone')]);
+        // Espaces, retours à la ligne et espaces insécables regroupés : ces textes partent dans des messages WhatsApp.
+        $request->merge(collect($request->only('name', 'address'))->map(fn ($v) => is_string($v) ? Str::squish($v) : $v)->all());
+        if (is_array($request->input('answers'))) {
+            $request->merge(['answers' => array_map(fn ($v) => is_string($v) ? Str::squish($v) : $v, $request->input('answers'))]);
+        }
 
         // Questions de la boutique (ex. point de repère) : obligatoires si le commerçant l'a choisi.
         $questions = $store->checkoutQuestions();

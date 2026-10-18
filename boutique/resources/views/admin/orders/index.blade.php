@@ -41,13 +41,14 @@
     @else
         @php
             // Grand écran : une ligne de tableau. Case | N° | Client | Reçue | Commande | Paiement | Livraison | Total.
-            $grid = 'xl:grid xl:grid-cols-[2.75rem_4.5rem_minmax(0,1fr)_6.5rem_7rem_minmax(0,11rem)_7.5rem_8rem] xl:items-center xl:gap-3';
+            // Client garde au moins 8rem : à 1200 px, les colonnes fixes ne l'écrasent pas.
+            $grid = 'xl:grid xl:grid-cols-[2.75rem_4.5rem_minmax(8rem,1fr)_5.5rem_6.5rem_minmax(0,8.5rem)_6.5rem_8rem] xl:items-center xl:gap-2';
         @endphp
         <div class="flex items-center gap-1 border-y border-border bg-surface/50 py-0.5 pr-4 pl-1 text-sm font-semibold text-text-muted {{ $grid }}">
-            <label class="grid min-h-tap min-w-tap shrink-0 cursor-pointer place-items-center">
-                <input type="checkbox" data-bulk-all class="size-5 accent-accent" aria-label="Tout sélectionner sur cette page">
+            <label class="flex min-h-tap shrink-0 cursor-pointer items-center xl:grid xl:min-w-tap xl:place-items-center">
+                <span class="grid min-w-tap place-items-center"><input type="checkbox" data-bulk-all class="size-5 accent-accent" autocomplete="off"></span>
+                <span class="xl:sr-only">Tout sélectionner<span class="sr-only"> sur cette page</span></span>
             </label>
-            <span class="xl:hidden">Tout sélectionner</span>
             @foreach (['N°', 'Client', 'Reçue', 'Commande', 'Paiement', 'Livraison', 'Total'] as $col)
                 <span class="hidden xl:block {{ $col === 'Total' ? 'text-right' : '' }}">{{ $col }}</span>
             @endforeach
@@ -60,10 +61,11 @@
         <div class="p-4">{{ $orders->links('pagination::simple-tailwind') }}</div>
 
         {{-- Actions en masse : la barre apparaît dès qu'une commande est cochée (au-dessus du menu sur téléphone). --}}
+        <p class="sr-only" aria-live="polite" data-bulk-live></p>
         <form id="bulk" method="POST" action="{{ route('admin.orders.bulk') }}" data-bulk-bar hidden
               class="fixed inset-x-0 bottom-16 z-30 mx-auto max-w-admin border-t border-border bg-bg p-3 shadow-pop lg:sticky lg:bottom-0 lg:max-w-none lg:shadow-none">
             @csrf
-            <p class="mb-2 text-sm font-semibold" data-bulk-count aria-live="polite"></p>
+            <p class="mb-2 text-sm font-semibold" data-bulk-count></p>
             <div class="flex gap-2">
                 <label class="sr-only" for="bulk-action">Action</label>
                 <select class="input min-w-0 flex-1" id="bulk-action" name="action" required>
@@ -85,10 +87,11 @@
                 const items = [...document.querySelectorAll('[data-bulk-item]')];
                 const all = document.querySelector('[data-bulk-all]');
                 const count = form.querySelector('[data-bulk-count]');
+                const live = document.querySelector('[data-bulk-live]'); // toujours présent : lu par les lecteurs d'écran
                 function sync() {
                     const n = items.filter(i => i.checked).length;
                     form.hidden = n === 0;
-                    count.textContent = n + (n > 1 ? ' commandes sélectionnées' : ' commande sélectionnée');
+                    count.textContent = live.textContent = n ? n + (n > 1 ? ' commandes sélectionnées' : ' commande sélectionnée') : '';
                     all.checked = n > 0 && n === items.length;
                     all.indeterminate = n > 0 && n < items.length;
                 }
@@ -103,6 +106,8 @@
                     }[form.elements['action'].value]; // form.action serait l'adresse du formulaire
                     if (warn && !confirm(warn)) e.preventDefault();
                 });
+                // Retour arrière : le navigateur peut recocher les cases après ce script.
+                window.addEventListener('pageshow', sync);
                 sync();
             })();
         </script>

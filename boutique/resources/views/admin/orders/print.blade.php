@@ -6,8 +6,8 @@
         $order->isCancelled() => 'Commande annulée',
         $paid => 'Payée',
         $order->payment_status === 'refunded' => 'Remboursée',
-        $order->isCashOnDelivery() => 'À payer à la livraison : '.gnf($order->total),
         $order->payment_status === 'partially_paid' => 'Payée en partie',
+        $order->isCashOnDelivery() => 'À payer à la livraison : '.gnf($order->total),
         default => 'À payer : '.gnf($order->total),
     };
 @endphp
@@ -56,23 +56,23 @@
                 <tr>
                     <th class="py-2 font-semibold">Article</th>
                     <th class="py-2 text-right font-semibold">Qté</th>
-                    <th class="hidden py-2 text-right font-semibold sm:table-cell print:table-cell">Prix</th>
+                    <th class="hidden py-2 text-right font-semibold md:table-cell print:table-cell">Prix</th>
                     <th class="py-2 text-right font-semibold">Montant</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border">
                 @foreach ($order->items as $item)
-                    <tr class="align-top">
+                    <tr class="break-inside-avoid align-top">
                         <td class="py-2 pr-3">{{ $item->label() }}</td>
                         <td class="py-2 text-right tabular-nums">{{ $item->quantity }}</td>
-                        <td class="hidden py-2 pl-3 text-right whitespace-nowrap tabular-nums sm:table-cell print:table-cell">{{ gnf($item->unit_price) }}</td>
+                        <td class="hidden py-2 pl-3 text-right whitespace-nowrap tabular-nums md:table-cell print:table-cell">{{ gnf($item->unit_price) }}</td>
                         <td class="py-2 pl-3 text-right whitespace-nowrap tabular-nums">{{ gnf($item->line_total) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <dl class="mt-4 ml-auto max-w-xs space-y-1 border-t border-border pt-3">
+        <dl class="mt-4 ml-auto max-w-xs break-inside-avoid space-y-1 border-t border-border pt-3">
             <div class="flex justify-between gap-4"><dt>Articles</dt><dd class="whitespace-nowrap tabular-nums">{{ gnf($order->subtotal) }}</dd></div>
             <div class="flex justify-between gap-4"><dt>{{ $order->delivery_method_name }}</dt><dd class="whitespace-nowrap tabular-nums">{{ $order->delivery_fee ? gnf($order->delivery_fee) : 'Gratuit' }}</dd></div>
             <div class="flex justify-between gap-4 border-t border-border pt-2 text-lg font-bold"><dt>Total</dt><dd class="whitespace-nowrap tabular-nums">{{ gnf($order->total) }}</dd></div>

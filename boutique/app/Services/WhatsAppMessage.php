@@ -93,15 +93,19 @@ class WhatsAppMessage
     public static function toCustomer(Order $order): array
     {
         $order->loadMissing('store', 'paymentMethod');
-        $hello = 'Bonjour '.Str::before(trim($order->customer_name).' ', ' ').', ici '.$order->store->name.' 👋';
+        // Nom complet (« El Hadj Oumar Bah » ne devient pas « Bonjour El ») ; espaces et retours à la ligne regroupés.
+        $hello = 'Bonjour '.Str::squish($order->customer_name).', ici '.$order->store->name.' 👋';
         $ref = 'Commande #'.$order->number.' ('.gnf($order->total).')';
         $invoice = 'Détail : '.route('invoice.show', $order);
+        $partial = $order->payment_status === 'partially_paid';
+        $due = $partial ? 'le reste du montant' : gnf($order->total); // le montant déjà reçu n'est pas enregistré
+        $delivered = $order->status === 'completed' || $order->fulfillment_status === 'fulfilled';
         $method = $order->paymentMethod;
-        $howToPay = $method && filled($method->account_number)
-            ? 'envoyez '.gnf($order->total).' par '.$order->paymentLabel().' au '.phone_display($method->account_number)
-                .($method->account_name ? ' ('.$method->account_name.')' : '').', puis ajoutez la capture sur le lien ci-dessous.'
-            : 'envoyez '.gnf($order->total).' par '.$order->paymentLabel().'.';
-        $cash = $order->isCashOnDelivery() && $order->payment_status === 'unpaid';
+        $howToPay = 'envoyez '.$due.' par '.$order->paymentLabel()
+            .($method && filled($method->account_number) ? ' au '.phone_display($method->account_number).($method->account_name ? ' ('.$method->account_name.')' : '') : '')
+            // La page de la commande n'accepte une capture que tant que rien n'est payé.
+            .($partial ? ', puis envoyez-nous la capture ici.' : ', puis ajoutez la capture sur le lien ci-dessous.');
+        $cashLeft = $order->isCashOnDelivery() && in_array($order->payment_status, ['unpaid', 'partially_paid'], true);
 
         if ($order->isCancelled()) {
             return ['cancelled' => ['Prévenir de l\'annulation', $hello."\n".$ref.' : votre commande a été annulée. '
@@ -110,28 +114,30 @@ class WhatsAppMessage
 
         $messages = [];
         if ($order->status === 'pending') {
-            $next = match (true) {
-                $cash => 'Paiement à la livraison : préparez '.gnf($order->total).'.',
-                in_array($order->payment_status, ['unpaid', 'partially_paid'], true) => 'Pour la valider, '.$howToPay,
-                $order->payment_status === 'paid' => 'Paiement bien reçu, merci !',
-                default => 'Nous vérifions votre paiement.',
+            $text = match (true) {
+                $cashLeft => 'votre commande est confirmée ✅'."\n".'Paiement à la livraison : préparez '.$due.'.',
+                $order->payment_status === 'paid' => 'votre commande est confirmée ✅'."\n".'Paiement bien reçu, merci !',
+                $order->payment_status === 'confirming' => 'votre commande est bien reçue 👍'."\n".'Nous vérifions votre paiement et revenons vers vous.',
+                in_array($order->payment_status, ['unpaid', 'partially_paid'], true) => 'votre commande est confirmée ✅'."\n".'Il reste le paiement : '.$howToPay,
+                default => 'votre commande est confirmée ✅',
             };
-            $messages['confirm'] = ['Confirmer la commande', $hello."\n".$ref.' : votre commande est confirmée ✅'."\n".$next."\n".$invoice];
+            $messages['confirm'] = ['Confirmer la commande', $hello."\n".$ref.' : '.$text."\n".$invoice];
         }
         if (! $order->isCashOnDelivery() && in_array($order->payment_status, ['unpaid', 'partially_paid'], true)) {
-            $messages['payment'] = ['Rappeler le paiement', $hello."\n".$ref.' : il reste le paiement. Pour recevoir votre commande, '.$howToPay."\n".$invoice];
+            $messages['payment'] = ['Rappeler le paiement', $hello."\n".$ref.' : il reste le paiement. '
+                .($delivered ? 'Merci de régler : ' : 'Pour recevoir votre commande, ').$howToPay."\n".$invoice];
         }
         if ($order->payment_status === 'paid') {
             $messages['paid'] = ['Paiement reçu', $hello."\n".$ref.' : paiement bien reçu ✅ Merci !'];
         }
-        if ($order->status !== 'completed' && $order->fulfillment_status !== 'fulfilled') {
+        if (! $delivered) {
             $messages['ready'] = filled($order->address)
-                ? ['Commande en route', $hello."\n".$ref.' : votre commande est en route 🛵 Livraison à : '.$order->address.'.'
-                    .($cash ? "\n".'Merci de préparer '.gnf($order->total).'.' : '')]
+                ? ['Commande en route', $hello."\n".$ref.' : votre commande est en route 🛵 Livraison à : '.Str::squish($order->address).'.'
+                    .($cashLeft ? "\n".'Merci de préparer '.$due.'.' : '')]
                 : ['Commande prête', $hello."\n".$ref.' : votre commande est prête, vous pouvez passer la récupérer.'
-                    .($cash ? "\n".'Prévoyez '.gnf($order->total).'.' : '')];
+                    .($cashLeft ? "\n".'Prévoyez '.$due.'.' : '')];
         }
-        if ($order->status === 'completed' || $order->fulfillment_status === 'fulfilled') {
+        if ($delivered) {
             $messages['thanks'] = ['Remercier le client', $hello."\n".'Merci pour votre achat 🙏 Vos amis peuvent commander ici : '.route('shop.show', $order->store)];
         }
         $messages['invoice'] = ['Envoyer la facture', $hello."\n".$ref.' : voici votre facture.'."\n".route('invoice.show', $order)];

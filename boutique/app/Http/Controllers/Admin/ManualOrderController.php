@@ -9,6 +9,7 @@ use App\Services\OrderPlacer;
 use App\Support\Phone;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -42,6 +43,8 @@ class ManualOrderController extends Controller
     {
         $store = $this->currentStore($request);
         $request->merge(['phone' => Phone::normalize($request->input('phone')) ?? $request->input('phone')]);
+        // Espaces, retours à la ligne et espaces insécables regroupés : ces textes partent dans des messages WhatsApp.
+        $request->merge(collect($request->only('name', 'address'))->map(fn ($v) => is_string($v) ? Str::squish($v) : $v)->all());
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
