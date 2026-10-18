@@ -150,7 +150,8 @@ class DashboardTest extends TestCase
     {
         $product = $this->addProduct('Baskets');
         $this->cancel($this->order($product));
-        $this->home()->assertSee('Bien démarrer');
+        // La commande d'essai (directe) ne coche pas « Partagez votre lien » : le bouton reste.
+        $this->home()->assertSee('Bien démarrer')->assertSee('2 étapes sur 5')->assertSee('wa.me/?text=', false);
 
         $this->order($product, phone: '621 00 00 02');
         $this->assertText($this->home(), '1 commande en attente')->assertDontSee('Bien démarrer')->assertSee('Vos ventes');
@@ -239,7 +240,8 @@ class DashboardTest extends TestCase
         $this->setStatuses($order, 'confirmed', 'paid');
         $this->cancel($order);
 
-        $this->actingAs($this->merchant)->get('/admin/commandes?paiement=paid')->assertSee('#'.$order->number);
+        $this->actingAs($this->merchant)->get('/admin');  // le message « annulée » (#N) est lu ici, pas dans la liste
+        $this->actingAs($this->merchant)->get('/admin/commandes?paiement=paid')->assertSee(route('admin.orders.show', $order->id), false);
     }
 
     public function test_cash_on_delivery_line_flags_completed_unpaid_orders(): void
@@ -266,8 +268,7 @@ class DashboardTest extends TestCase
         $this->addProduct('Caché', stock: 1, visible: false);
         $this->addProduct('Casquette', stock: 4);
 
-        $this->home()->assertSee('Stock bas')
-            ->assertSeeInOrder(['Survêtement (XL)', 'Épuisé', 'Survêtement (L)', 'Plus que 1', 'Survêtement (M)', 'Plus que 2'])
+        $this->assertText($this->home(), 'Stock bas Survêtement XL Épuisé Survêtement L Plus que 1 Survêtement M Plus que 2')
             ->assertDontSee('Parfum')->assertDontSee('Caché')->assertDontSee('Casquette');
 
         $this->actingAs($this->merchant)->get('/admin/produits')->assertSee('Plus que 3')->assertSee('4 en stock');
@@ -308,7 +309,11 @@ class DashboardTest extends TestCase
         $this->assertFalse($this->store->fresh()->is_open);
 
         $this->home()->assertSee('Votre boutique est fermée')->assertSee('Ouvrir ma boutique');
-        $this->from('/admin')->post('/admin/reglages/ouverture')->assertRedirect('/admin')->assertSessionHas('status', 'Boutique ouverte : vous recevez des commandes.');
+        $this->from('/admin')->post('/admin/reglages/ouverture', ['is_open' => '1'])->assertRedirect('/admin')->assertSessionHas('status', 'Boutique ouverte : vous recevez des commandes.');
+
+        // Double appui ou page restée ouverte : « Ouvrir » ne referme jamais.
+        $this->from('/admin')->post('/admin/reglages/ouverture', ['is_open' => '1']);
+        $this->assertTrue($this->store->fresh()->is_open);
     }
 
     public function test_home_is_where_merchants_land(): void
@@ -328,14 +333,18 @@ class DashboardTest extends TestCase
 
     public function test_menu_has_five_entries_with_home_first(): void
     {
-        $this->home()->assertSeeInOrder(['Accueil', 'Commandes', 'Produits', 'Partager', 'Réglages']);
+        $html = $this->home()->getContent();
+        $tabs = substr($html, strpos($html, 'aria-label="Menu"'));  // la barre du bas seulement (le <title> dit déjà « Accueil »)
+        (new TestResponse(new \Illuminate\Http\Response($tabs)))->assertSeeInOrder(['Accueil', 'Commandes', 'Produits', 'Partager', 'Réglages']);
     }
 
     public function test_day_labels_do_not_depend_on_the_app_language(): void
     {
         $this->order($this->addProduct('Baskets'));
         app()->setLocale('en');
-        $this->home()->assertSee('Auj.')->assertDontSee('>Sun<', false)->assertDontSee('>Mon<', false);
+        $html = $this->home()->assertSee('Auj.')->getContent();
+        $this->assertDoesNotMatchRegularExpression('/>\s*(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/', $html);
+        $this->assertMatchesRegularExpression('/<span class="">[DLMJVS]\s*</', $html);
     }
 
     public function test_home_stays_within_a_small_query_budget(): void
@@ -370,5 +379,25 @@ class DashboardTest extends TestCase
             ->assertSeeInOrder(['Facebook</td>', '1</td>', '0</td>', '0 GNF</td>'], false)  // la visite compte, pas la commande remboursée
             ->assertDontSee('TikTok</td>', false)
             ->assertDontSee('100 000 GNF</td>', false);
+
+        // Depuis l'Accueil en « 30 jours », la page suit la même période.
+        $this->actingAs($this->merchant)->get('/admin/partager?periode=30j')->assertSee('Ce qui fait vendre (30 derniers jours)')
+            ->assertSeeInOrder(['TikTok</td>', '1</td>', '1</td>', '100 000 GNF</td>'], false);
+        $this->actingAs($this->merchant)->get('/admin?periode=30j')->assertSee(route('admin.share', ['periode' => '30j']), false);
+    }
+
+    public function test_a_tie_names_every_leading_network_and_direct_alone_gives_advice(): void
+    {
+        $product = $this->addProduct('Baskets');
+        $this->order($product, src: 'tiktok');
+        $this->flushSession();
+        $this->order($product, src: 'facebook', phone: '621 00 00 02');
+        $this->assertText($this->home(), 'Le plus de commandes vient de Facebook et TikTok (1 chacun sur 2)');
+
+        $this->flushSession();
+        $this->order($product, phone: '621 00 00 03');
+        $this->flushSession();
+        $this->order($product, phone: '621 00 00 04');
+        $this->assertText($this->home(), 'Pour savoir d\'où viennent vos clients')->assertDontSee('Le plus de commandes vient de');
     }
 }

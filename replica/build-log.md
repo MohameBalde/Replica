@@ -16,6 +16,7 @@ Parité (`replica-diff/parity.py`) : **83,2 / 100**, indispensables **22 sur 22*
 - **Vos ventes** sur aujourd'hui, 7 jours ou 30 jours (jours de Conakry) : commandes, visites, déjà payé / pas encore payé, valeur des commandes, barres par jour, réseau qui apporte le plus de commandes. Hors commandes annulées et remboursées, même règle que la page Partager.
 - **Dernières commandes** et **Ce qui se vend** (3 produits, en quantités).
 - 8 requêtes par affichage, toutes limitées à la boutique, sans JavaScript.
+- Revue adversariale (5 angles : chiffres, SQL, affichage, régressions, sécurité ; chaque point vérifié par un second relecteur) : 13 points confirmés, tous corrigés. Les principaux : une commande d'essai annulée cochait « Partagez votre lien » ; à égalité, un seul réseau était nommé ; la page Partager ne suivait pas la période de l'Accueil ; la grille à 3 colonnes débordait entre 960 et 1200 px (elle n'apparaît plus qu'à partir de 1200 px, nouveau point de rupture `xl`) ; « Ouvrir ma boutique » pouvait la refermer sur un double appui ; 3 tests ne vérifiaient rien.
 
 **Bug corrigé (en production depuis le 17 octobre)** : la colonne `payment_status` faisait 12 caractères, mais « partially_paid » en fait 14. Sur MySQL, choisir « Payée en partie » sur une commande donnait une page d'erreur. SQLite (tests) ne vérifie pas la longueur, d'où le passage inaperçu. Migration `2026_10_19_000001` : colonne portée à 20 caractères. Les tests de l'Accueil tournent aussi sur MariaDB.
 

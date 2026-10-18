@@ -76,7 +76,7 @@ class DashboardController extends Controller
     private function todo(Store $store): array
     {
         $todo = [
-            'any_order' => false, 'live_order' => false, 'to_verify' => 0, 'pending' => 0, 'pending_old' => 0,
+            'live_order' => false, 'to_verify' => 0, 'pending' => 0, 'pending_old' => 0,
             'pending_no_wa' => 0, 'cod_count' => 0, 'cod_amount' => 0, 'cod_completed' => 0,
         ];
         // Aucune commande n'a jamais été passée : rien à lire.
@@ -95,7 +95,6 @@ class DashboardController extends Controller
         foreach ($rows as $r) {
             $n = (int) $r->n;
             $active = $r->status !== 'cancelled';
-            $todo['any_order'] = $todo['any_order'] || $n > 0;
             $todo['live_order'] = $todo['live_order'] || ($active && $n > 0);
             if ($active && $r->payment_status === 'confirming') {
                 $todo['to_verify'] += $n;
@@ -154,7 +153,9 @@ class DashboardController extends Controller
             ->selectRaw('COUNT(*) AS total, SUM(CASE WHEN is_visible = ? THEN 1 ELSE 0 END) AS visible', [true])
             ->first();
         $productDone = (int) $products->visible > 0;
-        $shareDone = $visits['shared'] > 0 || $todo['any_order'];
+        // Seules les visites venues d'un lien partagé comptent : une commande d'essai du
+        // commerçant (directe, puis annulée) ne coche pas l'étape et garde le bouton Partager.
+        $shareDone = $visits['shared'] > 0;
 
         $text = $store->welcomeMessageText();
         if (! str_contains($text, route('shop.show', $store))) {
@@ -216,11 +217,13 @@ class DashboardController extends Controller
             $sources[$r->source] = ($sources[$r->source] ?? 0) + $n;
         }
 
-        // Source qui a apporté le plus de commandes ; à égalité, l'ordre de Order::SOURCES (direct en dernier).
-        $topSource = collect(array_keys(Order::SOURCES))
-            ->filter(fn ($s) => ($sources[$s] ?? 0) > 0)
-            ->sortByDesc(fn ($s) => $sources[$s])
-            ->first();
+        // Réseaux qui ont apporté le plus de commandes, tous nommés en cas d'égalité.
+        // « Direct » n'est pas un réseau : s'il est seul en tête, la page conseille les liens suivis.
+        $networks = array_diff_key($sources, ['direct' => 0]);
+        $topCount = $networks ? max($networks) : 0;
+        $topSources = $topCount > 0 && $topCount >= ($sources['direct'] ?? 0)
+            ? array_values(array_filter(array_keys(Order::SOURCES), fn ($s) => ($networks[$s] ?? 0) === $topCount))
+            : [];
 
         $max = max(1, max(array_column($byDay, 'n')));
         $series = collect($byDay)->map(fn ($v, $day) => $v + [
@@ -236,8 +239,8 @@ class DashboardController extends Controller
             'partial' => $partial,
             'total' => $paid + $due,
             'series' => $series,
-            'topSource' => $topSource,
-            'topSourceCount' => $topSource ? $sources[$topSource] : 0,
+            'topSources' => $topSources,
+            'topSourceCount' => $topCount,
         ];
     }
 

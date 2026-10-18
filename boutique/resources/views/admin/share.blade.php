@@ -11,7 +11,7 @@
 
     @if ($stats->isNotEmpty())
         <section class="section">
-            <h2 class="section-title">Ce qui fait vendre (7 derniers jours)</h2>
+            <h2 class="section-title">Ce qui fait vendre ({{ [1 => 'aujourd\'hui', 7 => '7 derniers jours', 30 => '30 derniers jours'][$days] }})</h2>
             <table class="w-full text-sm">
                 <thead class="text-left text-text-muted">
                     <tr><th class="py-1 font-semibold">Réseau</th><th class="py-1 text-right font-semibold">Visites</th><th class="py-1 text-right font-semibold">Commandes</th><th class="py-1 text-right font-semibold">Ventes</th></tr>

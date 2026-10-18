@@ -6,7 +6,9 @@
             @foreach ($lowStock->take(5) as $row)
                 <li>
                     <a href="{{ route('admin.products.edit', $row->product_id) }}" class="flex min-h-tap items-center gap-3">
-                        <span class="min-w-0 flex-1 truncate">{{ $row->product_name }}{{ $row->variant_name !== 'Standard' ? ' ('.$row->variant_name.')' : '' }}</span>
+                        {{-- La taille ou la couleur ne se coupe jamais : c'est elle qui distingue les lignes. --}}
+                        <span class="min-w-0 flex-1 truncate">{{ $row->product_name }}</span>
+                        @if ($row->variant_name !== 'Standard')<span class="max-w-[40%] shrink-0 truncate font-semibold">{{ $row->variant_name }}</span>@endif
                         @if ($row->stock <= 0)
                             <span class="badge badge-danger">Épuisé</span>
                         @else

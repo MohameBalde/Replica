@@ -8,6 +8,7 @@
     @unless ($store->is_open)
         <form method="POST" action="{{ route('admin.settings.store.toggle') }}" class="mx-4 mt-3 rounded-md bg-danger-soft p-3 text-on-danger-soft lg:mx-4 lg:mt-4 lg:flex lg:items-center lg:justify-between lg:gap-4">
             @csrf
+            <input type="hidden" name="is_open" value="1">
             <p class="text-sm font-semibold">Votre boutique est fermée : les clients voient vos produits mais ne peuvent pas commander.</p>
             <button class="btn btn-primary mt-3 lg:mt-0 lg:w-auto lg:shrink-0 lg:px-6" type="submit">Ouvrir ma boutique</button>
         </form>
@@ -25,8 +26,8 @@
                 'order' => 'Recevez votre première commande',
             ];
         @endphp
-        <div class="lg:grid lg:grid-cols-3">
-            <section class="section {{ $cell }} lg:col-span-2 lg:row-span-2">
+        <div class="xl:grid xl:grid-cols-3">
+            <section class="section {{ $cell }} xl:col-span-2 xl:row-span-2">
                 <div class="flex items-baseline justify-between gap-3">
                     <h2 class="section-title mb-0">Bien démarrer</h2>
                     <p class="text-sm text-text-muted">{{ $c['done'] }} {{ $c['done'] > 1 ? 'étapes' : 'étape' }} sur 5</p>
@@ -82,7 +83,7 @@
             </section>
 
             {{-- Ordinateur : le lien de la boutique toujours sous la main. --}}
-            <section class="section {{ $cell }} hidden lg:col-start-3 lg:block lg:border-l">
+            <section class="section {{ $cell }} hidden lg:block xl:col-start-3 xl:border-l">
                 <h2 class="section-title">Votre lien</h2>
                 <p class="rounded-md bg-surface px-3 py-2 font-mono text-sm break-all">{{ route('shop.show', $store) }}</p>
                 <a href="{{ $c['shareUrl'] }}" class="btn btn-whatsapp mt-3" target="_blank" rel="noopener"><x-icon name="message" :size="20" /> Partager sur WhatsApp</a>
@@ -101,9 +102,10 @@
             $today = \Carbon\CarbonImmutable::now($tz);
             $range = $days === 1 ? 'aujourd\'hui ('.$today->format('d/m').')' : 'du '.$from->format('d/m').' au '.$today->format('d/m');
         @endphp
-        <div class="lg:grid lg:grid-cols-3">
-            {{-- À faire maintenant : en premier sur téléphone, à droite sur ordinateur. --}}
-            <section class="section {{ $cell }} lg:col-start-3 lg:row-start-1 lg:border-l">
+        {{-- Grand écran (xl) : trois colonnes. En dessous, une seule colonne, comme sur téléphone. --}}
+        <div class="xl:grid xl:grid-cols-3">
+            {{-- À faire maintenant : en premier sur téléphone, à droite sur grand écran. --}}
+            <section class="section {{ $cell }} xl:col-start-3 xl:row-start-1 xl:border-l">
                 <h2 class="section-title">À faire maintenant</h2>
                 @if ($nothingToDo)
                     <div class="flex items-center gap-3 rounded-md bg-success-soft p-3 text-on-success-soft">
@@ -145,7 +147,7 @@
                             <li>
                                 <a href="{{ route('admin.orders.index', ['paiement' => 'cod']) }}" class="flex min-h-tap items-center gap-3 rounded-md bg-surface px-3 py-2.5">
                                     <span class="w-9 shrink-0 text-center text-xl font-bold tabular-nums">{{ $t['cod_count'] }}</span>
-                                    <span class="min-w-0 flex-1"><span class="block font-semibold">à encaisser à la livraison · <span class="whitespace-nowrap">{{ gnf($t['cod_amount']) }}</span></span>
+                                    <span class="min-w-0 flex-1"><span class="block font-semibold">à encaisser à la livraison · <span class="whitespace-nowrap">{{ gnf($t['cod_amount'], false) }}</span> GNF</span>
                                         <span class="block text-sm text-text-muted">
                                             @if ($t['cod_completed'])
                                                 dont {{ $plural($t['cod_completed'], 'terminée', 'terminées') }} : si l'argent est reçu, marquez « Payée ».
@@ -166,7 +168,7 @@
             </section>
 
             {{-- Vos ventes --}}
-            <section class="section {{ $cell }} lg:col-span-2 lg:col-start-1 lg:row-start-1">
+            <section class="section {{ $cell }} xl:col-span-2 xl:col-start-1 xl:row-start-1">
                 <div class="lg:flex lg:items-center lg:justify-between">
                     <h2 class="section-title lg:mb-0">Vos ventes</h2>
                     <div class="flex gap-2" role="group" aria-label="Période">
@@ -177,12 +179,12 @@
                     </div>
                 </div>
 
-                <div class="mt-3 grid grid-cols-2 gap-2 text-center lg:grid-cols-4 lg:gap-3">
+                <div class="mt-3 grid grid-cols-2 gap-2 text-center lg:gap-3">
                     <div class="rounded-md bg-surface p-3">
                         <p class="text-xl font-bold tabular-nums">{{ $s['orders'] }}</p>
                         <p class="text-xs text-text-muted">{{ $s['orders'] > 1 ? 'commandes reçues' : 'commande reçue' }}</p>
                     </div>
-                    <a href="{{ route('admin.share') }}" class="rounded-md bg-surface p-3">
+                    <a href="{{ route('admin.share', ['periode' => $periodKey]) }}" class="rounded-md bg-surface p-3">
                         <p class="text-xl font-bold tabular-nums">{{ $visitsRecent }}</p>
                         <p class="text-xs text-text-muted">{{ $visitsRecent > 1 ? 'visites de la boutique' : 'visite de la boutique' }}</p>
                     </a>
@@ -243,9 +245,11 @@
                         </div>
                     @endif
 
-                    @if ($s['topSource'] && $s['topSource'] !== 'direct')
-                        <p class="mt-3 text-sm">Le plus de commandes vient de <strong>{{ \App\Models\Order::SOURCES[$s['topSource']] }}</strong> ({{ $s['topSourceCount'] }} sur {{ $s['orders'] }}).
-                            <a href="{{ route('admin.share') }}" class="font-semibold text-accent">Voir le détail →</a></p>
+                    @if ($s['topSources'])
+                        @php $names = collect($s['topSources'])->map(fn ($k) => \App\Models\Order::SOURCES[$k]); @endphp
+                        <p class="mt-3 text-sm">Le plus de commandes vient de <strong>{{ $names->join(', ', ' et ') }}</strong>
+                            ({{ $s['topSourceCount'] }}{{ $names->count() > 1 ? ' chacun' : '' }} sur {{ $s['orders'] }}).
+                            <a href="{{ route('admin.share', ['periode' => $periodKey]) }}" class="font-semibold text-accent">Voir le détail →</a></p>
                     @else
                         <p class="mt-3 text-sm">Pour savoir d'où viennent vos clients, utilisez les liens de la page <a href="{{ route('admin.share') }}" class="font-semibold text-accent">Partager →</a></p>
                     @endif
@@ -255,7 +259,7 @@
 
             {{-- Dernières commandes --}}
             @if ($recentOrders->isNotEmpty())
-                <section class="section {{ $cell }} px-0 lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:border-b-0">
+                <section class="section {{ $cell }} px-0 xl:col-span-2 xl:col-start-1 xl:row-start-2 xl:border-b-0">
                     <h2 class="section-title px-4">Dernières commandes</h2>
                     <ul class="divide-y divide-border border-y border-border">
                         @foreach ($recentOrders as $order)
@@ -268,16 +272,18 @@
 
             {{-- Ce qui se vend --}}
             @if ($topProducts->isNotEmpty())
-                <section class="section {{ $cell }} lg:col-start-3 lg:row-start-2 lg:border-l lg:border-b-0">
+                <section class="section {{ $cell }} lg:border-b-0 xl:col-start-3 xl:row-start-2 xl:border-l">
                     <h2 class="section-title">Ce qui se vend</h2>
                     <ol class="divide-y divide-border">
                         @foreach ($topProducts as $p)
                             @php $qty = (int) $p->qty; $label = $p->product_id ? $p->name : $p->name.' (retiré)'; @endphp
                             <li>
                                 @if ($p->product_id)<a href="{{ route('admin.products.edit', $p->product_id) }}" class="flex min-h-tap items-center gap-3">@else<div class="flex min-h-tap items-center gap-3">@endif
-                                    <span class="w-5 text-text-muted">{{ $loop->iteration }}</span>
-                                    <span class="min-w-0 flex-1 truncate font-semibold">{{ $label }}</span>
-                                    <span class="text-sm whitespace-nowrap">{{ $qty }} {{ $qty > 1 ? 'commandés' : 'commandé' }}</span>
+                                    <span class="w-5 shrink-0 text-text-muted">{{ $loop->iteration }}</span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate font-semibold">{{ $label }}</span>
+                                        <span class="block text-sm text-text-muted">{{ $qty }} {{ $qty > 1 ? 'commandés' : 'commandé' }}</span>
+                                    </span>
                                 @if ($p->product_id)</a>@else</div>@endif
                             </li>
                         @endforeach

@@ -64,6 +64,7 @@
   --breakpoint-sm: 360px;
   --breakpoint-md: 600px;
   --breakpoint-lg: 960px;
+  --breakpoint-xl: 1200px;
   --container-content: 480px;
   --container-admin: 720px;
   --container-wide: 1120px;

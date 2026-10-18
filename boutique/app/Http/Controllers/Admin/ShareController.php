@@ -34,7 +34,9 @@ class ShareController extends Controller
     public function show(Request $request): View
     {
         $store = $this->currentStore($request);
-        $since = Period::start(7);
+        // Même période que l'Accueil quand on vient de son lien « Voir le détail ».
+        $days = Period::days($request->query('periode'));
+        $since = Period::start($days);
 
         $visits = $store->dailyVisits()->where('day', '>=', $since->toDateString())
             ->selectRaw('source, SUM(visits) as n')->groupBy('source')->pluck('n', 'source');
@@ -55,6 +57,7 @@ class ShareController extends Controller
             ]),
             'products' => $store->products()->where('is_visible', true)->orderBy('position')->orderByDesc('id')->limit(50)->get(),
             'stats' => $stats,
+            'days' => $days,
         ]);
     }
 
