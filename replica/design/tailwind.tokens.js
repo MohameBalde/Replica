@@ -107,7 +107,8 @@ module.exports = {
   "screens": {
     "sm": "360px",
     "md": "600px",
-    "lg": "960px"
+    "lg": "960px",
+    "xl": "1200px"
   },
   "extend": {
     "maxWidth": {

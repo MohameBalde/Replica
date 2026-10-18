@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Store;
+use App\Support\Period;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -33,11 +34,13 @@ class ShareController extends Controller
     public function show(Request $request): View
     {
         $store = $this->currentStore($request);
-        $since = now()->subDays(7)->startOfDay();
+        // Même période que l'Accueil quand on vient de son lien « Voir le détail ».
+        $days = Period::days($request->query('periode'));
+        $since = Period::start($days);
 
         $visits = $store->dailyVisits()->where('day', '>=', $since->toDateString())
             ->selectRaw('source, SUM(visits) as n')->groupBy('source')->pluck('n', 'source');
-        $orders = $store->orders()->where('created_at', '>=', $since)->where('status', '!=', 'cancelled')
+        $orders = $store->orders()->counted()->where('created_at', '>=', $since->utc())
             ->selectRaw('source, COUNT(*) as n, SUM(total) as revenue')->groupBy('source')->get()->keyBy('source');
 
         $stats = collect(Order::SOURCES)->map(fn ($label, $key) => [
@@ -54,6 +57,7 @@ class ShareController extends Controller
             ]),
             'products' => $store->products()->where('is_visible', true)->orderBy('position')->orderByDesc('id')->limit(50)->get(),
             'stats' => $stats,
+            'days' => $days,
         ]);
     }
 

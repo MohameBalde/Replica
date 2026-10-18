@@ -38,11 +38,14 @@ class StoreSettingsController extends Controller
         return back()->with('status', $store->is_open ? 'Boutique enregistrée.' : 'Boutique enregistrée. Elle est fermée : les clients voient les produits mais ne peuvent pas commander.');
     }
 
-    /** Interrupteur rapide depuis l'en-tête. */
+    /**
+     * Interrupteur rapide. Avec is_open, le bouton dit l'état voulu : un double appui
+     * ou une page restée ouverte ne referme pas la boutique qu'on vient d'ouvrir.
+     */
     public function toggle(Request $request): RedirectResponse
     {
         $store = $this->currentStore($request);
-        $store->update(['is_open' => ! $store->is_open]);
+        $store->update(['is_open' => $request->has('is_open') ? $request->boolean('is_open') : ! $store->is_open]);
 
         return back()->with('status', $store->is_open ? 'Boutique ouverte : vous recevez des commandes.' : 'Boutique fermée : plus de nouvelles commandes.');
     }

@@ -1,4 +1,4 @@
-<x-layouts.admin title="Gestion Wanllan" :back="route('admin.orders.index')" wide>
+<x-layouts.admin title="Gestion Wanllan" :back="route('admin.home')" wide>
     <section class="section">
         <div class="grid grid-cols-2 gap-2 text-center lg:grid-cols-4 lg:gap-3">
             <div class="rounded-md bg-surface p-3">

@@ -85,7 +85,7 @@ class SubscriptionTest extends TestCase
             ->assertSee(gnf(config('wanllan.prices.merchant')))
             ->assertSee('Rien n\'est prélevé automatiquement')
             ->assertDontSee('Le plus choisi');
-        $this->actingAs($this->merchant)->get('/')->assertRedirect(route('admin.orders.index'));
+        $this->actingAs($this->merchant)->get('/')->assertRedirect(route('admin.home'));
     }
 
     public function test_public_pages_never_name_the_original_app(): void

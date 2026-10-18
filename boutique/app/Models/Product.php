@@ -12,6 +12,9 @@ class Product extends Model
 {
     use HasFactory;
 
+    /** « Plus que N » et alerte de l'Accueil à partir de ce stock. */
+    public const LOW_STOCK = 3;
+
     protected $fillable = ['category_id', 'name', 'slug', 'description', 'is_visible', 'track_stock', 'position'];
 
     protected function casts(): array

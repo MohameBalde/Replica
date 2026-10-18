@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\ProductController;
@@ -20,8 +21,8 @@ use App\Http\Controllers\Shop\StorefrontController;
 use App\Http\Controllers\Team\StoreController as TeamStoreController;
 use Illuminate\Support\Facades\Route;
 
-// Page d'accueil publique de Wanllan ; un commerçant connecté va droit à ses commandes.
-Route::get('/', fn () => auth()->check() ? redirect()->route('admin.orders.index') : view('landing'))->name('home');
+// Page d'accueil publique de Wanllan ; un commerçant connecté va droit à son Accueil.
+Route::get('/', fn () => auth()->check() ? redirect()->route('admin.home') : view('landing'))->name('home');
 Route::view('/confidentialite', 'legal.privacy')->name('legal.privacy');
 Route::view('/conditions', 'legal.terms')->name('legal.terms');
 
@@ -42,7 +43,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/compte', [AccountController::class, 'destroy'])->name('account.destroy');
 
     Route::middleware('store')->group(function () {
-        Route::get('/', fn () => redirect()->route('admin.orders.index'))->name('home');
+        // Accueil : à faire maintenant, ventes, ce qui se vend.
+        Route::get('/', [DashboardController::class, 'show'])->name('home');
 
         // S12, S13 : commandes
         Route::get('/commandes', [OrderController::class, 'index'])->name('orders.index');

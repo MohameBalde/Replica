@@ -79,6 +79,12 @@ class WhatsAppMessage
             .$payment->period_end->timezone('Africa/Conakry')->format('d/m/Y').'. Merci de votre confiance !';
     }
 
+    /** Lien WhatsApp sans destinataire : le commerçant choisit le contact, le groupe ou son statut. */
+    public static function share(string $text): string
+    {
+        return 'https://wa.me/?text='.rawurlencode($text);
+    }
+
     public static function url(string $phone, string $text): string
     {
         return 'https://wa.me/'.$phone.'?text='.rawurlencode($text);
