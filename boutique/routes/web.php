@@ -50,6 +50,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/commandes', [OrderController::class, 'index'])->name('orders.index');
         Route::post('/commandes/actions', [OrderController::class, 'bulk'])->name('orders.bulk');
         Route::get('/commandes/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
+        Route::get('/commandes/{order}/facture', [OrderController::class, 'print'])->whereNumber('order')->name('orders.print');
         Route::patch('/commandes/{order}/statuts', [OrderController::class, 'updateStatuses'])->whereNumber('order')->name('orders.statuses');
         Route::post('/commandes/{order}/annuler', [OrderController::class, 'cancel'])->whereNumber('order')->name('orders.cancel');
         Route::get('/commandes/{order}/preuves/{proof}', [OrderController::class, 'proof'])->whereNumber(['order', 'proof'])->name('orders.proof');

@@ -68,7 +68,18 @@ class OrderController extends Controller
         return view('admin.orders.show', [
             'order' => $model,
             'writeToCustomerUrl' => WhatsAppMessage::url($model->customer_phone, $customerMessage),
+            'messages' => collect(WhatsAppMessage::toCustomer($model))
+                ->map(fn ($m) => ['label' => $m[0], 'text' => $m[1], 'url' => WhatsAppMessage::url($model->customer_phone, $m[1])]),
         ]);
+    }
+
+    /** Facture imprimable (ou à enregistrer en PDF depuis le navigateur). */
+    public function print(Request $request, int $order): View
+    {
+        $model = $this->find($request, $order);
+        $model->load('items', 'paymentMethod');
+
+        return view('admin.orders.print', ['order' => $model, 'store' => $this->currentStore($request)]);
     }
 
     public function updateStatuses(Request $request, int $order): RedirectResponse
