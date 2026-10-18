@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Store;
+use App\Services\StatusImage;
 use App\Support\Period;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -67,6 +68,25 @@ class ShareController extends Controller
         $this->currentStore($request)->update($data);
 
         return back()->with('status', 'Message d\'accueil enregistré.');
+    }
+
+    /**
+     * Image 1080 × 1920 pour le statut WhatsApp ou TikTok : la boutique, ou un de ses
+     * produits. Affichée sur la page Partager, téléchargée avec ?download=1.
+     */
+    public function statusImage(Request $request, StatusImage $images, ?int $product = null): Response
+    {
+        $store = $this->currentStore($request);
+        // Produit visible seulement : le lien et le QR de l'image mènent à sa page publique.
+        $model = $product === null ? null : $store->products()->where('is_visible', true)->with('variants', 'firstImage', 'store')->findOrFail($product);
+        $jpeg = $model ? $images->forProduct($model) : $images->forStore($store);
+        $name = 'statut-'.$store->slug.($model ? '-'.$model->slug : '').'.jpg';
+
+        return response($jpeg, 200, [
+            'Content-Type' => 'image/jpeg',
+            'Content-Disposition' => ($request->boolean('download') ? 'attachment' : 'inline').'; filename="'.$name.'"',
+            'Cache-Control' => 'private, no-store',
+        ]);
     }
 
     /** QR code de la boutique (SVG net à toutes les tailles, à imprimer pour le comptoir). */

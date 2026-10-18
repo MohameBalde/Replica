@@ -1,6 +1,13 @@
 <x-layouts.admin title="Commandes" wide>
     {{-- Commande reçue par téléphone ou vendue au comptoir : saisie en une page. --}}
-    <div class="flex justify-end px-4 pt-3">
+    @php
+        // Fichier pour Excel ou Google Sheets, avec les filtres affichés. En haut sur ordinateur, sous la liste sur téléphone.
+        $exportUrl = route('admin.orders.export', array_filter(['statut' => $tab === 'all' ? null : $tab, 'paiement' => $payment]));
+    @endphp
+    <div class="flex justify-end gap-2 px-4 pt-3">
+        @if ($orders->isNotEmpty())
+            <a href="{{ $exportUrl }}" class="btn btn-secondary hidden w-auto gap-1 px-4 lg:inline-flex"><x-icon name="download" :size="18" /> Exporter (Excel)</a>
+        @endif
         <a href="{{ route('admin.orders.create') }}" class="btn btn-primary w-auto gap-1 px-4"><x-icon name="plus" :size="18" /> Nouvelle commande</a>
     </div>
     <nav class="flex gap-5 overflow-x-auto border-b border-border px-4" aria-label="Filtrer les commandes">
@@ -59,6 +66,9 @@
             @endforeach
         </ul>
         <div class="p-4">{{ $orders->links('pagination::simple-tailwind') }}</div>
+        <div class="px-4 pb-4 lg:hidden">
+            <a href="{{ $exportUrl }}" class="btn btn-ghost min-h-tap gap-1 px-0"><x-icon name="download" :size="18" /> Exporter ces commandes (Excel)</a>
+        </div>
 
         {{-- Actions en masse : la barre apparaît dès qu'une commande est cochée (au-dessus du menu sur téléphone). --}}
         <p class="sr-only" aria-live="polite" data-bulk-live></p>

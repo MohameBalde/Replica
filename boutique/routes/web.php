@@ -52,6 +52,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/commandes', [OrderController::class, 'index'])->name('orders.index');
         Route::post('/commandes/actions', [OrderController::class, 'bulk'])->name('orders.bulk');
         Route::get('/commandes/nouvelle', [ManualOrderController::class, 'create'])->name('orders.create');
+        Route::get('/commandes/export', [OrderController::class, 'export'])->name('orders.export');
         Route::post('/commandes', [ManualOrderController::class, 'store'])->name('orders.store');
         Route::get('/commandes/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
         Route::get('/commandes/{order}/facture', [OrderController::class, 'print'])->whereNumber('order')->name('orders.print');
@@ -90,6 +91,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/partager', [ShareController::class, 'show'])->name('share');
         Route::put('/partager/message', [ShareController::class, 'updateWelcome'])->name('share.welcome');
         Route::get('/partager/qr.svg', [ShareController::class, 'qr'])->name('share.qr');
+        Route::get('/partager/image/{product?}', [ShareController::class, 'statusImage'])->whereNumber('product')->name('share.image');
 
         // S16 : catégories
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');

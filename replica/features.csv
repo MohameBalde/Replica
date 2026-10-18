@@ -36,12 +36,12 @@ Pages légères pour 3G (images compressées),guinée,should,no,yes,"ajout Guin�
 Crédit client / dettes (achat à crédit),guinée,should,no,no,ajout Guinée : très courant dans les boutiques
 Indicateur stock faible côté client,boutique,could,yes,yes,
 Taxes sur produits et livraison,réglages,could,yes,no,peu utile pour les petits commerçants
-Export des commandes en PDF,commandes,could,yes,partial,"facture de chaque commande imprimable ou enregistrable en PDF ; pas encore d'export de la liste"
+Export des commandes en PDF,commandes,could,yes,yes,"facture de chaque commande imprimable ou enregistrable en PDF ; liste exportée pour Excel (CSV, mêmes filtres que la liste)"
 QR code sur la commande confirmée,commandes,could,yes,yes,"sur la facture imprimable, vers la page de suivi"
 Plusieurs boutiques par compte,compte,could,yes,no,
-App marchand avec notifications push,compte,could,yes,no,V1 : site web installable (PWA)
+App marchand avec notifications push,compte,could,yes,partial,"espace commerçant installable sur l'écran d'accueil (PWA, page hors connexion) ; pas encore de notifications push"
 Synchronisation catalogue WhatsApp Business,intégrations,could,yes,skip,passe par Meta avec validation du compte
-Lien de boutique partageable en image (statut WhatsApp / TikTok),guinée,could,no,no,ajout Guinée : marketing
+Lien de boutique partageable en image (statut WhatsApp / TikTok),guinée,could,no,yes,"ajout Guinée : image 1080 × 1920 de la boutique ou d'un produit, prix, lien et QR code"
 Rapport du jour (ventes / commandes),guinée,could,no,yes,"ajout Guinée | Accueil, période « Aujourd'hui »"
 Paiement automatique par API mobile money,paiement,could,yes,skip,"API Orange Money / MTN Guinée à obtenir, V1 = preuve de paiement"
 Devis de livreurs en temps réel,livraison,could,yes,skip,partenariats de livraison absents en Guinée
