@@ -21,6 +21,19 @@ class OrderController extends Controller
 
     public const PAYMENT_FILTERS = ['confirming' => 'À vérifier', 'unpaid' => 'Non payées', 'cod' => 'À la livraison', 'paid' => 'Payées'];
 
+    /** Actions en masse : [champ, valeur, groupe du menu, libellé du menu, message (une / plusieurs)]. Annuler remet le stock. */
+    public const BULK_ACTIONS = [
+        'confirmed' => ['status', 'confirmed', 'Commande', 'Confirmer', ['confirmée', 'confirmées']],
+        'completed' => ['status', 'completed', 'Commande', 'Terminer', ['terminée', 'terminées']],
+        'cancel' => [null, null, 'Commande', 'Annuler (le stock est remis)', ['annulée, stock remis', 'annulées, stock remis']],
+        'paid' => ['payment_status', 'paid', 'Paiement', 'Marquer « Payée »', ['marquée « Payée »', 'marquées « Payée »']],
+        'ready' => ['fulfillment_status', 'ready', 'Livraison', 'Prête', ['marquée « Prête »', 'marquées « Prête »']],
+        'out_for_delivery' => ['fulfillment_status', 'out_for_delivery', 'Livraison', 'En livraison', ['marquée « En livraison »', 'marquées « En livraison »']],
+        'fulfilled' => ['fulfillment_status', 'fulfilled', 'Livraison', 'Livrée', ['marquée « Livrée »', 'marquées « Livrée »']],
+    ];
+
+    public const BULK_MAX = 100;
+
     public function index(Request $request): View
     {
         $store = $this->currentStore($request);
@@ -83,6 +96,49 @@ class OrderController extends Controller
         $placer->cancel($model);
 
         return back()->with('status', 'Commande #'.$model->number.' annulée. Le stock a été remis.');
+    }
+
+    /**
+     * Même changement sur plusieurs commandes cochées dans la liste. Seules les
+     * commandes de la boutique sont touchées ; les annulées ne bougent plus.
+     */
+    public function bulk(Request $request, OrderPlacer $placer): RedirectResponse
+    {
+        $data = $request->validate([
+            'action' => ['required', Rule::in(array_keys(self::BULK_ACTIONS))],
+            'orders' => ['required', 'array', 'max:'.self::BULK_MAX],
+            'orders.*' => ['integer'],
+        ], [
+            'action.required' => 'Choisissez une action.',
+            'action.in' => 'Choisissez une action.',
+            'orders.required' => 'Cochez au moins une commande.',
+            'orders.max' => 'Au plus '.self::BULK_MAX.' commandes à la fois.',
+        ]);
+
+        $orders = $this->currentStore($request)->orders()->whereIn('id', array_unique($data['orders']))->get();
+        $active = $orders->reject(fn (Order $order) => $order->isCancelled());
+        [$field, $value, , , [$one, $many]] = self::BULK_ACTIONS[$data['action']];
+
+        if ($active->isEmpty()) {
+            return back()->withErrors(['orders' => $orders->isEmpty()
+                ? 'Aucune commande modifiée.'
+                : 'Aucune commande modifiée : les commandes choisies sont annulées.']);
+        }
+
+        if ($field === null) {
+            $active->each(fn (Order $order) => $placer->cancel($order));
+        } else {
+            Order::whereKey($active->modelKeys())->update([$field => $value]);
+        }
+
+        $n = $active->count();
+        $skipped = $orders->count() - $n;
+        $message = $n.' '.($n > 1 ? 'commandes '.$many : 'commande '.$one).'.';
+        if ($skipped > 0) {
+            $message .= ' '.$skipped.' '.($skipped > 1 ? 'commandes annulées n\'ont pas été modifiées.' : 'commande annulée n\'a pas été modifiée.');
+        }
+
+        return back()->with('status', $message);
     }
 
     /** Capture de paiement privée : servie seulement au commerçant de la boutique. */

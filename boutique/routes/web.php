@@ -48,6 +48,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
         // S12, S13 : commandes
         Route::get('/commandes', [OrderController::class, 'index'])->name('orders.index');
+        Route::post('/commandes/actions', [OrderController::class, 'bulk'])->name('orders.bulk');
         Route::get('/commandes/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
         Route::patch('/commandes/{order}/statuts', [OrderController::class, 'updateStatuses'])->whereNumber('order')->name('orders.statuses');
         Route::post('/commandes/{order}/annuler', [OrderController::class, 'cancel'])->whereNumber('order')->name('orders.cancel');
