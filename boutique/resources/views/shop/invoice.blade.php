@@ -62,6 +62,7 @@
         <p><span class="text-text-muted">Nom :</span> {{ $order->customer_name }}</p>
         <p><span class="text-text-muted">Service :</span> {{ $order->delivery_method_name }}</p>
         @if ($order->address)<p><span class="text-text-muted">Adresse :</span> {{ $order->address }}</p>@endif
+        @include('admin.orders._answers', ['class' => ''])
         <p class="mt-3 text-text-muted">Gardez ce lien : il montre l'état de votre commande.</p>
         <a href="{{ route('shop.show', $store) }}" class="mt-4 inline-block font-semibold text-accent">Retour à la boutique</a>
     </section>

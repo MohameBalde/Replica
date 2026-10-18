@@ -20,7 +20,7 @@ use Illuminate\Validation\ValidationException;
 class OrderPlacer
 {
     /**
-     * @param  array{name:string, phone:string, address:?string, note:?string, delivery_method_id:int, payment_method_id:int}  $data
+     * @param  array{name:string, phone:string, address:?string, note:?string, delivery_method_id:int, payment_method_id:int, answers?:list<array{q:string, a:string}>}  $data
      */
     public function place(Store $store, Cart $cart, array $data, string $source = 'direct', ?string $campaign = null): Order
     {
@@ -65,6 +65,7 @@ class OrderPlacer
         return $this->persist($store, $lines, $data['name'], $data['phone'], $address, [
             'address' => $address,
             'note' => $data['note'] ?? null,
+            'answers' => ($data['answers'] ?? []) ?: null,
             'delivery_method_id' => $delivery->id,
             'delivery_method_name' => $delivery->name,
             'delivery_fee' => $delivery->fee,

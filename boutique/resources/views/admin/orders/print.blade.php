@@ -41,6 +41,7 @@
                 <p class="font-semibold">{{ $order->customer_name }}</p>
                 <p>{{ phone_display($order->customer_phone) }}</p>
                 @if ($order->address)<p>{{ $order->address }}</p>@endif
+                @include('admin.orders._answers', ['class' => ''])
             </div>
             <div class="md:text-right">
                 <p class="text-xs font-semibold tracking-wide text-text-muted uppercase">Livraison et paiement</p>

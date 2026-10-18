@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\OpeningHours;
 use App\Support\Plans;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,11 +28,13 @@ class Store extends Model
 
     public const REMIND_AFTER_DAYS = 30;
 
-    protected $fillable = ['name', 'slug', 'whatsapp_number', 'city', 'description', 'is_open', 'welcome_message'];
+    protected $fillable = ['name', 'slug', 'whatsapp_number', 'city', 'description', 'is_open', 'welcome_message',
+        'checkout_questions', 'opening_hours', 'closed_outside_hours'];
 
     protected function casts(): array
     {
-        return ['is_open' => 'boolean', 'next_order_number' => 'integer', 'plan_expires_at' => 'datetime', 'suspended_at' => 'datetime'];
+        return ['is_open' => 'boolean', 'next_order_number' => 'integer', 'plan_expires_at' => 'datetime', 'suspended_at' => 'datetime',
+            'checkout_questions' => 'array', 'opening_hours' => 'array', 'closed_outside_hours' => 'boolean'];
     }
 
     public function getRouteKeyName(): string
@@ -98,6 +102,23 @@ class Store extends Model
         $max = $this->maxProducts();
 
         return $max === null || $this->products()->count() < $max;
+    }
+
+    public function openingHours(): OpeningHours
+    {
+        return new OpeningHours($this->opening_hours);
+    }
+
+    /** Ouverte (interrupteur) et, si le commerçant l'a choisi, dans ses horaires. */
+    public function acceptsOrdersNow(): bool
+    {
+        return $this->is_open && (! $this->closed_outside_hours || $this->openingHours()->isOpenAt(CarbonImmutable::now()));
+    }
+
+    /** @return list<array{label: string, required: bool}> */
+    public function checkoutQuestions(): array
+    {
+        return array_values($this->checkout_questions ?? []);
     }
 
     public function showsBadge(): bool

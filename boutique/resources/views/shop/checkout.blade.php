@@ -5,6 +5,10 @@
     </header>
 
     <x-flash :inline="true" />
+    @php $hours = $store->openingHours()->status(\Carbon\CarbonImmutable::now()); @endphp
+    @if ($hours && ! $hours['open'] && $store->acceptsOrdersNow() && $hours['next'])
+        <p class="toast bg-warning-soft text-on-warning-soft">{{ $store->name }} est fermée en ce moment. Vous pouvez commander : la boutique vous répondra {{ $hours['next'] }}.</p>
+    @endif
     @error('cart')<p class="toast bg-danger-soft text-on-danger-soft" role="alert">{{ $message }}</p>@enderror
 
     <form method="POST" action="{{ route('shop.checkout.store', $store) }}" id="checkout" class="flex flex-1 flex-col" novalidate
@@ -25,6 +29,14 @@
                 </div>
                 @error('phone')<p class="error">{{ $message }}</p>@enderror
             </div>
+            {{-- Questions de la boutique (Réglages > Commande). --}}
+            @foreach ($store->checkoutQuestions() as $i => $q)
+                <div class="field mt-4 mb-0">
+                    <label class="label" for="answer-{{ $i }}">{{ $q['label'] }}@unless ($q['required']) <span class="font-normal text-text-muted">(facultatif)</span>@endunless</label>
+                    <input class="input @error("answers.$i") is-invalid @enderror" id="answer-{{ $i }}" name="answers[{{ $i }}]" value="{{ old("answers.$i") }}" maxlength="255" @if ($q['required']) required @endif>
+                    @error("answers.$i")<p class="error">{{ $message }}</p>@enderror
+                </div>
+            @endforeach
         </section>
 
         <section class="section">

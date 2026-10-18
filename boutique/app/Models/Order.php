@@ -56,7 +56,7 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id', 'number', 'public_token', 'status', 'payment_status', 'fulfillment_status',
-        'customer_name', 'customer_phone', 'address', 'note', 'delivery_method_id', 'delivery_method_name',
+        'customer_name', 'customer_phone', 'address', 'note', 'answers', 'delivery_method_id', 'delivery_method_name',
         'delivery_fee', 'payment_method_id', 'payment_method_type', 'subtotal', 'total', 'currency',
         'source', 'campaign', 'internal_note', 'whatsapp_sent_at', 'cancelled_at',
     ];
@@ -68,6 +68,7 @@ class Order extends Model
             'subtotal' => 'integer',
             'delivery_fee' => 'integer',
             'total' => 'integer',
+            'answers' => 'array',
             'whatsapp_sent_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];

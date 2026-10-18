@@ -22,6 +22,7 @@
         </p>
         <p class="text-text-muted">{{ phone_display($order->customer_phone) }}</p>
         <p class="mt-1">{{ $order->delivery_method_name }}@if ($order->address) · {{ $order->address }}@endif</p>
+        @include('admin.orders._answers')
         @if ($order->note)<p class="mt-2 rounded-md bg-surface p-3 text-sm">« {{ $order->note }} »</p>@endif
         @if ($order->internal_note)<p class="mt-2 rounded-md bg-warning-soft p-3 text-sm text-on-warning-soft"><span class="font-semibold">Note interne :</span> {{ $order->internal_note }}</p>@endif
     </section>

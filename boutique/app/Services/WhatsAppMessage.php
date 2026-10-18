@@ -41,6 +41,9 @@ class WhatsAppMessage
         if ($order->address) {
             $lines[] = 'Adresse : '.$order->address;
         }
+        foreach ($order->answers ?? [] as $qa) {
+            $lines[] = $qa['q'].' : '.$qa['a'];
+        }
         $lines[] = $order->isCashOnDelivery()
             ? 'Paiement : à la livraison ('.gnf($order->total).' à préparer)'
             : 'Paiement : '.$order->paymentLabel();

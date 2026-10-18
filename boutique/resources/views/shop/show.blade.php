@@ -7,12 +7,24 @@
             <h1 class="truncate text-lg font-semibold lg:text-display">{{ $store->name }}</h1>
             <p class="truncate text-sm text-text-muted">{{ $store->city }}{{ $store->description ? ' · '.$store->description : '' }}</p>
         </div>
-        <span class="badge {{ $store->is_open ? 'badge-success' : 'badge-warning' }}">{{ $store->is_open ? 'Ouvert' : 'Fermé' }}</span>
+        @php $hours = $store->is_open ? $store->openingHours()->status(\Carbon\CarbonImmutable::now()) : null; @endphp
+        <span class="badge {{ $store->is_open && ($hours['open'] ?? true) ? 'badge-success' : 'badge-warning' }}">{{ $store->is_open ? ($hours ? \Illuminate\Support\Str::before($hours['label'], ' ·') : 'Ouvert') : 'Fermé' }}</span>
     </header>
 
-    @unless ($store->is_open)
+    @if (! $store->is_open)
         <p class="mx-4 mb-2 rounded-md bg-warning-soft lg:mx-8 px-3 py-2 text-sm text-on-warning-soft">La boutique est fermée pour le moment. Vous pouvez regarder les produits ; les commandes reprendront bientôt.</p>
-    @endunless
+    @elseif ($hours && ! $hours['open'])
+        <p class="mx-4 mb-2 rounded-md bg-warning-soft lg:mx-8 px-3 py-2 text-sm text-on-warning-soft">
+            {{ $hours['label'] }}.
+            {{ $store->closed_outside_hours ? 'Les commandes reprendront à l\'ouverture.' : 'Vous pouvez commander : la boutique vous répondra à l\'ouverture.' }}
+        </p>
+    @endif
+    @if ($hours)
+        <details class="mx-4 mb-2 text-sm text-text-muted lg:mx-8">
+            <summary class="inline-flex min-h-tap cursor-pointer items-center font-semibold">Horaires</summary>
+            <ul class="pb-2">@foreach ($store->openingHours()->lines() as $line)<li>{{ $line }}</li>@endforeach</ul>
+        </details>
+    @endif
 
     <x-flash />
 

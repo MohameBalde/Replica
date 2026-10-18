@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ManualOrderController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CheckoutSettingsController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
@@ -74,6 +75,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/reglages', [StoreSettingsController::class, 'edit'])->name('settings.store');
         Route::put('/reglages', [StoreSettingsController::class, 'update'])->name('settings.store.update');
         Route::post('/reglages/ouverture', [StoreSettingsController::class, 'toggle'])->name('settings.store.toggle');
+        Route::get('/reglages/commande', [CheckoutSettingsController::class, 'edit'])->name('checkout.edit');
+        Route::put('/reglages/commande', [CheckoutSettingsController::class, 'update'])->name('checkout.update');
 
         // S18 : modes de livraison (frais, minimum, paiement à la livraison par mode)
         Route::get('/livraison', [DeliverySettingsController::class, 'index'])->name('delivery.index');
