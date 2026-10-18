@@ -1,8 +1,27 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 76 tests, 728 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
-Parité (`replica-diff/parity.py`) : **83,2 / 100**, indispensables **22 sur 22**.
+Tests : 107 tests, 1 032 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Parité (`replica-diff/parity.py`) : **95,3 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-18 (suite) : commandes, messages, saisie, réglages « Commande »
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| S12 commandes | fait | export de la liste | cases à cocher hors du formulaire (`form="bulk"`) pour garder une seule liste qui devient un tableau à 1200 px ; une action en masse ne fait jamais reculer une commande |
+| S13 détail | fait | — | messages WhatsApp prêts selon l'état : paiement partiel (on ne connaît pas le montant reçu, donc « le reste du montant »), livrée mais pas payée, capture à vérifier |
+| Facture imprimable | fait | — | lignes et totaux qui ne se coupent pas entre deux pages A4 ; QR code de suivi intégré en image |
+| S21 commande manuelle | fait | — | même numérotation, même fiche client, même stock que la vitrine (`OrderPlacer::persist` partagé) ; prix négocié par ligne |
+| Réglages > Commande | fait | — | horaires à l'heure de Conakry ; par défaut les commandes restent possibles quand c'est fermé, avec un mot au client |
+
+- **Commandes** : actions en masse (confirmer, terminer, annuler avec remise du stock, payée, prête, en livraison, livrée), tableau sur grand écran, retour en page 1 après l'action.
+- **Fiche commande** : messages WhatsApp en un clic (confirmation, rappel du paiement, paiement reçu, prête ou en route, merci, facture, annulation), facture imprimable ou en PDF avec QR code.
+- **Nouvelle commande** à la main (téléphone, message, comptoir), note interne.
+- **Questions au client** (ex. point de repère), facultatives ou obligatoires ; réponses dans WhatsApp, la facture et la commande.
+- **Horaires d'ouverture** par jour ; la vitrine dit « Ouvert jusqu'à 20 h » ou « Fermé · ouvre demain à 8 h ».
+- **Pas fait (choix)** : vrais suppléments payants. Le panier devrait changer de structure à une semaine de la bêta. En attendant : un choix avec son prix (ex. « L + flocage ») et une question pour le texte du flocage.
+- Revue adversariale des actions en masse, messages et facture : 4 angles, chaque point contre-vérifié ; points confirmés corrigés (paiement partiel, actions qui reculaient, colonne Client écrasée à 1200 px, facture qui débordait à 360 px, salutation « Bonjour El »).
+- **Bug ancien corrigé** : la pagination affichait « pagination.next » en production (pas de fichiers de langue français). Ajout de `lang/fr/pagination.php` et `lang/fr/validation.php`.
 
 ## 2026-10-18 : Accueil, le poste de pilotage du commerçant
 
