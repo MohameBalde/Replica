@@ -9,7 +9,6 @@ use App\Services\OrderPlacer;
 use App\Services\PaymentOptions;
 use App\Services\SourceTracker;
 use App\Support\Phone;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -48,7 +47,9 @@ class CheckoutController extends Controller
 
         $paymentMethods = $store->paymentMethods()->where('is_active', true)->get()->filter->isComplete()->values();
 
-        return view('shop.checkout', compact('store', 'lines', 'subtotal', 'deliveryMethods', 'paymentMethods', 'options'));
+        $closed = $store->closedNotice();
+
+        return view('shop.checkout', compact('store', 'lines', 'subtotal', 'deliveryMethods', 'paymentMethods', 'options', 'closed'));
     }
 
     public function store(Request $request, Store $store, OrderPlacer $placer): RedirectResponse
@@ -87,12 +88,17 @@ class CheckoutController extends Controller
             'answers.*.max' => 'Réponse trop longue (255 caractères au plus).',
         ] + $messages);
 
-        if (! $store->acceptsOrdersNow()) {
-            $next = $store->openingHours()->status(CarbonImmutable::now())['next'] ?? null;
+        if ($closed = $store->closedNotice()) {
+            return back()->withErrors(['cart' => $closed])->withInput();
+        }
 
-            return back()->withErrors(['cart' => $store->is_open && $next
-                ? 'La boutique est fermée : elle ouvre '.$next.'. Revenez à ce moment-là pour commander.'
-                : 'La boutique est fermée pour le moment.'])->withInput();
+        // Chaque réponse arrive avec le libellé de sa question : si le commerçant a changé
+        // ses questions pendant que le client remplissait, on ne range rien sous la mauvaise.
+        $askedLabels = (array) $request->input('answers_q', []);
+        foreach ($questions as $i => $q) {
+            if (($askedLabels[$i] ?? null) !== $q['label']) {
+                return back()->withErrors(['cart' => 'Les questions de la boutique ont changé : vérifiez vos réponses puis validez à nouveau.'])->withInput();
+            }
         }
 
         // Réponses copiées sur la commande avec leur question : elles restent lisibles si la question change.

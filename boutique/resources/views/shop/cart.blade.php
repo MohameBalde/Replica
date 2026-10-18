@@ -47,7 +47,12 @@
 
         <div class="sticky-bar mt-auto">
             <div class="mb-3 flex justify-between text-lg font-bold"><span>Sous-total</span><span>{{ gnf($subtotal) }}</span></div>
-            <a href="{{ route('shop.checkout', $store) }}" class="btn btn-primary btn-lg">Commander</a>
+            @if ($closed = $store->closedNotice())
+                <p class="mb-2 rounded-md bg-warning-soft px-3 py-2 text-sm text-on-warning-soft">{{ $closed }}</p>
+                <button class="btn btn-secondary btn-lg" type="button" disabled>Commander</button>
+            @else
+                <a href="{{ route('shop.checkout', $store) }}" class="btn btn-primary btn-lg">Commander</a>
+            @endif
         </div>
     @endif
 </x-layouts.shop>

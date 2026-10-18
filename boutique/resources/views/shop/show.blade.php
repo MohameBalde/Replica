@@ -8,7 +8,8 @@
             <p class="truncate text-sm text-text-muted">{{ $store->city }}{{ $store->description ? ' · '.$store->description : '' }}</p>
         </div>
         @php $hours = $store->is_open ? $store->openingHours()->status(\Carbon\CarbonImmutable::now()) : null; @endphp
-        <span class="badge {{ $store->is_open && ($hours['open'] ?? true) ? 'badge-success' : 'badge-warning' }}">{{ $store->is_open ? ($hours ? \Illuminate\Support\Str::before($hours['label'], ' ·') : 'Ouvert') : 'Fermé' }}</span>
+        @php $openNow = $store->is_open && ($hours['open'] ?? true); @endphp
+        <span class="badge {{ $openNow ? 'badge-success' : 'badge-warning' }}">{{ $openNow ? 'Ouvert' : 'Fermé' }}</span>
     </header>
 
     @if (! $store->is_open)
@@ -21,7 +22,7 @@
     @endif
     @if ($hours)
         <details class="mx-4 mb-2 text-sm text-text-muted lg:mx-8">
-            <summary class="inline-flex min-h-tap cursor-pointer items-center font-semibold">Horaires</summary>
+            <summary class="inline-flex min-h-tap cursor-pointer items-center font-semibold">Horaires{{ $hours['open'] ? ' · '.mb_strtolower($hours['label']) : '' }}</summary>
             <ul class="pb-2">@foreach ($store->openingHours()->lines() as $line)<li>{{ $line }}</li>@endforeach</ul>
         </details>
     @endif

@@ -222,7 +222,7 @@ class DashboardController extends Controller
         // la page conseille les liens suivis.
         $networks = array_diff_key($sources, ['direct' => 0, Order::MANUAL => 0]);
         $topCount = $networks ? max($networks) : 0;
-        $topSources = $topCount > 0 && $topCount >= ($sources['direct'] ?? 0)
+        $topSources = $topCount > 0 && $topCount >= max($sources['direct'] ?? 0, $sources[Order::MANUAL] ?? 0)
             ? array_values(array_filter(array_keys(Order::SOURCES), fn ($s) => ($networks[$s] ?? 0) === $topCount))
             : [];
 

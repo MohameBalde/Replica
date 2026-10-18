@@ -26,8 +26,9 @@
                 @error('phone')<p class="error">{{ $message }}</p>@enderror
             </div>
             <div class="field">
-                <label class="label" for="address">Adresse de livraison <span class="font-normal text-text-muted">(facultatif)</span></label>
-                <input class="input" id="address" name="address" value="{{ old('address') }}" maxlength="255" placeholder="Ex. Kipé, près de la pharmacie">
+                <label class="label" for="address">Adresse de livraison <span class="font-normal text-text-muted">(si livraison)</span></label>
+                <input class="input @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address') }}" maxlength="255" placeholder="Ex. Kipé, près de la pharmacie">
+                @error('address')<p class="error">{{ $message }}</p>@enderror
             </div>
 
             <h2 class="section-title mt-6">Articles</h2>
@@ -85,7 +86,7 @@
                 <select class="input @error('payment_method_id') is-invalid @enderror" id="payment_method_id" name="payment_method_id">
                     @foreach ($paymentMethods as $method)
                         <option value="{{ $method->id }}" @selected((string) old('payment_method_id') === (string) $method->id)>
-                            {{ $paymentLabels[$method->type] ?? $method->type }}{{ $method->is_active ? '' : ' (masqué en ligne)' }}
+                            {{ $paymentLabels[$method->type] ?? $method->type }}{{ $method->isComplete() ? '' : ' (numéro à ajouter)' }}{{ $method->is_active ? '' : ' (masqué en ligne)' }}
                         </option>
                     @endforeach
                 </select>

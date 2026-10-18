@@ -12,8 +12,9 @@
     @else
         {{-- Étape suivante, selon le moyen de paiement --}}
         <section class="section">
-            @if ($order->isCashOnDelivery())
-                <p class="text-lg font-bold">Dernière étape : envoyez votre commande</p>
+            @php $manual = $order->source === \App\Models\Order::MANUAL; // saisie par la boutique : rien à envoyer @endphp
+            @if ($order->isCashOnDelivery() && $order->payment_status === 'unpaid')
+                <p class="text-lg font-bold">{{ $manual ? 'Votre commande' : 'Dernière étape : envoyez votre commande' }}</p>
                 <p class="mt-1 text-text-muted">Vous paierez <strong class="text-text">{{ gnf($order->total) }}</strong> en espèces à la réception.</p>
             @elseif ($order->paymentMethod && $order->payment_status === 'unpaid')
                 <p class="text-lg font-bold">Payez par {{ $order->paymentLabel() }}</p>
@@ -47,9 +48,11 @@
                 </form>
             @endif
 
-            <a href="{{ route('invoice.whatsapp', $order) }}" class="btn btn-whatsapp btn-lg mt-4">
-                <x-icon name="message" :size="20" /> {{ $order->whatsapp_sent_at ? 'Renvoyer sur WhatsApp' : 'Envoyer ma commande sur WhatsApp' }}
-            </a>
+            @unless ($manual)
+                <a href="{{ route('invoice.whatsapp', $order) }}" class="btn btn-whatsapp btn-lg mt-4">
+                    <x-icon name="message" :size="20" /> {{ $order->whatsapp_sent_at ? 'Renvoyer sur WhatsApp' : 'Envoyer ma commande sur WhatsApp' }}
+                </a>
+            @endunless
         </section>
     @endif
 

@@ -6,7 +6,9 @@
 
     <x-flash :inline="true" />
     @php $hours = $store->openingHours()->status(\Carbon\CarbonImmutable::now()); @endphp
-    @if ($hours && ! $hours['open'] && $store->acceptsOrdersNow() && $hours['next'])
+    @if ($closed)
+        <p class="toast bg-danger-soft text-on-danger-soft" role="alert">{{ $closed }}</p>
+    @elseif ($hours && ! $hours['open'] && $hours['next'])
         <p class="toast bg-warning-soft text-on-warning-soft">{{ $store->name }} est fermée en ce moment. Vous pouvez commander : la boutique vous répondra {{ $hours['next'] }}.</p>
     @endif
     @error('cart')<p class="toast bg-danger-soft text-on-danger-soft" role="alert">{{ $message }}</p>@enderror
@@ -34,6 +36,7 @@
                 <div class="field mt-4 mb-0">
                     <label class="label" for="answer-{{ $i }}">{{ $q['label'] }}@unless ($q['required']) <span class="font-normal text-text-muted">(facultatif)</span>@endunless</label>
                     <input class="input @error("answers.$i") is-invalid @enderror" id="answer-{{ $i }}" name="answers[{{ $i }}]" value="{{ old("answers.$i") }}" maxlength="255" @if ($q['required']) required @endif>
+                    <input type="hidden" name="answers_q[{{ $i }}]" value="{{ $q['label'] }}">
                     @error("answers.$i")<p class="error">{{ $message }}</p>@enderror
                 </div>
             @endforeach
@@ -102,7 +105,7 @@
         </section>
 
         <div class="sticky-bar mt-auto">
-            <button class="btn btn-whatsapp btn-lg" type="submit"><x-icon name="message" :size="20" /> Valider ma commande</button>
+            <button class="btn btn-whatsapp btn-lg" type="submit" @disabled($closed)><x-icon name="message" :size="20" /> Valider ma commande</button>
             <p class="help text-center">Ensuite, vous envoyez la commande sur le WhatsApp de {{ $store->name }}. Vos coordonnées servent seulement à cette commande (<a class="underline" href="{{ route('legal.privacy') }}">confidentialité</a>).</p>
         </div>
     </form>

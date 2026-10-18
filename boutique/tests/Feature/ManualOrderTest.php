@@ -127,6 +127,56 @@ class ManualOrderTest extends TestCase
         $this->assertSame(5, $this->shoes->variants->firstWhere('name', '42')->fresh()->stock);
     }
 
+    public function test_delivery_needs_an_address_pickup_keeps_none_and_payment_needs_a_number(): void
+    {
+        $this->submit(['delivery_method_id' => $this->delivery(), 'address' => ''])->assertSessionHasErrors(['address' => 'Indiquez l\'adresse de livraison.']);
+
+        $mtn = $this->store->paymentMethods()->where('type', 'mtn_momo')->firstOrFail(); // créé sans numéro
+        $this->assertFalse($mtn->isComplete());
+        $this->submit(['payment_method_id' => $mtn->id])->assertSessionHasErrors('payment_method_id');
+        $this->assertSame(0, Order::count());
+        $this->actingAs($this->merchant)->get('/admin/commandes/nouvelle')->assertSee('MTN MoMo (numéro à ajouter)');
+
+        $this->submit(['payment_method_id' => $mtn->id, 'paid' => '1'])->assertSessionHasNoErrors(); // déjà payé : pas besoin du numéro
+        $this->assertNull(Order::firstOrFail()->address);                                            // retrait : l'adresse saisie n'est pas gardée
+    }
+
+    public function test_the_same_article_on_two_lines_reports_the_real_stock(): void
+    {
+        $this->submit(['items' => [
+            ['variant_id' => $this->variant('42'), 'quantity' => 4, 'price' => ''],
+            ['variant_id' => $this->variant('42'), 'quantity' => 3, 'price' => '100 000'],
+        ]])->assertSessionHasErrors(['items' => '« Baskets » : plus que 5 en stock.']);
+        $this->assertSame(5, $this->shoes->variants->firstWhere('name', '42')->fresh()->stock);
+    }
+
+    public function test_a_counter_sale_customer_page_does_not_ask_to_pay_or_send_again(): void
+    {
+        $this->submit(['status' => 'completed', 'paid' => '1']);
+        $order = Order::firstOrFail();
+
+        auth()->logout();
+        $this->get(route('invoice.show', $order))->assertOk()->assertSee('Merci pour votre commande !')
+            ->assertDontSee('Dernière étape')->assertDontSee('en espèces à la réception')->assertDontSee(route('invoice.whatsapp', $order), false);
+    }
+
+    public function test_hand_entered_orders_are_not_beaten_by_one_network_order(): void
+    {
+        $this->submit();
+        $this->submit(['phone' => '622 33 44 56']);
+        $this->post('/nimstore/panier', ['variant_id' => $this->variant('42'), 'quantity' => 1]);
+        auth()->logout();
+        $this->get('/nimstore?src=tiktok');
+        $this->post('/nimstore/panier', ['variant_id' => $this->variant('42'), 'quantity' => 1]);
+        $this->post('/nimstore/commande', [
+            'name' => 'Client TikTok', 'phone' => '621 00 00 07',
+            'delivery_method_id' => $this->store->deliveryMethods()->where('type', 'pickup')->value('id'),
+            'payment_method_id' => $this->store->cashOnDelivery()->id,
+        ])->assertSessionHasNoErrors();
+
+        $this->actingAs($this->merchant)->get('/admin')->assertSee('Vos ventes')->assertDontSee('Le plus de commandes vient de TikTok');
+    }
+
     public function test_another_stores_items_or_methods_are_refused(): void
     {
         auth()->logout();

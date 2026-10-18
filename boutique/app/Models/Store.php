@@ -115,6 +115,19 @@ class Store extends Model
         return $this->is_open && (! $this->closed_outside_hours || $this->openingHours()->isOpenAt(CarbonImmutable::now()));
     }
 
+    /** Pourquoi on ne peut pas commander maintenant (null si on peut) : vitrine, panier et commande disent la même chose. */
+    public function closedNotice(): ?string
+    {
+        if ($this->acceptsOrdersNow()) {
+            return null;
+        }
+        $next = $this->is_open ? ($this->openingHours()->status(CarbonImmutable::now())['next'] ?? null) : null;
+
+        return $next
+            ? 'La boutique est fermée : elle ouvre '.$next.'. Revenez à ce moment-là pour commander.'
+            : 'La boutique est fermée pour le moment.';
+    }
+
     /** @return list<array{label: string, required: bool}> */
     public function checkoutQuestions(): array
     {

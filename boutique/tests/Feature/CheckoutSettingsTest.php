@@ -56,7 +56,9 @@ class CheckoutSettingsTest extends TestCase
         auth()->logout();
         $this->post('/nimstore/panier', ['variant_id' => $this->product->variants->first()->id, 'quantity' => 1]);
 
-        return $this->from('/nimstore/commande')->post('/nimstore/commande', $extra + [
+        $labels = array_column($this->store->fresh()->checkoutQuestions(), 'label');
+
+        return $this->from('/nimstore/commande')->post('/nimstore/commande', $extra + ['answers_q' => $labels] + [
             'name' => 'Mariama Bah', 'phone' => '622 33 44 55',
             'delivery_method_id' => $this->store->deliveryMethods()->where('type', 'pickup')->value('id'),
             'payment_method_id' => $this->store->cashOnDelivery()->id,
@@ -153,13 +155,48 @@ class CheckoutSettingsTest extends TestCase
         auth()->logout();
         $this->get('/nimstore')->assertSee('Les commandes reprendront à l\'ouverture.');
         $this->get(route('shop.product', [$this->store, $this->product]))->assertSee('Boutique fermée');
+        $this->post('/nimstore/panier', ['variant_id' => $this->product->variants->first()->id, 'quantity' => 1]); // ajouté plus tôt dans la journée
+        $this->get('/nimstore/panier')->assertSee('La boutique est fermée : elle ouvre demain à 8 h.')->assertDontSee(route('shop.checkout', $this->store).'"', false);
+        $this->get('/nimstore/commande')->assertSee('La boutique est fermée : elle ouvre demain à 8 h.');
         $this->checkout()->assertSessionHasErrors(['cart' => 'La boutique est fermée : elle ouvre demain à 8 h. Revenez à ce moment-là pour commander.']);
         $this->assertSame(1, Order::count());
 
         $this->travelTo(CarbonImmutable::parse('2026-10-20 09:00', 'Africa/Conakry'));
-        $this->get('/nimstore')->assertSee('Ouvert jusqu\'à 20 h')->assertDontSee('Les commandes reprendront');
+        $this->get('/nimstore')->assertSee('>Ouvert</span>', false)->assertSee('Horaires · ouvert jusqu\'à 20 h')->assertDontSee('Les commandes reprendront');
         $this->checkout()->assertSessionHasNoErrors();
         $this->assertSame(2, Order::count());
+    }
+
+    public function test_answers_are_never_filed_under_a_question_that_changed(): void
+    {
+        $this->settings(['questions' => [['label' => 'Point de repère', 'required' => '1'], ['label' => 'Pointure']]]);
+        auth()->logout();
+        $this->post('/nimstore/panier', ['variant_id' => $this->product->variants->first()->id, 'quantity' => 1]);
+        $page = $this->get('/nimstore/commande')->assertSee('name="answers_q[1]" value="Pointure"', false);
+
+        // Le commerçant retire la première question pendant que le client remplit.
+        $this->settings(['questions' => [['label' => 'Pointure']]]);
+        auth()->logout();
+        $this->from('/nimstore/commande')->post('/nimstore/commande', [
+            'name' => 'Mariama Bah', 'phone' => '622 33 44 55',
+            'delivery_method_id' => $this->store->deliveryMethods()->where('type', 'pickup')->value('id'),
+            'payment_method_id' => $this->store->cashOnDelivery()->id,
+            'answers' => ['Près de la mosquée', '42'], 'answers_q' => ['Point de repère', 'Pointure'],
+        ])->assertSessionHasErrors(['cart' => 'Les questions de la boutique ont changé : vérifiez vos réponses puis validez à nouveau.']);
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_unchecked_days_stay_unchecked_after_an_error(): void
+    {
+        $week = self::WEEK;
+        unset($week[6]['open_day']);          // samedi décoché
+        $week[5]['close'] = '07:00';          // erreur sur vendredi
+        $this->settings(['use_hours' => '1', 'hours' => $week])->assertSessionHasErrors('hours.5');
+
+        $html = $this->actingAs($this->merchant)->get('/admin/reglages/commande')->getContent();
+        $this->assertMatchesRegularExpression('/name="hours\[5\]\[open_day\]" value="1" class="[^"]*" checked/', $html);
+        $this->assertDoesNotMatchRegularExpression('/name="hours\[6\]\[open_day\]" value="1" class="[^"]*" checked/', $html);
+        $this->assertDoesNotMatchRegularExpression('/name="closed_outside_hours" value="1" checked/', $html);
     }
 
     public function test_settings_pages_belong_to_the_merchant(): void

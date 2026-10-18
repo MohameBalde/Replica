@@ -2,7 +2,9 @@
     $questions = array_values(old('questions', $store->checkoutQuestions()));
     $questions = array_pad($questions, \App\Http\Controllers\Admin\CheckoutSettingsController::MAX_QUESTIONS, ['label' => '', 'required' => false]);
     $hours = $store->openingHours();
-    $useHours = (bool) old('use_hours', $hours->isSet());
+    // Après une erreur, une case décochée n'est pas renvoyée par le navigateur : on lit l'ancienne saisie sans valeur par défaut.
+    $back = session()->hasOldInput();
+    $useHours = $back ? (bool) old('use_hours') : $hours->isSet();
     $examples = ['Point de repère (ex. près de la mosquée de Kipé)', 'Taille ou pointure', 'Heure de livraison'];
 @endphp
 <x-layouts.admin title="Réglages">
@@ -45,7 +47,7 @@
                 @foreach (\App\Support\OpeningHours::DAYS as $day => $name)
                     @php
                         $slot = $hours->isSet() ? $hours->slot($day) : ($day <= 6 ? ['open' => '08:00', 'close' => '20:00'] : null);
-                        $open = old("hours.$day.open_day", $slot !== null);
+                        $open = $back ? (bool) old("hours.$day.open_day") : $slot !== null;
                     @endphp
                     {{-- Téléphone : le jour, puis les deux heures sur une ligne. Plus large : une seule ligne. --}}
                     <div class="grid grid-cols-2 items-center gap-x-2 gap-y-1 px-3 py-2 md:grid-cols-[8rem_1fr_1fr]">
@@ -67,7 +69,7 @@
                     <span class="block font-semibold">Refuser les commandes quand c'est fermé</span>
                     <span class="text-sm text-text-muted">Sinon, les clients commandent à toute heure et la vitrine leur dit quand vous répondrez.</span>
                 </span>
-                <span class="switch"><input type="checkbox" role="switch" name="closed_outside_hours" value="1" @checked(old('closed_outside_hours', $store->closed_outside_hours))><span></span></span>
+                <span class="switch"><input type="checkbox" role="switch" name="closed_outside_hours" value="1" @checked($back ? old('closed_outside_hours') : $store->closed_outside_hours)><span></span></span>
             </label>
         </div>
 

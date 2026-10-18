@@ -97,10 +97,18 @@ class OrderPlacer
         if (! $payment) {
             throw ValidationException::withMessages(['payment_method_id' => 'Choisissez un moyen de paiement.']);
         }
+        // Sans numéro, le client ne saurait pas où payer (sauf si c'est déjà payé).
+        if (! $payment->isComplete() && ! $data['paid']) {
+            throw ValidationException::withMessages(['payment_method_id' => 'Ce moyen de paiement n\'a pas encore de numéro (Réglages > Paiements). Choisissez-en un autre ou cochez « Déjà payée ».']);
+        }
+        // Comme sur la vitrine : une livraison demande une adresse, un retrait n'en garde pas.
+        if ($delivery->needsAddress() && blank($data['address'] ?? null)) {
+            throw ValidationException::withMessages(['address' => 'Indiquez l\'adresse de livraison.']);
+        }
 
         $lines = $lines->map(fn (array $line) => $line + ['line_total' => $line['unit_price'] * $line['quantity']]);
         $subtotal = (int) $lines->sum('line_total');
-        $address = filled($data['address'] ?? null) ? $data['address'] : null;
+        $address = $delivery->needsAddress() ? $data['address'] : null;
         $completed = $data['status'] === 'completed';
 
         return $this->persist($store, $lines, $data['name'], $data['phone'], $address, [
@@ -151,6 +159,7 @@ class OrderPlacer
                 'currency' => $store->currency,
             ]);
 
+            $taken = []; // déjà retiré par les lignes précédentes de cette commande (même article sur deux lignes)
             foreach ($lines as $line) {
                 /** @var Variant $variant */
                 $variant = $line['variant'];
@@ -160,13 +169,14 @@ class OrderPlacer
                     // Décrément conditionnel : aucune ligne touchée = plus assez de stock.
                     $updated = Variant::whereKey($variant->id)->where('stock', '>=', $qty)->decrement('stock', $qty);
                     if ($updated === 0) {
-                        $left = (int) Variant::whereKey($variant->id)->value('stock');
+                        $left = (int) Variant::whereKey($variant->id)->value('stock') + ($taken[$variant->id] ?? 0);
                         throw ValidationException::withMessages([
                             $errorKey => $left > 0
                                 ? "« {$variant->product->name} » : plus que {$left} en stock."
                                 : "« {$variant->product->name} » vient d'être épuisé.",
                         ]);
                     }
+                    $taken[$variant->id] = ($taken[$variant->id] ?? 0) + $qty;
                     StockMovement::create([
                         'store_id' => $store->id, 'variant_id' => $variant->id,
                         'order_id' => $order->id, 'delta' => -$qty, 'reason' => 'sale',
