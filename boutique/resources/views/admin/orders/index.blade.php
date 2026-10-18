@@ -1,4 +1,8 @@
 <x-layouts.admin title="Commandes" wide>
+    {{-- Commande reçue par téléphone ou vendue au comptoir : saisie en une page. --}}
+    <div class="flex justify-end px-4 pt-3">
+        <a href="{{ route('admin.orders.create') }}" class="btn btn-primary w-auto gap-1 px-4"><x-icon name="plus" :size="18" /> Nouvelle commande</a>
+    </div>
     <nav class="flex gap-5 overflow-x-auto border-b border-border px-4" aria-label="Filtrer les commandes">
         @foreach (\App\Http\Controllers\Admin\OrderController::TABS as $key => $label)
             @php $n = $key === 'all' ? $counts->sum() : ($counts[$key] ?? 0); @endphp

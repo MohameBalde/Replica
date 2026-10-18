@@ -22,8 +22,8 @@
             @if ($order->status === 'pending' && ! $order->whatsapp_sent_at)
                 <span class="badge badge-warning">WhatsApp non envoyé</span>
             @endif
-            @if ($order->source !== 'direct')
-                <span class="text-xs text-text-muted">via {{ \App\Models\Order::SOURCES[$order->source] ?? $order->source }}</span>
+            @if ($order->sourceLabel())
+                <span class="text-xs text-text-muted">{{ $order->sourceLabel() }}</span>
             @endif
             <span class="ml-auto text-xs text-text-muted">{{ $date->format('d/m H:i') }}</span>
         </div>
@@ -33,7 +33,7 @@
     <a href="{{ $link }}" class="hidden font-bold after:absolute after:inset-0 xl:block">#{{ $order->number }}</a>
     <span class="hidden min-w-0 xl:block">
         <span class="block truncate">{{ $order->customer_name }}</span>
-        <span class="block truncate text-xs text-text-muted">{{ phone_display($order->customer_phone) }}@if ($order->source !== 'direct') · via {{ \App\Models\Order::SOURCES[$order->source] ?? $order->source }}@endif</span>
+        <span class="block truncate text-xs text-text-muted">{{ phone_display($order->customer_phone) }}@if ($order->sourceLabel()) · {{ $order->sourceLabel() }}@endif</span>
     </span>
     <span class="hidden text-sm text-text-muted xl:block">{{ $date->format('d/m H:i') }}</span>
     <span class="hidden xl:block">@include('admin.orders._badges', ['part' => 'status'])</span>

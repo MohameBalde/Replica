@@ -3,7 +3,7 @@
         <div class="flex flex-wrap gap-1.5">@include('admin.orders._badges')</div>
         <p class="mt-2 text-sm text-text-muted">
             Reçue le {{ $order->created_at->timezone('Africa/Conakry')->format('d/m/Y à H:i') }}
-            · via {{ \App\Models\Order::SOURCES[$order->source] ?? $order->source }}{{ $order->campaign ? ' ('.$order->campaign.')' : '' }}
+            @if ($order->sourceLabel())· {{ $order->sourceLabel() }}{{ $order->campaign ? ' ('.$order->campaign.')' : '' }}@endif
         </p>
         @unless ($order->whatsapp_sent_at)
             <p class="mt-2 text-sm text-text-muted">Le client n'a pas encore envoyé le message WhatsApp.</p>
@@ -23,6 +23,7 @@
         <p class="text-text-muted">{{ phone_display($order->customer_phone) }}</p>
         <p class="mt-1">{{ $order->delivery_method_name }}@if ($order->address) · {{ $order->address }}@endif</p>
         @if ($order->note)<p class="mt-2 rounded-md bg-surface p-3 text-sm">« {{ $order->note }} »</p>@endif
+        @if ($order->internal_note)<p class="mt-2 rounded-md bg-warning-soft p-3 text-sm text-on-warning-soft"><span class="font-semibold">Note interne :</span> {{ $order->internal_note }}</p>@endif
     </section>
 
     {{-- Messages prêts : un clic ouvre WhatsApp avec le texte, le commerçant n'a plus qu'à envoyer. --}}

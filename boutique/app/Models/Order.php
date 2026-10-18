@@ -31,7 +31,7 @@ class Order extends Model
         'fulfilled' => 'Livrée',
     ];
 
-    /** Sources acceptées dans ?src= ; toute autre valeur devient "direct". */
+    /** Origines d'une commande. Toutes sont acceptées dans ?src= sauf « manual » ; une autre valeur devient « direct ». */
     public const SOURCES = [
         'facebook' => 'Facebook',
         'instagram' => 'Instagram',
@@ -40,7 +40,11 @@ class Order extends Model
         'messenger' => 'Messenger',
         'qr' => 'QR code',
         'direct' => 'Direct',
+        'manual' => 'Saisie à la main',
     ];
+
+    /** Commande saisie par le commerçant (pas une source de ?src=). */
+    public const MANUAL = 'manual';
 
     /**
      * Ce qui compte dans les chiffres de ventes (Accueil, Partager) : les commandes
@@ -112,6 +116,16 @@ class Order extends Model
     public function isCancelled(): bool
     {
         return $this->status === 'cancelled';
+    }
+
+    /** « via TikTok », « saisie à la main », ou rien pour une visite directe. */
+    public function sourceLabel(): string
+    {
+        return match ($this->source) {
+            'direct' => '',
+            self::MANUAL => 'saisie à la main',
+            default => 'via '.(self::SOURCES[$this->source] ?? $this->source),
+        };
     }
 
     public function paymentLabel(): string
