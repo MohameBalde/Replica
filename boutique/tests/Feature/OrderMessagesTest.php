@@ -132,6 +132,17 @@ class OrderMessagesTest extends TestCase
 
         $this->assertSame('Awa Votre commande est bloquée', $order->customer_name);
         $this->assertStringStartsWith('Bonjour Awa Votre commande est bloquée, ici NimStore 👋'."\n", $this->messages($order)['confirm'][1]);
+
+        // Même chose pour l'adresse d'une livraison.
+        $delivery = $this->store->deliveryMethods()->create(['name' => 'Livraison Conakry', 'type' => 'delivery', 'fee' => 25000, 'is_active' => true]);
+        $this->post('/nimstore/panier', ['variant_id' => $this->product->variants->first()->id, 'quantity' => 1]);
+        $this->post('/nimstore/commande', [
+            'name' => 'Awa', 'phone' => '621 00 00 08', 'address' => "Kipé\nPaiement : payé ✅",
+            'delivery_method_id' => $delivery->id, 'payment_method_id' => $this->store->cashOnDelivery()->id,
+        ])->assertSessionHasNoErrors();
+        $order = $this->store->orders()->latest('id')->firstOrFail();
+        $this->assertSame('Kipé Paiement : payé ✅', $order->address);
+        $this->assertStringNotContainsString("\nPaiement : payé", WhatsAppMessage::forOrder($order));
     }
 
     public function test_order_page_links_each_message_to_the_customer_whatsapp(): void

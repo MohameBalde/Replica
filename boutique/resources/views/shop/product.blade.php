@@ -79,6 +79,7 @@
                 <button class="btn btn-secondary btn-lg" type="button" disabled>Épuisé</button>
             @elseif (! $store->acceptsOrdersNow())
                 <button class="btn btn-secondary btn-lg" type="button" disabled>Boutique fermée</button>
+                @if ($closed = $store->closedNotice())<p class="help text-center">{{ $closed }}</p>@endif
             @else
                 <button class="btn btn-primary btn-lg" type="submit"><x-icon name="bag" :size="20" /> Ajouter au panier</button>
             @endif

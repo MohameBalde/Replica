@@ -38,6 +38,13 @@ class CheckoutSettingsController extends Controller
             'hours.*.close.date_format' => 'Heure à écrire comme 20:00.',
         ]);
 
+        // « Obligatoire » coché sans question : on le dit au lieu de l'ignorer.
+        foreach ((array) $request->input('questions', []) as $i => $q) {
+            if (! empty($q['required']) && trim((string) ($q['label'] ?? '')) === '') {
+                throw ValidationException::withMessages(["questions.$i.label" => 'Écrivez la question, ou décochez « Obligatoire ».']);
+            }
+        }
+
         // Questions : seules les lignes remplies comptent.
         $questions = collect($request->input('questions', []))
             ->map(fn ($q) => ['label' => trim((string) ($q['label'] ?? '')), 'required' => ! empty($q['required'])])
@@ -55,10 +62,12 @@ class CheckoutSettingsController extends Controller
 
                     continue;
                 }
-                if (blank($row['open'] ?? null) || blank($row['close'] ?? null) || $row['close'] <= $row['open']) {
+                // Fermeture à 00:00 = minuit, gardée comme « 24:00 » pour que les comparaisons restent simples.
+                $close = ($row['close'] ?? null) === '00:00' ? '24:00' : ($row['close'] ?? null);
+                if (blank($row['open'] ?? null) || blank($close) || $close <= $row['open']) {
                     throw ValidationException::withMessages(["hours.$day" => OpeningHours::DAYS[$day].' : l\'heure de fermeture doit venir après l\'ouverture.']);
                 }
-                $hours[$day] = ['open' => $row['open'], 'close' => $row['close']];
+                $hours[$day] = ['open' => $row['open'], 'close' => $close];
             }
             if (! array_filter($hours)) {
                 throw ValidationException::withMessages(['hours' => 'Cochez au moins un jour d\'ouverture, ou désactivez les horaires.']);

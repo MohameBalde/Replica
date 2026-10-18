@@ -25,10 +25,10 @@
                 @if ($order->paymentMethod->account_name)
                     <p class="text-sm text-text-muted">Nom affiché : {{ $order->paymentMethod->account_name }}</p>
                 @endif
-                <p class="mt-3 text-sm">Ensuite, ajoutez la capture de votre paiement ci-dessous, puis envoyez la commande sur WhatsApp.</p>
+                <p class="mt-3 text-sm">Ensuite, ajoutez la capture de votre paiement ci-dessous{{ $manual ? '.' : ', puis envoyez la commande sur WhatsApp.' }}</p>
             @elseif ($order->payment_status === 'confirming')
                 <p class="text-lg font-bold">Capture reçue 👍</p>
-                <p class="mt-1 text-text-muted">{{ $store->name }} vérifie votre paiement de {{ gnf($order->total) }}. Envoyez la commande sur WhatsApp si ce n'est pas déjà fait.</p>
+                <p class="mt-1 text-text-muted">{{ $store->name }} vérifie votre paiement de {{ gnf($order->total) }}.@unless ($manual) Envoyez la commande sur WhatsApp si ce n'est pas déjà fait.@endunless</p>
             @else
                 <p class="text-lg font-bold">Merci pour votre commande !</p>
             @endif

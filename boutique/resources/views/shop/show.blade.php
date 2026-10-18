@@ -22,7 +22,7 @@
     @endif
     @if ($hours)
         <details class="mx-4 mb-2 text-sm text-text-muted lg:mx-8">
-            <summary class="inline-flex min-h-tap cursor-pointer items-center font-semibold">Horaires{{ $hours['open'] ? ' · '.mb_strtolower($hours['label']) : '' }}</summary>
+            <summary class="inline-flex min-h-tap cursor-pointer items-center font-semibold">Horaires{{ $hours['open'] ? ' · '.mb_strtolower($hours['label']) : '' }} <span aria-hidden="true" class="ml-1">▾</span></summary>
             <ul class="pb-2">@foreach ($store->openingHours()->lines() as $line)<li>{{ $line }}</li>@endforeach</ul>
         </details>
     @endif

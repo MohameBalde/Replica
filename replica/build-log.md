@@ -1,7 +1,7 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 107 tests, 1 032 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Tests : 114 tests, 1 082 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
 Parité (`replica-diff/parity.py`) : **95,3 / 100**, indispensables **22 sur 22**.
 
 ## 2026-10-18 (suite) : commandes, messages, saisie, réglages « Commande »
@@ -21,7 +21,8 @@ Parité (`replica-diff/parity.py`) : **95,3 / 100**, indispensables **22 sur 22*
 - **Horaires d'ouverture** par jour ; la vitrine dit « Ouvert jusqu'à 20 h » ou « Fermé · ouvre demain à 8 h ».
 - **Pas fait (choix)** : vrais suppléments payants. Le panier devrait changer de structure à une semaine de la bêta. En attendant : un choix avec son prix (ex. « L + flocage ») et une question pour le texte du flocage.
 - Revue adversariale des actions en masse, messages et facture : 4 angles, chaque point contre-vérifié ; points confirmés corrigés (paiement partiel, actions qui reculaient, colonne Client écrasée à 1200 px, facture qui débordait à 360 px, salutation « Bonjour El »).
-- **Bug ancien corrigé** : la pagination affichait « pagination.next » en production (pas de fichiers de langue français). Ajout de `lang/fr/pagination.php` et `lang/fr/validation.php`.
+- **Bug ancien corrigé** : la pagination affichait « pagination.next » en production (pas de fichiers de langue français). Ajout de `lang/fr/pagination.php`, `lang/fr/validation.php` (dont « fichier trop lourd » pour les photos de plus de 10 Mo) et `lang/fr.json`.
+- Deuxième revue (saisie manuelle, questions, horaires, QR) : adresse liée au mode de livraison, moyen de paiement sans numéro refusé, page client d'une vente au comptoir, réponses jamais rangées sous une question modifiée, panier et commande qui disent quand la boutique rouvre, fermeture à minuit, cases qui restaient cochées après une erreur, débordements à 320 px (lien de suivi, lien Google Maps en repère). Pages contrôlées à 320, 360, 1200 et 1366 px : aucun débordement, aucune erreur JavaScript.
 
 ## 2026-10-18 : Accueil, le poste de pilotage du commerçant
 

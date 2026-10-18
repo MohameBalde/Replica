@@ -42,7 +42,7 @@
         @php
             // Grand écran : une ligne de tableau. Case | N° | Client | Reçue | Commande | Paiement | Livraison | Total.
             // Client garde au moins 8rem : à 1200 px, les colonnes fixes ne l'écrasent pas.
-            $grid = 'xl:grid xl:grid-cols-[2.75rem_4.5rem_minmax(8rem,1fr)_5.5rem_6.5rem_minmax(0,8.5rem)_6.5rem_8rem] xl:items-center xl:gap-2';
+            $grid = 'xl:grid xl:grid-cols-[2.75rem_4.5rem_minmax(8rem,1fr)_5.5rem_6.5rem_minmax(0,9.5rem)_6rem_8rem] xl:items-center xl:gap-2';
         @endphp
         <div class="flex items-center gap-1 border-y border-border bg-surface/50 py-0.5 pr-4 pl-1 text-sm font-semibold text-text-muted {{ $grid }}">
             <label class="flex min-h-tap shrink-0 cursor-pointer items-center xl:grid xl:min-w-tap xl:place-items-center">

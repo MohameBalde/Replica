@@ -5,7 +5,7 @@
     // Après une erreur, une case décochée n'est pas renvoyée par le navigateur : on lit l'ancienne saisie sans valeur par défaut.
     $back = session()->hasOldInput();
     $useHours = $back ? (bool) old('use_hours') : $hours->isSet();
-    $examples = ['Point de repère (ex. près de la mosquée de Kipé)', 'Taille ou pointure', 'Heure de livraison'];
+    $examples = ['Ex. : Point de repère (près de la mosquée de Kipé)', 'Ex. : Taille ou pointure', 'Ex. : Heure de livraison'];
 @endphp
 <x-layouts.admin title="Réglages">
     @include('admin.settings._tabs')
@@ -57,12 +57,12 @@
                         <label class="sr-only" for="h{{ $day }}-open">{{ $name }} : ouverture</label>
                         <input class="input min-w-0 px-2" type="time" id="h{{ $day }}-open" name="hours[{{ $day }}][open]" value="{{ old("hours.$day.open", $slot['open'] ?? '08:00') }}">
                         <label class="sr-only" for="h{{ $day }}-close">{{ $name }} : fermeture</label>
-                        <input class="input min-w-0 px-2" type="time" id="h{{ $day }}-close" name="hours[{{ $day }}][close]" value="{{ old("hours.$day.close", $slot['close'] ?? '20:00') }}">
+                        <input class="input min-w-0 px-2" type="time" id="h{{ $day }}-close" name="hours[{{ $day }}][close]" value="{{ old("hours.$day.close", ($slot['close'] ?? '20:00') === '24:00' ? '00:00' : ($slot['close'] ?? '20:00')) }}">
                     </div>
                     @error("hours.$day")<p class="error px-3 pb-2">{{ $message }}</p>@enderror
                 @endforeach
             </div>
-            <p class="help">Décochez un jour pour le fermer. Heures de Conakry.</p>
+            <p class="help">Décochez un jour pour le fermer. Heures de Conakry. Fermeture à 00:00 = minuit.</p>
 
             <label class="card mt-4 mb-4 flex items-center gap-3 p-4">
                 <span class="flex-1">

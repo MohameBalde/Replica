@@ -174,7 +174,7 @@ class OrderBulkTest extends TestCase
         $this->actingAs($this->merchant)->from('/admin/commandes?page=3&paiement=cod')
             ->post('/admin/commandes/actions', ['action' => 'completed', 'orders' => [$order->id]])
             ->assertRedirect('/admin/commandes?paiement=cod');
-        $this->assertSame('Suivantes »', __('pagination.next'));   // et non « pagination.next » en français
+        $this->assertSame('Page suivante »', __('pagination.next'));   // et non « pagination.next » en français
     }
 
     public function test_bad_requests_are_refused_with_a_clear_message(): void

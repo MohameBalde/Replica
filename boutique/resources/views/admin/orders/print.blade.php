@@ -86,7 +86,7 @@
             <img src="{{ $qr }}" width="88" height="88" alt="QR code de suivi de la commande" class="shrink-0">
             <div class="min-w-0 flex-1">
                 <p class="font-semibold text-text">Merci pour votre achat !</p>
-                <p class="text-xs">Scannez pour suivre la commande : {{ route('invoice.show', $order) }}</p>
+                <p class="text-xs break-all">Scannez pour suivre la commande : {{ route('invoice.show', $order) }}</p>
                 @if ($store->showsBadge())<p class="mt-1 text-xs">Facture créée avec Wanllan · wanllan.com</p>@endif
             </div>
         </footer>

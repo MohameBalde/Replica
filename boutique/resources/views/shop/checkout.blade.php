@@ -11,7 +11,7 @@
     @elseif ($hours && ! $hours['open'] && $hours['next'])
         <p class="toast bg-warning-soft text-on-warning-soft">{{ $store->name }} est fermée en ce moment. Vous pouvez commander : la boutique vous répondra {{ $hours['next'] }}.</p>
     @endif
-    @error('cart')<p class="toast bg-danger-soft text-on-danger-soft" role="alert">{{ $message }}</p>@enderror
+    @error('cart')@if ($message !== $closed)<p class="toast bg-danger-soft text-on-danger-soft" role="alert">{{ $message }}</p>@endif @enderror
 
     <form method="POST" action="{{ route('shop.checkout.store', $store) }}" id="checkout" class="flex flex-1 flex-col" novalidate
           onsubmit="this.querySelector('[type=submit]').disabled = true">

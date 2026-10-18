@@ -3,6 +3,8 @@
     $paymentLabels = \App\Models\PaymentMethod::LABELS;
 @endphp
 <x-layouts.admin title="Nouvelle commande" :back="route('admin.orders.index')">
+    {{-- Un champ qui prend le focus ne se cache pas derrière la barre du total (ni le menu du bas). --}}
+    <style>html { scroll-padding-bottom: 10rem; } @media (min-width: 960px) { html { scroll-padding-bottom: 6rem; } }</style>
     <form id="manual-order" method="POST" action="{{ route('admin.orders.store') }}" class="p-4" novalidate
           onsubmit="this.querySelector('[type=submit]').disabled = true">
         @csrf
@@ -53,7 +55,7 @@
                         <div class="mt-2 grid grid-cols-[6rem_1fr] gap-2">
                             <div>
                                 <label class="label" for="i{{ $i }}-qty">Quantité</label>
-                                <input class="input" id="i{{ $i }}-qty" name="items[{{ $i }}][quantity]" type="number" min="1" max="999" inputmode="numeric" value="{{ $row['quantity'] ?? 1 }}" data-qty>
+                                <input class="input @error("items.$i.quantity") is-invalid @enderror" id="i{{ $i }}-qty" name="items[{{ $i }}][quantity]" type="number" min="1" max="999" inputmode="numeric" value="{{ $row['quantity'] ?? 1 }}" data-qty>
                             </div>
                             <div>
                                 <label class="label" for="i{{ $i }}-price">Prix unitaire <span class="font-normal text-text-muted">(si négocié)</span></label>
@@ -63,6 +65,7 @@
                                 </div>
                             </div>
                         </div>
+                        @error("items.$i.quantity")<p class="error">{{ $message }}</p>@enderror
                     </div>
                 @endforeach
             </div>
@@ -140,7 +143,7 @@
                         if (!opt || !opt.value) return;
                         const own = row.querySelector('[data-own-price]').value.trim();
                         const price = own === '' ? Number(opt.dataset.price) : digits(own);
-                        sum += price * Math.max(1, digits(row.querySelector('[data-qty]').value) || 1);
+                        sum += price * digits(row.querySelector('[data-qty]').value); // 0 ou vide : la ligne ne compte pas (le serveur la refusera)
                     });
                     const fee = Number(form.querySelector('[data-delivery]').selectedOptions[0]?.dataset.fee || 0);
                     form.querySelector('[data-total]').textContent = sum ? fmt(sum + fee) : '—';

@@ -111,7 +111,7 @@ class ManualOrderTest extends TestCase
         $order = $this->store->orders()->firstOrFail();
 
         $this->assertSame(['completed', 'paid', 'fulfilled', null], [$order->status, $order->payment_status, $order->fulfillment_status, $order->address]);
-        $this->actingAs($this->merchant)->get('/admin')->assertSee('Vos ventes')->assertSee('300 000')
+        $this->actingAs($this->merchant)->get('/admin')->assertSee('Valeur des commandes : <strong class="whitespace-nowrap">300 000 GNF</strong>', false)
             ->assertDontSee('Le plus de commandes vient de'); // une saisie n'est pas un réseau
     }
 
@@ -174,7 +174,7 @@ class ManualOrderTest extends TestCase
             'payment_method_id' => $this->store->cashOnDelivery()->id,
         ])->assertSessionHasNoErrors();
 
-        $this->actingAs($this->merchant)->get('/admin')->assertSee('Vos ventes')->assertDontSee('Le plus de commandes vient de TikTok');
+        $this->actingAs($this->merchant)->get('/admin')->assertSee('Vos ventes')->assertDontSee('Le plus de commandes vient de');
     }
 
     public function test_another_stores_items_or_methods_are_refused(): void

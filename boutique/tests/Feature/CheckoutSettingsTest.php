@@ -88,7 +88,8 @@ class CheckoutSettingsTest extends TestCase
 
         auth()->logout();
         $this->post('/nimstore/panier', ['variant_id' => $this->product->variants->first()->id, 'quantity' => 1]);
-        $this->get('/nimstore/commande')->assertSee('Point de repère')->assertSeeInOrder(['Taille du maillot', '(facultatif)']);
+        $this->get('/nimstore/commande')->assertSee('Taille du maillot <span class="font-normal text-text-muted">(facultatif)</span>', false)
+            ->assertDontSee('Point de repère <span class="font-normal text-text-muted">(facultatif)', false);
 
         $this->checkout(['answers' => ['', 'XL']])->assertSessionHasErrors(['answers.0' => 'Répondez à « Point de repère ».']);
         $this->assertSame(0, Order::count());
@@ -188,8 +189,9 @@ class CheckoutSettingsTest extends TestCase
 
     public function test_unchecked_days_stay_unchecked_after_an_error(): void
     {
+        $this->settings(['use_hours' => '1', 'hours' => self::WEEK, 'closed_outside_hours' => '1'])->assertSessionHasNoErrors();
         $week = self::WEEK;
-        unset($week[6]['open_day']);          // samedi décoché
+        unset($week[6]['open_day']);          // samedi décoché, « Refuser les commandes » décoché
         $week[5]['close'] = '07:00';          // erreur sur vendredi
         $this->settings(['use_hours' => '1', 'hours' => $week])->assertSessionHasErrors('hours.5');
 
@@ -197,6 +199,21 @@ class CheckoutSettingsTest extends TestCase
         $this->assertMatchesRegularExpression('/name="hours\[5\]\[open_day\]" value="1" class="[^"]*" checked/', $html);
         $this->assertDoesNotMatchRegularExpression('/name="hours\[6\]\[open_day\]" value="1" class="[^"]*" checked/', $html);
         $this->assertDoesNotMatchRegularExpression('/name="closed_outside_hours" value="1" checked/', $html);
+    }
+
+    public function test_midnight_closing_and_required_without_a_question(): void
+    {
+        $week = self::WEEK;
+        $week[5]['close'] = '00:00';          // vendredi jusqu'à minuit
+        $this->settings(['use_hours' => '1', 'hours' => $week])->assertSessionHasNoErrors();
+        $hours = $this->store->fresh()->openingHours();
+        $this->assertSame('Vendredi : 8 h – minuit', $hours->lines()[4]);
+        $this->assertTrue($hours->isOpenAt(CarbonImmutable::parse('2026-10-23 23:30', 'Africa/Conakry')));
+        $this->assertSame('Ouvert jusqu\'à minuit', $hours->status(CarbonImmutable::parse('2026-10-23 21:00', 'Africa/Conakry'))['label']);
+        $this->actingAs($this->merchant)->get('/admin/reglages/commande')->assertSee('name="hours[5][close]" value="00:00"', false);
+
+        $this->settings(['questions' => [['label' => '', 'required' => '1']]])
+            ->assertSessionHasErrors(['questions.0.label' => 'Écrivez la question, ou décochez « Obligatoire ».']);
     }
 
     public function test_settings_pages_belong_to_the_merchant(): void

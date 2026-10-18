@@ -89,9 +89,12 @@ class OpeningHours
             : 'fermé'))->values()->all();
     }
 
-    /** « 8 h », « 8 h 30 », « 20 h ». */
+    /** « 8 h », « 8 h 30 », « 20 h », « minuit » (fermeture « 24:00 »). */
     public static function time(string $hm): string
     {
+        if ($hm === '24:00') {
+            return 'minuit';
+        }
         [$h, $m] = array_map('intval', explode(':', $hm));
 
         return $h.' h'.($m ? ' '.str_pad((string) $m, 2, '0', STR_PAD_LEFT) : '');

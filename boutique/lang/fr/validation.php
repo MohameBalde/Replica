@@ -27,5 +27,6 @@ return [
     'regex' => 'Le format n\'est pas valable.',
     'required' => 'Ce champ est obligatoire.',
     'string' => 'Ce champ doit être un texte.',
+    'uploaded' => 'Fichier trop lourd ou envoi interrompu. Réessayez avec une photo plus légère.',
     'url' => 'Entrez une adresse web valable.',
 ];
