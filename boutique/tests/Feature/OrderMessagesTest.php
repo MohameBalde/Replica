@@ -123,6 +123,8 @@ class OrderMessagesTest extends TestCase
             ->assertSee('À payer à la livraison : 325 000 GNF')
             ->assertSee('window.print()', false)
             ->assertSee('Facture créée avec Wanllan')
+            ->assertSee('src="data:image/svg+xml;base64,', false)       // QR code de suivi
+            ->assertSee('Scannez pour suivre la commande : '.route('invoice.show', $order))
             ->assertDontSee('aria-label="Menu"', false);
 
         $order->update(['payment_status' => 'paid']);

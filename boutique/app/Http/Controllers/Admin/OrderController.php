@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Models\Store;
 use App\Services\OrderPlacer;
 use App\Services\WhatsAppMessage;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -79,7 +83,14 @@ class OrderController extends Controller
         $model = $this->find($request, $order);
         $model->load('items', 'paymentMethod');
 
-        return view('admin.orders.print', ['order' => $model, 'store' => $this->currentStore($request)]);
+        // QR code vers la page de suivi de la commande (/c/…), en image intégrée : imprimé, il se scanne.
+        $svg = (new Writer(new ImageRenderer(new RendererStyle(240, 1), new SvgImageBackEnd())))->writeString(route('invoice.show', $model));
+
+        return view('admin.orders.print', [
+            'order' => $model,
+            'store' => $this->currentStore($request),
+            'qr' => 'data:image/svg+xml;base64,'.base64_encode($svg),
+        ]);
     }
 
     public function updateStatuses(Request $request, int $order): RedirectResponse

@@ -82,9 +82,13 @@
             <p class="mt-5 rounded-md bg-surface p-3">Note du client : « {{ $order->note }} »</p>
         @endif
 
-        <footer class="mt-8 border-t border-border pt-4 text-center text-text-muted">
-            <p>Merci pour votre achat !</p>
-            @if ($store->showsBadge())<p class="mt-1 text-xs">Facture créée avec Wanllan · wanllan.com</p>@endif
+        <footer class="mt-8 flex items-center gap-4 border-t border-border pt-4 text-text-muted">
+            <img src="{{ $qr }}" width="88" height="88" alt="QR code de suivi de la commande" class="shrink-0">
+            <div class="min-w-0 flex-1">
+                <p class="font-semibold text-text">Merci pour votre achat !</p>
+                <p class="text-xs">Scannez pour suivre la commande : {{ route('invoice.show', $order) }}</p>
+                @if ($store->showsBadge())<p class="mt-1 text-xs">Facture créée avec Wanllan · wanllan.com</p>@endif
+            </div>
         </footer>
     </main>
 </x-layouts.base>
