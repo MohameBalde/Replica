@@ -3,7 +3,7 @@
     $questions = array_pad($questions, \App\Http\Controllers\Admin\CheckoutSettingsController::MAX_QUESTIONS, ['label' => '', 'required' => false]);
     $hours = $store->openingHours();
     $useHours = (bool) old('use_hours', $hours->isSet());
-    $examples = ['Point de repère (ex. près de la mosquée de Kipé)', 'Taille ou pointure', 'Heure de livraison souhaitée'];
+    $examples = ['Point de repère (ex. près de la mosquée de Kipé)', 'Taille ou pointure', 'Heure de livraison'];
 @endphp
 <x-layouts.admin title="Réglages">
     @include('admin.settings._tabs')
@@ -47,14 +47,15 @@
                         $slot = $hours->isSet() ? $hours->slot($day) : ($day <= 6 ? ['open' => '08:00', 'close' => '20:00'] : null);
                         $open = old("hours.$day.open_day", $slot !== null);
                     @endphp
-                    <div class="grid grid-cols-[7rem_1fr_1fr] items-center gap-2 px-3 py-2">
-                        <label class="flex min-h-tap items-center gap-2 font-semibold">
+                    {{-- Téléphone : le jour, puis les deux heures sur une ligne. Plus large : une seule ligne. --}}
+                    <div class="grid grid-cols-2 items-center gap-x-2 gap-y-1 px-3 py-2 md:grid-cols-[8rem_1fr_1fr]">
+                        <label class="col-span-2 flex min-h-tap items-center gap-2 font-semibold md:col-span-1">
                             <input type="checkbox" name="hours[{{ $day }}][open_day]" value="1" class="size-5 accent-accent" @checked($open)> {{ $name }}
                         </label>
                         <label class="sr-only" for="h{{ $day }}-open">{{ $name }} : ouverture</label>
-                        <input class="input" type="time" id="h{{ $day }}-open" name="hours[{{ $day }}][open]" value="{{ old("hours.$day.open", $slot['open'] ?? '08:00') }}">
+                        <input class="input min-w-0 px-2" type="time" id="h{{ $day }}-open" name="hours[{{ $day }}][open]" value="{{ old("hours.$day.open", $slot['open'] ?? '08:00') }}">
                         <label class="sr-only" for="h{{ $day }}-close">{{ $name }} : fermeture</label>
-                        <input class="input" type="time" id="h{{ $day }}-close" name="hours[{{ $day }}][close]" value="{{ old("hours.$day.close", $slot['close'] ?? '20:00') }}">
+                        <input class="input min-w-0 px-2" type="time" id="h{{ $day }}-close" name="hours[{{ $day }}][close]" value="{{ old("hours.$day.close", $slot['close'] ?? '20:00') }}">
                     </div>
                     @error("hours.$day")<p class="error px-3 pb-2">{{ $message }}</p>@enderror
                 @endforeach
