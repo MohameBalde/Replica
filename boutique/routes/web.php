@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\ManualOrderController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CheckoutSettingsController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
@@ -48,7 +50,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
         // S12, S13 : commandes
         Route::get('/commandes', [OrderController::class, 'index'])->name('orders.index');
+        Route::post('/commandes/actions', [OrderController::class, 'bulk'])->name('orders.bulk');
+        Route::get('/commandes/nouvelle', [ManualOrderController::class, 'create'])->name('orders.create');
+        Route::post('/commandes', [ManualOrderController::class, 'store'])->name('orders.store');
         Route::get('/commandes/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
+        Route::get('/commandes/{order}/facture', [OrderController::class, 'print'])->whereNumber('order')->name('orders.print');
         Route::patch('/commandes/{order}/statuts', [OrderController::class, 'updateStatuses'])->whereNumber('order')->name('orders.statuses');
         Route::post('/commandes/{order}/annuler', [OrderController::class, 'cancel'])->whereNumber('order')->name('orders.cancel');
         Route::get('/commandes/{order}/preuves/{proof}', [OrderController::class, 'proof'])->whereNumber(['order', 'proof'])->name('orders.proof');
@@ -69,6 +75,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/reglages', [StoreSettingsController::class, 'edit'])->name('settings.store');
         Route::put('/reglages', [StoreSettingsController::class, 'update'])->name('settings.store.update');
         Route::post('/reglages/ouverture', [StoreSettingsController::class, 'toggle'])->name('settings.store.toggle');
+        Route::get('/reglages/commande', [CheckoutSettingsController::class, 'edit'])->name('checkout.edit');
+        Route::put('/reglages/commande', [CheckoutSettingsController::class, 'update'])->name('checkout.update');
 
         // S18 : modes de livraison (frais, minimum, paiement à la livraison par mode)
         Route::get('/livraison', [DeliverySettingsController::class, 'index'])->name('delivery.index');

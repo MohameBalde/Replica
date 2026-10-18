@@ -22,27 +22,27 @@ Envoi d'une preuve de paiement (capture) par le client,paiement,must,yes,yes,sto
 Interface entièrement en français,guinée,must,no,yes,ajout Guinée
 Prix et totaux en GNF (séparateur de milliers),guinée,must,no,yes,ajout Guinée
 Instructions Orange Money et MTN MoMo (numéro marchand + montant),guinée,must,no,yes,ajout Guinée
-Options / suppléments payants sur un produit,produits,should,yes,no,
+Options / suppléments payants sur un produit,produits,should,yes,partial,"en attendant : choix avec leur prix (ex. « L + flocage ») et une question à la commande pour le texte ; vrais suppléments après la bêta"
 Frais de livraison par zone,livraison,should,yes,yes,via un mode par zone
-Questions personnalisées au checkout (repère),commande,should,yes,no,
+Questions personnalisées au checkout (repère),commande,should,yes,yes,"Réglages > Commande | 3 questions, facultatives ou obligatoires ; réponses dans WhatsApp, la facture et la commande"
 Minimum de commande par mode de livraison,livraison,should,yes,yes,vérifié au checkout ; réglage dans S18 à venir
 Liste clients avec historique,clients,should,yes,yes,S17
-Reçu WhatsApp envoyé au client par le marchand,commandes,should,yes,no,
-Commande manuelle saisie par le marchand,commandes,should,yes,no,
-Changement de statut en masse,commandes,should,yes,no,
-Boutique ouverte / fermée et horaires,réglages,should,yes,partial,bloque les commandes ; interrupteur S20 à venir | ouvert / fermé ; pas d'horaires
+Reçu WhatsApp envoyé au client par le marchand,commandes,should,yes,yes,"S13 | messages prêts « Paiement reçu » et « Envoyer la facture »"
+Commande manuelle saisie par le marchand,commandes,should,yes,yes,"S21 | téléphone, message ou comptoir ; prix négocié par ligne ; même stock et même numérotation"
+Changement de statut en masse,commandes,should,yes,yes,"S12 | cases à cocher, 7 actions ; annuler remet le stock ; tableau à partir de 1200 px"
+Boutique ouverte / fermée et horaires,réglages,should,yes,yes,"interrupteur + horaires par jour (Réglages > Commande) ; commandes acceptées avec un mot ou refusées hors horaires"
 Zones de livraison par commune de Conakry et par ville (Kankan / Labé / Nzérékoré),guinée,should,no,yes,"ajout Guinée | un mode par commune ou ville, suggestions"
 Pages légères pour 3G (images compressées),guinée,should,no,yes,"ajout Guinée | CSS 7,8 Ko gzip, WebP, lazy"
 Crédit client / dettes (achat à crédit),guinée,should,no,no,ajout Guinée : très courant dans les boutiques
 Indicateur stock faible côté client,boutique,could,yes,yes,
 Taxes sur produits et livraison,réglages,could,yes,no,peu utile pour les petits commerçants
-Export des commandes en PDF,commandes,could,yes,no,
-QR code sur la commande confirmée,commandes,could,yes,no,
+Export des commandes en PDF,commandes,could,yes,partial,"facture de chaque commande imprimable ou enregistrable en PDF ; pas encore d'export de la liste"
+QR code sur la commande confirmée,commandes,could,yes,yes,"sur la facture imprimable, vers la page de suivi"
 Plusieurs boutiques par compte,compte,could,yes,no,
 App marchand avec notifications push,compte,could,yes,no,V1 : site web installable (PWA)
 Synchronisation catalogue WhatsApp Business,intégrations,could,yes,skip,passe par Meta avec validation du compte
 Lien de boutique partageable en image (statut WhatsApp / TikTok),guinée,could,no,no,ajout Guinée : marketing
-Rapport du jour (ventes / commandes),guinée,could,no,no,ajout Guinée
+Rapport du jour (ventes / commandes),guinée,could,no,yes,"ajout Guinée | Accueil, période « Aujourd'hui »"
 Paiement automatique par API mobile money,paiement,could,yes,skip,"API Orange Money / MTN Guinée à obtenir, V1 = preuve de paiement"
 Devis de livreurs en temps réel,livraison,could,yes,skip,partenariats de livraison absents en Guinée
 Produits par abonnement,produits,could,yes,skip,usage rare pour la cible
@@ -62,3 +62,4 @@ Support WhatsApp humain avec délai de réponse affiché,confiance,should,no,par
 Démarrage gratuit sans plafond caché de commandes,offre,should,no,yes,"replica-entrepreneur : prix / formule au pourcentage (mince) ; à décider avec les interviews | Découverte : 15 produits, commandes illimitées"
 Jusqu'à 10 photos par produit,produits,could,no,yes,replica-entrepreneur : « a large number of pictures » (mince)
 "Accueil du commerçant : à faire maintenant, ventes du jour / 7 / 30 jours, ce qui se vend, stock bas",commandes,should,yes,yes,"S24 Accueil | chaque nombre ouvre la liste qui affiche le même nombre ; guide « Bien démarrer » pour une boutique neuve"
+"Messages WhatsApp prêts pour le client (confirmation, paiement, livraison, merci, facture)",commandes,should,no,yes,"ajout | S13, un clic ouvre WhatsApp avec le texte adapté à l'état de la commande"

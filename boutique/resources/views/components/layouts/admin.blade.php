@@ -8,7 +8,7 @@
         ['admin.orders.index', ['admin.orders.*', 'admin.customers.*'], 'inbox', 'Commandes'],
         ['admin.products.index', ['admin.products.*', 'admin.categories.*'], 'tag', 'Produits'],
         ['admin.share', ['admin.share*'], 'share', 'Partager'],
-        ['admin.settings.store', ['admin.settings.*', 'admin.delivery.*', 'admin.payments.*', 'admin.subscription'], 'settings', 'Réglages'],
+        ['admin.settings.store', ['admin.settings.*', 'admin.checkout.*', 'admin.delivery.*', 'admin.payments.*', 'admin.subscription'], 'settings', 'Réglages'],
     ];
     // Ordinateur : un panneau plus large pour les listes, lisible pour les formulaires.
     $panel = $wide ? 'lg:max-w-wide' : 'lg:max-w-admin';

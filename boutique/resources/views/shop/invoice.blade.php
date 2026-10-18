@@ -12,8 +12,9 @@
     @else
         {{-- Étape suivante, selon le moyen de paiement --}}
         <section class="section">
-            @if ($order->isCashOnDelivery())
-                <p class="text-lg font-bold">Dernière étape : envoyez votre commande</p>
+            @php $manual = $order->source === \App\Models\Order::MANUAL; // saisie par la boutique : rien à envoyer @endphp
+            @if ($order->isCashOnDelivery() && $order->payment_status === 'unpaid')
+                <p class="text-lg font-bold">{{ $manual ? 'Votre commande' : 'Dernière étape : envoyez votre commande' }}</p>
                 <p class="mt-1 text-text-muted">Vous paierez <strong class="text-text">{{ gnf($order->total) }}</strong> en espèces à la réception.</p>
             @elseif ($order->paymentMethod && $order->payment_status === 'unpaid')
                 <p class="text-lg font-bold">Payez par {{ $order->paymentLabel() }}</p>
@@ -24,10 +25,10 @@
                 @if ($order->paymentMethod->account_name)
                     <p class="text-sm text-text-muted">Nom affiché : {{ $order->paymentMethod->account_name }}</p>
                 @endif
-                <p class="mt-3 text-sm">Ensuite, ajoutez la capture de votre paiement ci-dessous, puis envoyez la commande sur WhatsApp.</p>
+                <p class="mt-3 text-sm">Ensuite, ajoutez la capture de votre paiement ci-dessous{{ $manual ? '.' : ', puis envoyez la commande sur WhatsApp.' }}</p>
             @elseif ($order->payment_status === 'confirming')
                 <p class="text-lg font-bold">Capture reçue 👍</p>
-                <p class="mt-1 text-text-muted">{{ $store->name }} vérifie votre paiement de {{ gnf($order->total) }}. Envoyez la commande sur WhatsApp si ce n'est pas déjà fait.</p>
+                <p class="mt-1 text-text-muted">{{ $store->name }} vérifie votre paiement de {{ gnf($order->total) }}.@unless ($manual) Envoyez la commande sur WhatsApp si ce n'est pas déjà fait.@endunless</p>
             @else
                 <p class="text-lg font-bold">Merci pour votre commande !</p>
             @endif
@@ -47,9 +48,11 @@
                 </form>
             @endif
 
-            <a href="{{ route('invoice.whatsapp', $order) }}" class="btn btn-whatsapp btn-lg mt-4">
-                <x-icon name="message" :size="20" /> {{ $order->whatsapp_sent_at ? 'Renvoyer sur WhatsApp' : 'Envoyer ma commande sur WhatsApp' }}
-            </a>
+            @unless ($manual)
+                <a href="{{ route('invoice.whatsapp', $order) }}" class="btn btn-whatsapp btn-lg mt-4">
+                    <x-icon name="message" :size="20" /> {{ $order->whatsapp_sent_at ? 'Renvoyer sur WhatsApp' : 'Envoyer ma commande sur WhatsApp' }}
+                </a>
+            @endunless
         </section>
     @endif
 
@@ -62,6 +65,7 @@
         <p><span class="text-text-muted">Nom :</span> {{ $order->customer_name }}</p>
         <p><span class="text-text-muted">Service :</span> {{ $order->delivery_method_name }}</p>
         @if ($order->address)<p><span class="text-text-muted">Adresse :</span> {{ $order->address }}</p>@endif
+        @include('admin.orders._answers', ['class' => ''])
         <p class="mt-3 text-text-muted">Gardez ce lien : il montre l'état de votre commande.</p>
         <a href="{{ route('shop.show', $store) }}" class="mt-4 inline-block font-semibold text-accent">Retour à la boutique</a>
     </section>

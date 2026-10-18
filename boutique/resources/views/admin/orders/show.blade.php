@@ -3,7 +3,7 @@
         <div class="flex flex-wrap gap-1.5">@include('admin.orders._badges')</div>
         <p class="mt-2 text-sm text-text-muted">
             Reçue le {{ $order->created_at->timezone('Africa/Conakry')->format('d/m/Y à H:i') }}
-            · via {{ \App\Models\Order::SOURCES[$order->source] ?? $order->source }}{{ $order->campaign ? ' ('.$order->campaign.')' : '' }}
+            @if ($order->sourceLabel())· {{ $order->sourceLabel() }}{{ $order->campaign ? ' ('.$order->campaign.')' : '' }}@endif
         </p>
         @unless ($order->whatsapp_sent_at)
             <p class="mt-2 text-sm text-text-muted">Le client n'a pas encore envoyé le message WhatsApp.</p>
@@ -22,8 +22,33 @@
         </p>
         <p class="text-text-muted">{{ phone_display($order->customer_phone) }}</p>
         <p class="mt-1">{{ $order->delivery_method_name }}@if ($order->address) · {{ $order->address }}@endif</p>
+        @include('admin.orders._answers')
         @if ($order->note)<p class="mt-2 rounded-md bg-surface p-3 text-sm">« {{ $order->note }} »</p>@endif
-        <a href="{{ $writeToCustomerUrl }}" class="btn btn-whatsapp mt-4" target="_blank" rel="noopener"><x-icon name="message" :size="20" /> Écrire au client</a>
+        @if ($order->internal_note)<p class="mt-2 rounded-md bg-warning-soft p-3 text-sm text-on-warning-soft"><span class="font-semibold">Note interne :</span> {{ $order->internal_note }}</p>@endif
+    </section>
+
+    {{-- Messages prêts : un clic ouvre WhatsApp avec le texte, le commerçant n'a plus qu'à envoyer. --}}
+    <section class="section">
+        <h2 class="section-title">Écrire au client sur WhatsApp</h2>
+        <ul class="space-y-2">
+            @foreach ($messages as $key => $m)
+                <li>
+                    <a href="{{ $m['url'] }}" target="_blank" rel="noopener" data-message="{{ $key }}"
+                       class="flex min-h-tap items-center gap-3 rounded-md border border-border px-3 py-2.5 hover:bg-surface">
+                        <span class="grid size-9 shrink-0 place-items-center rounded-pill bg-whatsapp text-on-whatsapp"><x-icon name="message" :size="18" /></span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-semibold">{{ $m['label'] }}</span>
+                            <span class="line-clamp-2 text-sm text-text-muted">{{ \Illuminate\Support\Str::after($m['text'], "\n") }}</span>
+                        </span>
+                        <x-icon name="external" :size="16" class="shrink-0 text-text-muted" />
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+        <div class="mt-3 flex flex-wrap gap-x-5">
+            <a href="{{ $writeToCustomerUrl }}" class="inline-flex min-h-tap items-center text-sm font-semibold text-accent" target="_blank" rel="noopener">Message libre →</a>
+            <a href="{{ route('admin.orders.print', $order->id) }}" class="inline-flex min-h-tap items-center text-sm font-semibold text-accent" target="_blank" rel="noopener">Imprimer la facture (ou PDF) →</a>
+        </div>
     </section>
 
     @if ($order->paymentProofs->isNotEmpty())

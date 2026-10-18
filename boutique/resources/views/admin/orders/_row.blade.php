@@ -12,8 +12,8 @@
             @if ($order->status === 'pending' && ! $order->whatsapp_sent_at)
                 <span class="badge badge-warning">WhatsApp non envoyé</span>
             @endif
-            @if ($order->source !== 'direct')
-                <span class="text-xs text-text-muted">via {{ \App\Models\Order::SOURCES[$order->source] ?? $order->source }}</span>
+            @if ($order->sourceLabel())
+                <span class="text-xs text-text-muted">{{ $order->sourceLabel() }}</span>
             @endif
             <span class="ml-auto text-xs text-text-muted">{{ $order->created_at->timezone('Africa/Conakry')->format('d/m H:i') }}</span>
         </div>

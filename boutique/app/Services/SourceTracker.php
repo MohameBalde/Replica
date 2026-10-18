@@ -21,7 +21,8 @@ class SourceTracker
         $src = $request->query('src');
 
         if (is_string($src)) {
-            $src = array_key_exists(strtolower($src), Order::SOURCES) ? strtolower($src) : 'direct';
+            $src = strtolower($src);
+            $src = array_key_exists($src, Order::SOURCES) && $src !== Order::MANUAL ? $src : 'direct';
             $campaign = $request->query('c');
             session([$key => [
                 'source' => $src,

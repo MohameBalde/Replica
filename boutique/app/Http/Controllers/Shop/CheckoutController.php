@@ -11,6 +11,7 @@ use App\Services\SourceTracker;
 use App\Support\Phone;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -46,12 +47,30 @@ class CheckoutController extends Controller
 
         $paymentMethods = $store->paymentMethods()->where('is_active', true)->get()->filter->isComplete()->values();
 
-        return view('shop.checkout', compact('store', 'lines', 'subtotal', 'deliveryMethods', 'paymentMethods', 'options'));
+        $closed = $store->closedNotice();
+
+        return view('shop.checkout', compact('store', 'lines', 'subtotal', 'deliveryMethods', 'paymentMethods', 'options', 'closed'));
     }
 
     public function store(Request $request, Store $store, OrderPlacer $placer): RedirectResponse
     {
         $request->merge(['phone' => Phone::normalize($request->input('phone')) ?? $request->input('phone')]);
+        // Espaces, retours à la ligne et espaces insécables regroupés : ces textes partent dans des messages WhatsApp.
+        $request->merge(collect($request->only('name', 'address'))->map(fn ($v) => is_string($v) ? Str::squish($v) : $v)->all());
+        if (is_array($request->input('answers'))) {
+            $request->merge(['answers' => array_map(fn ($v) => is_string($v) ? Str::squish($v) : $v, $request->input('answers'))]);
+        }
+
+        // Questions de la boutique (ex. point de repère) : obligatoires si le commerçant l'a choisi.
+        $questions = $store->checkoutQuestions();
+        $rules = ['answers' => ['nullable', 'array'], 'answers.*' => ['nullable', 'string', 'max:255']];
+        $messages = [];
+        foreach ($questions as $i => $q) {
+            if ($q['required']) {
+                $rules["answers.$i"] = ['required', 'string', 'max:255'];
+                $messages["answers.$i.required"] = 'Répondez à « '.$q['label'].' ».';
+            }
+        }
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -60,17 +79,32 @@ class CheckoutController extends Controller
             'payment_method_id' => ['required', 'integer'],
             'address' => ['nullable', 'string', 'max:255'],
             'note' => ['nullable', 'string', 'max:500'],
-        ], [
+        ] + $rules, [
             'name.required' => 'Indiquez votre nom.',
             'phone.required' => 'Indiquez votre numéro WhatsApp.',
             'phone.regex' => 'Entrez un numéro guinéen valable, par exemple 620 00 00 00.',
             'delivery_method_id.required' => 'Choisissez un mode de livraison.',
             'payment_method_id.required' => 'Choisissez un moyen de paiement.',
-        ]);
+            'answers.*.max' => 'Réponse trop longue (255 caractères au plus).',
+        ] + $messages);
 
-        if (! $store->is_open) {
-            return back()->withErrors(['cart' => 'La boutique est fermée pour le moment.'])->withInput();
+        if ($closed = $store->closedNotice()) {
+            return back()->withErrors(['cart' => $closed])->withInput();
         }
+
+        // Chaque réponse arrive avec le libellé de sa question : si le commerçant a changé
+        // ses questions pendant que le client remplissait, on ne range rien sous la mauvaise.
+        $askedLabels = (array) $request->input('answers_q', []);
+        foreach ($questions as $i => $q) {
+            if (($askedLabels[$i] ?? null) !== $q['label']) {
+                return back()->withErrors(['cart' => 'Les questions de la boutique ont changé : vérifiez vos réponses puis validez à nouveau.'])->withInput();
+            }
+        }
+
+        // Réponses copiées sur la commande avec leur question : elles restent lisibles si la question change.
+        $data['answers'] = collect($questions)
+            ->map(fn ($q, $i) => ['q' => $q['label'], 'a' => trim((string) ($data['answers'][$i] ?? ''))])
+            ->filter(fn ($qa) => $qa['a'] !== '')->values()->all();
 
         $cart = new Cart($store);
         $source = SourceTracker::current($store);
