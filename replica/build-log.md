@@ -1,7 +1,7 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 135 tests, 1 297 vérifications, verts sur SQLite et sur MariaDB (au 22 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Tests : 140 tests, 1 363 vérifications, verts sur SQLite et sur MariaDB (au 22 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
 Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22**.
 
 ## 2026-10-22 : suppléments payants (ex. flocage)
@@ -17,6 +17,13 @@ Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22*
 - Un supplément retiré par le commerçant disparaît des paniers en cours (avec son prix) ; le prix vient toujours de la base.
 - Migration `2026_10_20_000001` : `products.addons` et `order_items.options` (JSON). Le contrôle `line_total = unit_price × quantity` reste vrai : le prix unitaire inclut les suppléments.
 - La commande saisie à la main ne propose pas les suppléments : le commerçant met le prix négocié et précise dans la note interne.
+- Relecture (2 relecteurs : prix et panier, affichage, écrans, non-régression), 8 points confirmés, tous corrigés :
+  - **le plus grave** : avec 8 maillots floqués et de longs noms, le lien WhatsApp dépassait la taille d'en-tête qu'accepte nginx (4 Ko) et l'envoi donnait une erreur 502. Le risque existait déjà avec 3 longues réponses et une longue adresse. Le message est maintenant limité à 2 000 octets une fois encodé : moins d'articles listés (« … et N autre(s) article(s) »), puis réponses et adresse raccourcies ; le lien de la facture garde tout le détail ;
+  - après une erreur, la fiche revient sur la taille choisie avec son prix, son maximum et son badge de stock ;
+  - un texte tapé sans cocher la case est signalé (sans JavaScript) ou n'est pas envoyé (avec) ;
+  - un supplément qui demande un texte ajouté après la mise au panier sort de la ligne ;
+  - un texte en UTF-8 invalide ne contourne plus le texte obligatoire ;
+  - les lignes d'un produit masqué ne bloquent plus le panier « plein ».
 
 ## 2026-10-18 (soir) : application installable, image pour le statut, export
 

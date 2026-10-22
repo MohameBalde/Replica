@@ -152,7 +152,8 @@ class ProductAddonsTest extends TestCase
         $item = $order->items->sole();
         $this->assertSame(300000, $item->unit_price);
         $this->assertSame(300000, $item->line_total);
-        $this->assertSame([['name' => 'Flocage', 'price' => 50000, 'text' => 'DIALLO 10']], $item->options);
+        // assertEquals : MySQL 8 range les clés d'un objet JSON dans son propre ordre.
+        $this->assertEquals([['name' => 'Flocage', 'price' => 50000, 'text' => 'DIALLO 10']], $item->options);
         $this->assertSame(300000, $order->subtotal);
         $this->assertSame(1, (int) $this->variant('L')->fresh()->stock, 'le stock suit la taille, pas le supplément');
 
@@ -274,6 +275,57 @@ class ProductAddonsTest extends TestCase
         $this->assertMatchesRegularExpression('/value="'.$this->variant('L')->id.'"[^>]*checked/s', $page);
         $this->assertStringContainsString('max="2"', $page);
         $this->assertMatchesRegularExpression('/id="low-stock"\s*>Plus que&nbsp;<span>2</', $page);
+    }
+
+    public function test_whatsapp_link_stays_short_enough_for_the_redirect(): void
+    {
+        // 8 maillots floqués avec des noms longs, une longue adresse et 3 longues réponses.
+        foreach (range(1, 8) as $i) {
+            $this->addToCart('M', ['Flocage', 'Emballage cadeau'], ['Flocage' => 'MAMADOU ALIOU DIALLO ÉLÉPHANT '.$i.' '.str_repeat('é', 20)]);
+        }
+        $order = $this->checkout();
+        $order->update([
+            'address' => str_repeat('Quartier Hamdallaye, près de la mosquée, ', 6),
+            'answers' => array_map(fn ($i) => ['q' => 'Question numéro '.$i.' très détaillée', 'a' => str_repeat('Réponse très détaillée ', 11)], range(1, 3)),
+        ]);
+        $order = $order->fresh();
+
+        $text = WhatsAppMessage::forOrder($order);
+        $this->assertLessThanOrEqual(WhatsAppMessage::MAX_ENCODED, strlen(rawurlencode($text)));
+        $this->assertStringContainsString('Voici ma commande *#'.$order->number.'*', $text);
+        $this->assertStringContainsString('*Total : '.gnf($order->total).'*', $text);
+        $this->assertStringContainsString('autre(s) article(s)', $text);
+        $this->assertStringEndsWith('Détail : '.route('invoice.show', $order), $text);
+
+        $location = $this->get(route('invoice.whatsapp', $order))->assertRedirect()->headers->get('Location');
+        $this->assertLessThan(2100, strlen($location));
+    }
+
+    public function test_hidden_products_do_not_keep_the_cart_full(): void
+    {
+        $this->actingAs($this->merchant)->post('/admin/produits', ['name' => 'Écharpe', 'price' => '30000', 'addons' => [['name' => 'Brodé', 'price' => '1000', 'text' => 'Prénom']]])
+            ->assertSessionHasNoErrors();
+        auth()->logout();
+        $scarf = $this->store->products()->where('name', 'Écharpe')->firstOrFail();
+        $key = $scarf->addonList()->first()['key'];
+        foreach (range(1, \App\Services\Cart::MAX_LINES) as $i) {
+            $this->post('/nimstore/panier', ['variant_id' => $scarf->variants()->value('id'), 'addons' => [$key], 'addon_text' => [$key => 'Nom '.$i]])
+                ->assertSessionHasNoErrors();
+        }
+        $this->addToCart('M')->assertSessionHasErrors('quantity');
+
+        // L'écharpe est masquée : ses 30 lignes ne s'affichent plus et ne bloquent plus le panier.
+        $scarf->update(['is_visible' => false]);
+        $this->addToCart('M')->assertSessionHasNoErrors();
+        $this->assertCount(1, session('cart.'.$this->store->id));
+    }
+
+    public function test_invalid_utf8_text_does_not_skip_the_required_text(): void
+    {
+        $key = $this->addon('Flocage')['key'];
+        $this->from('/nimstore')->post('/nimstore/panier', ['variant_id' => $this->variant('M')->id, 'addons' => [$key], 'addon_text' => [$key => "DIALLO \xff"]])
+            ->assertSessionHasErrors('addon_text.'.$key);
+        $this->assertSame([], session('cart.'.$this->store->id, []));
     }
 
     public function test_a_cart_saved_before_the_addons_still_works(): void

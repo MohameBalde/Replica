@@ -58,7 +58,7 @@ class CartController extends Controller
             }
             $text = '';
             if ($addon['text'] !== null) {
-                $text = Str::squish((string) ($data['addon_text'][$key] ?? ''));
+                $text = (string) Str::squish((string) ($data['addon_text'][$key] ?? '')); // null si l'UTF-8 est invalide
                 if ($text === '') {
                     return back()->withInput()->withErrors(['addon_text.'.$key => 'Indiquez le texte pour « '.$addon['name'].' » : '.$addon['text'].'.']);
                 }
@@ -68,7 +68,7 @@ class CartController extends Controller
         // Sans JavaScript, le champ texte est toujours visible : un texte tapé sans cocher la case n'est pas perdu en silence.
         foreach ($data['addon_text'] ?? [] as $key => $text) {
             $addon = $offered->get((string) $key);
-            if ($addon && $addon['text'] !== null && ! isset($addons[$key]) && Str::squish((string) $text) !== '') {
+            if ($addon && $addon['text'] !== null && ! isset($addons[$key]) && (string) Str::squish((string) $text) !== '') {
                 return back()->withInput()->withErrors(['addon_text.'.$key => 'Cochez « '.$addon['name'].' » pour l\'ajouter, ou videz le texte.']);
             }
         }

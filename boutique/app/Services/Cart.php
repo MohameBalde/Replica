@@ -71,7 +71,11 @@ class Cart
         ksort($addons);
         $key = self::lineKey($variant->id, $addons);
         if (! isset($cart[$key]) && count($cart) >= self::MAX_LINES) {
-            return false;
+            // Lignes d'un produit masqué ou d'une taille supprimée : invisibles pour le client, elles ne comptent plus.
+            $cart = array_intersect_key($cart, array_flip($this->lines()->pluck('key')->all()));
+            if (count($cart) >= self::MAX_LINES) {
+                return false;
+            }
         }
         $cart[$key] = [
             'variant' => $variant->id,

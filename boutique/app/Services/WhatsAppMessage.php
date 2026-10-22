@@ -17,17 +17,49 @@ class WhatsAppMessage
 {
     public const MAX_ITEMS_LISTED = 8;
 
+    /**
+     * Taille maximale du message une fois encodé dans le lien. Le lien part dans l'en-tête
+     * Location de la redirection, et nginx refuse (502) une réponse dont les en-têtes
+     * dépassent 4 Ko : avec les cookies, 2 000 octets laissent de la marge.
+     */
+    public const MAX_ENCODED = 2000;
+
+    /** Le message complet s'il tient ; sinon moins d'articles listés, puis réponses et adresse raccourcies. */
     public static function forOrder(Order $order): string
     {
         $order->loadMissing('items', 'store');
 
+        for ($listed = min(self::MAX_ITEMS_LISTED, $order->items->count()); $listed >= 1; $listed--) {
+            $text = self::orderText($order, $listed, false);
+            if (strlen(rawurlencode($text)) <= self::MAX_ENCODED) {
+                return $text;
+            }
+        }
+        $text = self::orderText($order, 1, true);
+        if (strlen(rawurlencode($text)) <= self::MAX_ENCODED) {
+            return $text;
+        }
+
+        // Dernier recours : le début du message, puis le lien de la facture, qui a tout le détail.
+        $tail = "\n…\n\nDétail : ".route('invoice.show', $order);
+        while ($text !== '' && strlen(rawurlencode($text.$tail)) > self::MAX_ENCODED) {
+            $text = mb_substr($text, 0, (int) floor(mb_strlen($text) * 0.9));
+        }
+
+        return $text.$tail;
+    }
+
+    private static function orderText(Order $order, int $listed, bool $short): string
+    {
         $lines = ['Bonjour '.$order->store->name.' 👋', 'Voici ma commande *#'.$order->number.'* :', ''];
 
-        foreach ($order->items->take(self::MAX_ITEMS_LISTED) as $item) {
-            $lines[] = '• '.$item->quantity.' × '.$item->label().($item->options ? ' + '.$item->optionsLabel() : '').' — '.gnf($item->line_total);
+        foreach ($order->items->take($listed) as $item) {
+            $lines[] = '• '.$item->quantity.' × '.$item->label()
+                .($item->options ? ' + '.Str::limit($item->optionsLabel(), 120, '…') : '')
+                .' — '.gnf($item->line_total);
         }
-        if ($order->items->count() > self::MAX_ITEMS_LISTED) {
-            $lines[] = '• … et '.($order->items->count() - self::MAX_ITEMS_LISTED).' autre(s) article(s)';
+        if ($order->items->count() > $listed) {
+            $lines[] = '• … et '.($order->items->count() - $listed).' autre(s) article(s)';
         }
 
         $lines[] = '';
@@ -39,10 +71,10 @@ class WhatsAppMessage
         $lines[] = 'Nom : '.$order->customer_name;
         $lines[] = 'Service : '.$order->delivery_method_name;
         if ($order->address) {
-            $lines[] = 'Adresse : '.$order->address;
+            $lines[] = 'Adresse : '.($short ? Str::limit($order->address, 80, '…') : $order->address);
         }
         foreach ($order->answers ?? [] as $qa) {
-            $lines[] = $qa['q'].' : '.$qa['a'];
+            $lines[] = $short ? Str::limit($qa['q'], 40, '…').' : '.Str::limit($qa['a'], 60, '…') : $qa['q'].' : '.$qa['a'];
         }
         $lines[] = $order->isCashOnDelivery()
             ? 'Paiement : à la livraison ('.gnf($order->total).' à préparer)'
