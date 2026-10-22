@@ -65,6 +65,13 @@ class CartController extends Controller
             }
             $addons[$key] = $text;
         }
+        // Sans JavaScript, le champ texte est toujours visible : un texte tapé sans cocher la case n'est pas perdu en silence.
+        foreach ($data['addon_text'] ?? [] as $key => $text) {
+            $addon = $offered->get((string) $key);
+            if ($addon && $addon['text'] !== null && ! isset($addons[$key]) && Str::squish((string) $text) !== '') {
+                return back()->withInput()->withErrors(['addon_text.'.$key => 'Cochez « '.$addon['name'].' » pour l\'ajouter, ou videz le texte.']);
+            }
+        }
 
         $quantity = $data['quantity'] ?? 1;
         $cart = new Cart($store);

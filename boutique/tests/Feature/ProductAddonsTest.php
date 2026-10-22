@@ -210,8 +210,10 @@ class ProductAddonsTest extends TestCase
 
         $this->assertSame([], session('cart.'.$this->store->id, []), 'rien n\'est ajouté au panier');
 
-        // Le texte d'un supplément non coché est ignoré.
-        $this->addToCart('L', [], ['Flocage' => 'BAH 4'])->assertSessionHasNoErrors();
+        // Sans JavaScript, un texte tapé sans cocher la case n'est pas perdu en silence.
+        $this->addToCart('L', [], ['Flocage' => 'BAH 4'])
+            ->assertSessionHasErrors(['addon_text.'.$this->addon('Flocage')['key'] => 'Cochez « Flocage » pour l\'ajouter, ou videz le texte.']);
+        $this->addToCart('L', [], ['Flocage' => '  '])->assertSessionHasNoErrors();
         $this->assertSame('', $this->checkout()->items->sole()->optionsLabel());
     }
 
@@ -248,6 +250,30 @@ class ProductAddonsTest extends TestCase
         $this->assertNull($this->jersey->fresh()->addons);
         $item = $this->checkout()->items->sole();
         $this->assertSame([250000, null], [$item->unit_price, $item->options]);
+    }
+
+    public function test_an_addon_whose_text_became_required_leaves_the_line(): void
+    {
+        // Le flocage ne demandait pas de texte au moment de l'ajout…
+        $key = $this->addon('Flocage')['key'];
+        $this->jersey->update(['addons' => [['key' => $key, 'name' => 'Flocage', 'price' => 50000, 'text' => null]]]);
+        $this->addToCart('M', ['Flocage'])->assertSessionHasNoErrors();
+
+        // … puis le commerçant demande « Nom et numéro » : pas de flocage payé sans nom.
+        $this->jersey->update(['addons' => [['key' => $key, 'name' => 'Flocage', 'price' => 50000, 'text' => 'Nom et numéro']]]);
+        $this->get('/nimstore/panier')->assertOk()->assertDontSee('Flocage')->assertSee('250 000 GNF');
+        $item = $this->checkout()->items->sole();
+        $this->assertSame([250000, null], [$item->unit_price, $item->options]);
+    }
+
+    public function test_after_an_error_the_page_shows_the_chosen_size(): void
+    {
+        // L : 2 en stock. 3 demandés → erreur ; la page revient sur L avec son stock, pas celui de M.
+        $this->addToCart('L', [], [], 3)->assertSessionHasErrors(['quantity' => 'Plus que 2 en stock.']);
+        $page = $this->get('/nimstore/p/'.$this->jersey->slug)->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('/value="'.$this->variant('L')->id.'"[^>]*checked/s', $page);
+        $this->assertStringContainsString('max="2"', $page);
+        $this->assertMatchesRegularExpression('/id="low-stock"\s*>Plus que&nbsp;<span>2</', $page);
     }
 
     public function test_a_cart_saved_before_the_addons_still_works(): void

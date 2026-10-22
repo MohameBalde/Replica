@@ -112,7 +112,8 @@ class Cart
      * Lignes du panier avec les variantes chargées depuis la base, filtrées sur
      * cette boutique et sur les produits visibles. Les prix (variante et
      * suppléments) viennent toujours de la base, jamais de la session ; un
-     * supplément retiré par le commerçant disparaît de la ligne.
+     * supplément retiré par le commerçant (ou dont le texte demandé manque)
+     * disparaît de la ligne.
      *
      * @return Collection<int, array{key: string, variant: Variant, quantity: int,
      *     addons: list<array{key:string, name:string, price:int, text:?string}>, unit_price: int, line_total: int}>
@@ -135,8 +136,9 @@ class Cart
             ->map(function ($line, $key) use ($variants) {
                 $variant = $variants[$line['variant']];
                 $offered = $variant->product->addonList();
+                // Un supplément retiré, ou qui demande maintenant un texte que le client n'a pas donné, sort de la ligne (avec son prix).
                 $addons = collect($line['addons'])
-                    ->filter(fn ($text, $addonKey) => $offered->has($addonKey))
+                    ->filter(fn ($text, $addonKey) => $offered->has($addonKey) && ($offered[$addonKey]['text'] === null || $text !== ''))
                     ->map(fn ($text, $addonKey) => [
                         'key' => (string) $addonKey,
                         'name' => $offered[$addonKey]['name'],

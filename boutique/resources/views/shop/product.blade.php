@@ -11,6 +11,8 @@
     @php
         $soldOut = $product->isSoldOut();
         $available = $product->variants->first(fn ($v) => $v->isAvailable()) ?? $product->variants->first();
+        // Après une erreur (stock, texte manquant) : le choix du client s'il est encore en vente. Prix, maximum et badge le suivent.
+        $selected = $product->variants->first(fn ($v) => $v->id === (int) old('variant_id') && $v->isAvailable()) ?? $available;
         $multi = $product->variants->count() > 1;
         $addons = $product->addonList();
     @endphp
@@ -40,7 +42,7 @@
         @csrf
         <div class="p-4 lg:p-0">
             <h1 class="text-xl font-bold lg:text-display">{{ $product->name }}</h1>
-            <p class="price mt-1 text-lg" id="price">{{ gnf($available->price) }}</p>
+            <p class="price mt-1 text-lg" id="price">{{ gnf($selected->price) }}</p>
 
             @if ($multi)
                 <fieldset class="mt-4">
@@ -51,7 +53,7 @@
                             <label class="choice px-3 py-2 {{ $ok ? '' : 'cursor-not-allowed text-text-muted line-through opacity-60' }}">
                                 <input type="radio" name="variant_id" value="{{ $variant->id }}" class="sr-only"
                                        data-price="{{ $variant->price }}" data-stock="{{ $variant->stock ?? '' }}"
-                                       @checked((int) old('variant_id', $available->id) === $variant->id) @disabled(! $ok)>
+                                       @checked($selected->id === $variant->id) @disabled(! $ok)>
                                 {{ $variant->name }}<span class="sr-only">{{ $ok ? '' : ' (épuisé)' }}</span>
                             </label>
                         @endforeach
@@ -96,8 +98,8 @@
                 <div class="mt-4 flex items-center gap-3">
                     <label for="quantity" class="label mb-0">Quantité</label>
                     <input class="input w-24 text-center" id="quantity" name="quantity" type="number" inputmode="numeric" min="1"
-                           max="{{ $available->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="{{ old('quantity', 1) }}">
-                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= \App\Models\Product::LOW_STOCK) hidden @endunless>Plus que&nbsp;<span>{{ $available->stock }}</span></span>
+                           max="{{ $selected->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="{{ old('quantity', 1) }}">
+                    <span class="badge badge-warning" id="low-stock" @unless ($selected->stock !== null && $selected->stock <= \App\Models\Product::LOW_STOCK) hidden @endunless>Plus que&nbsp;<span>{{ $selected->stock }}</span></span>
                 </div>
             @endif
 
@@ -127,7 +129,7 @@
         <script>
             (() => {
                 const form = document.getElementById('add-form');
-                const base = {{ $available->price }};
+                const base = {{ $selected->price }};
                 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' GNF';
                 function refresh() {
                     const v = form.querySelector('[name=variant_id]:checked');
@@ -135,7 +137,8 @@
                     form.querySelectorAll('[data-addon-price]').forEach(box => {
                         if (box.checked) total += Number(box.dataset.addonPrice);
                         const text = box.getAttribute('aria-controls') && document.getElementById(box.getAttribute('aria-controls'));
-                        if (text) text.hidden = !box.checked;
+                        // Champ caché = pas envoyé : un ancien texte ne part pas avec une case décochée.
+                        if (text) { text.hidden = !box.checked; text.querySelector('input').disabled = !box.checked; }
                     });
                     document.getElementById('price').textContent = fmt(total);
                 }
