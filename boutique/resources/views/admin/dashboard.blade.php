@@ -14,6 +14,32 @@
         </form>
     @endunless
 
+    {{-- Proposé seulement quand le navigateur sait installer l'application (Chrome sur Android, ordinateur). --}}
+    <div class="mx-4 mt-3 flex items-center gap-3 rounded-md bg-accent-soft/60 p-3 lg:mt-4" data-install hidden>
+        <img src="{{ asset('icon-192.png') }}" alt="" width="40" height="40" class="size-10 shrink-0 rounded-md">
+        <p class="min-w-0 flex-1 text-sm"><span class="block font-semibold">Wanllan sur votre écran d'accueil</span>Ouvrez vos commandes en un appui, comme une application.</p>
+        <button type="button" class="btn btn-primary w-auto shrink-0 px-4" data-install-yes>Installer</button>
+        <button type="button" class="inline-flex min-h-tap min-w-tap shrink-0 items-center justify-center text-text-muted" data-install-no aria-label="Plus tard">✕</button>
+    </div>
+    <script>
+        (() => {
+            const box = document.querySelector('[data-install]');
+            let later = false;
+            try { later = localStorage.getItem('wanllan-install-later') === '1'; } catch (e) {}
+            addEventListener('beforeinstallprompt', (event) => {
+                event.preventDefault();
+                if (later) return;
+                box.hidden = false;
+                box.querySelector('[data-install-yes]').onclick = async () => { box.hidden = true; event.prompt(); };
+            });
+            box.querySelector('[data-install-no]').onclick = () => {
+                box.hidden = true;
+                try { localStorage.setItem('wanllan-install-later', '1'); } catch (e) {}
+            };
+            addEventListener('appinstalled', () => { box.hidden = true; });
+        })();
+    </script>
+
     @if ($starting)
         {{-- ===== Bien démarrer : tant qu'aucune commande (non annulée) n'est arrivée ===== --}}
         @php

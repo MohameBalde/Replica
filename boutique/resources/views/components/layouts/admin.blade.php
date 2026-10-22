@@ -13,7 +13,7 @@
     // Ordinateur : un panneau plus large pour les listes, lisible pour les formulaires.
     $panel = $wide ? 'lg:max-w-wide' : 'lg:max-w-admin';
 @endphp
-<x-layouts.base :title="$title" class="min-h-dvh">
+<x-layouts.base :title="$title" :installable="true" class="min-h-dvh">
     {{-- Ordinateur : menu fixe à gauche. Téléphone : barre d'onglets en bas (plus bas). --}}
     @if ($user)
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-sidebar flex-col border-r border-border bg-bg lg:flex" aria-label="Menu principal">

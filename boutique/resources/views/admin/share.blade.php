@@ -91,8 +91,28 @@
         @endif
     </section>
 
+    <section class="section">
+        <h2 class="section-title">4. Une image pour votre statut</h2>
+        <p class="mb-3 text-sm text-text-muted">Au format du statut WhatsApp et de TikTok : vos produits, vos prix, le lien et un QR code. Téléchargez-la, puis publiez-la.</p>
+        <img src="{{ route('admin.share.image') }}" alt="Image de statut de {{ $store->name }}" width="270" height="480" loading="lazy" class="mx-auto h-auto w-56 rounded-md border border-border">
+        <a href="{{ route('admin.share.image', ['download' => 1]) }}" class="btn btn-primary mt-3">Télécharger l'image</a>
+        @if ($products->isNotEmpty())
+            <details class="mt-3">
+                <summary class="inline-flex min-h-tap cursor-pointer items-center text-sm font-semibold text-accent">Une image par produit ▾</summary>
+                <ul class="divide-y divide-border">
+                    @foreach ($products as $product)
+                        <li class="flex items-center gap-3 py-2">
+                            <span class="min-w-0 flex-1 truncate">{{ $product->name }}</span>
+                            <a href="{{ route('admin.share.image', ['product' => $product->id, 'download' => 1]) }}" class="btn btn-ghost w-auto shrink-0 min-h-tap px-2 text-sm">Télécharger</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </details>
+        @endif
+    </section>
+
     <section class="section border-b-0">
-        <h2 class="section-title">4. Le QR code du comptoir</h2>
+        <h2 class="section-title">5. Le QR code du comptoir</h2>
         <p class="mb-3 text-sm text-text-muted">À imprimer et coller dans la boutique : les clients scannent et commandent.</p>
         <img src="{{ route('admin.share.qr') }}" alt="QR code de la boutique {{ $store->name }}" class="mx-auto size-56 rounded-md border border-border bg-white p-2">
         <a href="{{ route('admin.share.qr', ['download' => 1]) }}" class="btn btn-secondary mt-3">Télécharger le QR code</a>

@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'image' => null])
+@props(['title' => null, 'description' => null, 'image' => null, 'installable' => false])
 <!doctype html>
 <html lang="fr">
 <head>
@@ -21,6 +21,11 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
+    @if ($installable === true)
+        {{-- Espace commerçant : installable comme une application (écran d'accueil du téléphone). --}}
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));</script>
+    @endif
     @vite('resources/css/app.css')
 </head>
 <body {{ $attributes }}>

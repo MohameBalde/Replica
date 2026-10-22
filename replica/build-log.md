@@ -1,14 +1,28 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 114 tests, 1 082 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
-Parité (`replica-diff/parity.py`) : **95,3 / 100**, indispensables **22 sur 22**.
+Tests : 125 tests, 1 200 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Parité (`replica-diff/parity.py`) : **96,3 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-18 (soir) : application installable, image pour le statut, export
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| App installable | fait | notifications push | Laravel donne une variable `$app` à toutes les vues : une option de mise en page du même nom activait l'installation sur la vitrine des clients. Renommée `installable`, avec un test |
+| S22 partager : image de statut | fait | — | image dessinée avec GD et la police Inter livrée avec l'app ; prix « À partir de … » réduit jusqu'à tenir sur une ligne |
+| S12 commandes : export | fait | — | Excel en français : point-virgule, BOM UTF-8, téléphone sans « + » (sinon lu comme une formule) ; nom ou note d'un client qui commence par `=` neutralisé |
+
+- **Wanllan sur l'écran d'accueil** : l'espace commerçant s'installe comme une application (icône, plein écran, ouverture sur l'Accueil). Bandeau « Installer » sur l'Accueil quand le téléphone le propose, « Plus tard » retenu. Sans réseau, une page « Pas de connexion » avec « Réessayer » au lieu de l'erreur du navigateur. Rien n'est gardé hors ligne : les commandes sont toujours à jour. La vitrine des clients n'est pas concernée.
+- **Image pour le statut WhatsApp et TikTok** (Partager, section 4) : 1080 × 1920, la boutique avec 4 produits, ou un produit seul (photo, prix, choix), le lien et un QR code étiqueté WhatsApp, les moyens de paiement. Seuls les produits visibles.
+- **Exporter (Excel)** sur la liste des commandes : un fichier CSV avec les filtres affichés (onglet et paiement), 18 colonnes (date à l'heure de Conakry, articles, montants en nombres pour les sommes, source, réponses, notes).
+- Vérifié dans Chromium à 320, 360 et 1200 px (aucun débordement, aucune erreur JavaScript) ; page hors connexion contrôlée en arrêtant vraiment le serveur.
+- Revue (export, image, application) : rien à corriger sur l'export. Image : emoji et drapeaux dessinés en carrés « NO GLYPH » (retirés), mot très long qui sortait de l'image (coupé avec « … »), produits épuisés mis en avant (placés après ceux en vente), « Dès » manquant devant les prix variables, QR code compté « WhatsApp » au lieu de « QR code ». Application : le serveur ne connaît pas le type `.webmanifest`, le manifeste devient `manifest.json`.
 
 ## 2026-10-18 (suite) : commandes, messages, saisie, réglages « Commande »
 
 | écran | état | ce qui manque | plus dur que prévu |
 | --- | --- | --- | --- |
-| S12 commandes | fait | export de la liste | cases à cocher hors du formulaire (`form="bulk"`) pour garder une seule liste qui devient un tableau à 1200 px ; une action en masse ne fait jamais reculer une commande |
+| S12 commandes | fait | — | cases à cocher hors du formulaire (`form="bulk"`) pour garder une seule liste qui devient un tableau à 1200 px ; une action en masse ne fait jamais reculer une commande |
 | S13 détail | fait | — | messages WhatsApp prêts selon l'état : paiement partiel (on ne connaît pas le montant reçu, donc « le reste du montant »), livrée mais pas payée, capture à vérifier |
 | Facture imprimable | fait | — | lignes et totaux qui ne se coupent pas entre deux pages A4 ; QR code de suivi intégré en image |
 | S21 commande manuelle | fait | — | même numérotation, même fiche client, même stock que la vitrine (`OrderPlacer::persist` partagé) ; prix négocié par ligne |
