@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+@font-face { font-family: Inter; src: url('file:///home/user/Replica/boutique/resources/fonts/Inter-Medium.otf'); font-weight: 500; }
+@font-face { font-family: Inter; src: url('file:///home/user/Replica/boutique/resources/fonts/Inter-Bold.otf'); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; font-family: Inter, sans-serif; }
+#bg { position: absolute; inset: 0; background: linear-gradient(170deg, #3730a3 0%, #26217a 55%, #1e1b4b 100%); overflow: hidden; }
+.blob { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,.35), rgba(245,158,11,0) 70%); }
+#main { position: absolute; inset: 0; }
+#head { position: absolute; left: 70px; right: 70px; top: 70px; height: 330px; }
+.cap { position: absolute; inset: 0; opacity: 0; }
+.pill { display: inline-block; background: #f59e0b; color: #1e1b4b; font-weight: 700; font-size: 32px; padding: 10px 26px; border-radius: 40px; }
+.cap h1 { color: #fff; font-size: 64px; line-height: 1.12; margin: 26px 0 14px; font-weight: 700; }
+.cap p { color: #c7d2fe; font-size: 36px; line-height: 1.3; margin: 0; font-weight: 500; }
+#phone { position: absolute; left: 230px; top: 420px; width: 620px; height: 1386px; border-radius: 76px; background: #0f0d2e; padding: 18px; box-shadow: 0 40px 90px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.12) inset; }
+#screen { position: relative; width: 100%; height: 100%; border-radius: 60px; overflow: hidden; background: #fff; }
+#status { position: absolute; left: 0; right: 0; top: 0; height: 52px; background: #fff; z-index: 5; display: flex; justify-content: space-between; align-items: center; padding: 6px 44px 0; font-weight: 700; font-size: 22px; color: #111; }
+#notch { position: absolute; left: 50%; top: 10px; width: 150px; height: 34px; margin-left: -75px; background: #0f0d2e; border-radius: 20px; z-index: 6; }
+.slide { position: absolute; left: 0; right: 0; top: 52px; bottom: 0; overflow: hidden; background: #fff; }
+.zoom { position: absolute; inset: 0; }
+.zoom img { width: 100%; height: 100%; display: block; }
+.hl { position: absolute; border: 6px solid #f59e0b; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(15,13,46,.28), 0 0 24px rgba(245,158,11,.9); opacity: 0; }
+.tap { position: absolute; width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%; background: rgba(255,255,255,.75); border: 5px solid #f59e0b; opacity: 0; }
+.ring { position: absolute; width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%; border: 5px solid #f59e0b; opacity: 0; }
+/* discussion */
+.chat { position: absolute; inset: 0; background: #ece5dd; display: flex; flex-direction: column; }
+.chat .top { background: #0f766e; color: #fff; height: 96px; display: flex; align-items: center; gap: 16px; padding: 0 22px; font-size: 26px; font-weight: 700; }
+.chat .av { width: 56px; height: 56px; border-radius: 50%; background: #f59e0b; color: #1e1b4b; display: grid; place-items: center; font-size: 28px; }
+.chat .top small { display: block; font-weight: 500; font-size: 18px; opacity: .8; }
+.chat .body { flex: 1; padding: 22px 18px; position: relative; }
+.bubble { position: absolute; left: 14px; right: 40px; background: #fff; border-radius: 18px; padding: 16px 16px; font-size: 22px; line-height: 1.3; white-space: pre-wrap; color: #111; box-shadow: 0 2px 2px rgba(0,0,0,.08); font-weight: 500; }
+.bubble.sent { left: 40px; right: 14px; background: #d9fdd3; }
+.bubble .time { display: block; text-align: right; font-size: 15px; color: #667; margin-top: 6px; }
+.chat .bar { height: 104px; display: flex; align-items: center; gap: 14px; padding: 0 16px; }
+.chat .field { flex: 1; height: 72px; border-radius: 36px; background: #fff; padding: 0 24px; display: flex; align-items: center; color: #889; font-size: 22px; overflow: hidden; white-space: nowrap; }
+.chat .send { width: 76px; height: 76px; border-radius: 50%; background: #0f766e; color: #fff; display: grid; place-items: center; font-size: 34px; position: relative; }
+.notif { position: absolute; left: 14px; right: 14px; top: 12px; background: rgba(255,255,255,.97); border-radius: 24px; padding: 18px 20px; box-shadow: 0 10px 30px rgba(0,0,0,.25); z-index: 4; font-size: 20px; color: #111; }
+.notif b { display: block; font-size: 21px; margin-bottom: 4px; }
+/* terminal */
+.term { position: absolute; inset: 0; background: #0b1020; color: #d1fae5; font-family: ui-monospace, Menlo, monospace; font-size: 21px; padding: 40px 24px; line-height: 1.5; white-space: pre-wrap; }
+.term .ok { color: #fbbf24; }
+/* cartes */
+#card { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 90px; opacity: 0; }
+#card .logo { width: 220px; height: 220px; }
+#card h1 { color: #fff; font-size: 92px; line-height: 1.08; margin: 50px 0 24px; font-weight: 700; }
+#card p { color: #c7d2fe; font-size: 44px; line-height: 1.3; margin: 0; font-weight: 500; }
+#card .gold { color: #f59e0b; }
+#foot { position: absolute; left: 0; right: 0; bottom: 46px; text-align: center; color: #c7d2fe; font-size: 30px; font-weight: 500; letter-spacing: .5px; }
+#bar { position: absolute; left: 70px; right: 70px; top: 40px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); }
+#bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: #f59e0b; width: 0; }
+</style></head>
+<body>
+<div id="bg"></div>
+<div id="main">
+  <div id="bar"><i></i></div>
+  <div id="head"></div>
+  <div id="phone"><div id="screen"><div id="status"><span>09:41</span><span>4G ▮▮▮</span></div><div id="notch"></div></div></div>
+</div>
+<div id="card"></div>
+<div id="foot">wanllan.com · Votre boutique sur WhatsApp</div>
+<script>
+const LOGO = `<svg class="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#fff"/><path d="M12 18l8 28 8-20 4 10 4-10 8 20 8-28" fill="none" stroke="#3730a3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="14" r="6" fill="#f59e0b"/></svg>`;
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const out = x => 1 - Math.pow(1 - clamp(x), 3);
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const T = 0.5; // durée d'une transition
+let S = [], starts = [], total = 0, blobs = [];
+
+window.setup = (scenes, dir) => {
+  S = scenes; let t = 0;
+  starts = S.map(s => { const a = t; t += s.dur; return a; }); total = t;
+  const bg = document.getElementById('bg');
+  for (let i = 0; i < 6; i++) { const b = document.createElement('div'); b.className = 'blob'; const r = 260 + i * 70; b.style.width = b.style.height = r + 'px'; bg.appendChild(b); blobs.push({ el: b, r, ph: i * 1.7, sp: .12 + i * .03 }); }
+  const head = document.getElementById('head'), screen = document.getElementById('screen');
+  S.forEach((s, i) => {
+    if (s.title && (s.type === 'shot' || s.type === 'chat' || s.type === 'terminal')) {
+      const c = document.createElement('div'); c.className = 'cap';
+      c.innerHTML = (s.step ? `<span class="pill">${esc(s.step)}</span>` : '') + `<h1>${esc(s.title)}</h1>` + (s.sub ? `<p>${esc(s.sub)}</p>` : '');
+      head.appendChild(c); s.cap = c;
+    }
+    if (s.type === 'shot') {
+      const sl = document.createElement('div'); sl.className = 'slide';
+      const z = document.createElement('div'); z.className = 'zoom';
+      z.innerHTML = `<img src="file://${dir}/${s.img}.png">`;
+      if (s.box) {
+        const p = 0.012, b = s.box;
+        const hl = document.createElement('div'); hl.className = 'hl';
+        Object.assign(hl.style, { left: (b.x - p) * 100 + '%', top: (b.y - p) * 100 + '%', width: (b.w + 2 * p) * 100 + '%', height: (b.h + 2 * p) * 100 + '%' });
+        z.appendChild(hl); s.hl = hl;
+        const cx = (b.x + b.w / 2) * 100 + '%', cy = (b.y + b.h / 2) * 100 + '%';
+        for (const k of ['tap', 'ring']) { const e = document.createElement('div'); e.className = k; e.style.left = cx; e.style.top = cy; z.appendChild(e); s[k] = e; }
+        z.style.transformOrigin = `${cx} ${cy}`;
+      }
+      sl.appendChild(z); screen.appendChild(sl); s.sl = sl; s.z = z;
+    }
+    if (s.type === 'chat') {
+      const sl = document.createElement('div'); sl.className = 'slide';
+      sl.innerHTML = `<div class="chat"><div class="top"><div class="av">${esc(s.contact[0])}</div><div>${esc(s.contact)}<small>${s.mode === 'send' ? 'Boutique' : 'Client · en ligne'}</small></div></div>
+        <div class="body"><div class="bubble ${s.mode === 'send' ? 'sent' : ''}">${esc(s.text)}<span class="time">${s.mode === 'send' ? '09:42 ✓✓' : '09:42'}</span></div></div>
+        <div class="bar"><div class="field">${s.mode === 'send' ? esc(s.text.split('\n')[0]) + '…' : 'Message'}</div><div class="send">➤</div></div>
+        ${s.mode === 'received' ? `<div class="notif"><b>WhatsApp · ${esc(s.from)}</b>Bonjour ${esc(s.contactStore || '')} 👋 Voici ma commande…</div>` : ''}</div>`;
+      screen.appendChild(sl); s.sl = sl;
+      s.bubble = sl.querySelector('.bubble'); s.field = sl.querySelector('.field'); s.send = sl.querySelector('.send'); s.notif = sl.querySelector('.notif');
+      const tap = document.createElement('div'); tap.className = 'tap'; const ring = document.createElement('div'); ring.className = 'ring';
+      s.send.appendChild(tap); s.send.appendChild(ring); [tap, ring].forEach(e => { e.style.left = '50%'; e.style.top = '50%'; }); s.tap = tap; s.ring = ring;
+    }
+    if (s.type === 'terminal') {
+      const sl = document.createElement('div'); sl.className = 'slide';
+      sl.innerHTML = `<div class="term"></div>`; screen.appendChild(sl); s.sl = sl; s.term = sl.querySelector('.term');
+    }
+  });
+};
+
+function cardHtml(s) {
+  if (s.type === 'title') return `${LOGO}<h1>${esc(s.title)}</h1><p>${esc(s.sub)}</p>`;
+  return `${LOGO}<h1>${esc(s.title)}</h1><p>${s.sub}</p>`;
+}
+
+window.render = t => {
+  // fond animé
+  blobs.forEach((b, i) => {
+    const a = t * b.sp + b.ph;
+    b.el.style.left = (540 + Math.cos(a) * (380 + i * 30) - b.r / 2) + 'px';
+    b.el.style.top = (960 + Math.sin(a * 1.3) * (760 - i * 40) - b.r / 2) + 'px';
+  });
+  document.querySelector('#bar i').style.width = (clamp(t / total) * 100) + '%';
+  // cartes de début et de fin
+  const card = document.getElementById('card'), main = document.getElementById('main');
+  let cardOp = 0, mainOp = 1;
+  S.forEach((s, i) => {
+    if (s.type !== 'title' && s.type !== 'end') return;
+    const tl = t - starts[i];
+    if (tl < -T || tl > s.dur + T) return;
+    if (card.dataset.i !== String(i)) { card.innerHTML = cardHtml(s); card.dataset.i = i; }
+    const op = Math.min(clamp((tl + T) / T), clamp((s.dur + T - tl) / T));
+    cardOp = Math.max(cardOp, s.type === 'end' ? clamp((tl + T) / T) : op);
+    mainOp = Math.min(mainOp, 1 - cardOp);
+    const h = card.querySelector('h1'), lg = card.querySelector('.logo');
+    if (lg) lg.style.transform = `scale(${0.7 + 0.3 * out(tl / .8)}) rotate(${(1 - out(tl / .8)) * -12}deg)`;
+    if (h) h.style.transform = `translateY(${(1 - out((tl - .2) / .7)) * 40}px)`;
+  });
+  card.style.opacity = cardOp; main.style.opacity = mainOp;
+  document.getElementById('phone').style.transform = `translateY(${(1 - mainOp) * 120}px)`;
+  // scènes du téléphone
+  S.forEach((s, i) => {
+    const tl = t - starts[i];
+    if (s.cap) {
+      const vis = tl > -0.05 && tl < s.dur;
+      const inn = out(tl / .55), gone = clamp((tl - (s.dur - .35)) / .35);
+      s.cap.style.opacity = vis ? Math.min(inn, 1 - gone) : 0;
+      s.cap.style.transform = `translateY(${(1 - inn) * 40 - gone * 30}px)`;
+    }
+    if (!s.sl) return;
+    if (tl < -0.01 || tl > s.dur + T) { s.sl.style.display = 'none'; return; }
+    s.sl.style.display = 'block';
+    const enter = i === 0 || S[i - 1].sl ? 1 - ease(tl / T) : 0;  // glisse depuis la droite si l'écran d'avant était un écran
+    const exit = tl > s.dur ? ease((tl - s.dur) / T) : 0;
+    s.sl.style.transform = `translateX(${(enter - exit) * 100}%)`;
+    s.sl.style.zIndex = 2;
+    if (s.type === 'shot') {
+      const zIn = ease((tl - .7) / 1.1), zOut = ease((tl - (s.dur - .6)) / .6);
+      const target = s.zoom || (s.box ? clamp(0.9 / (s.box.w + 0.03), 1, 1.35) : 1);
+      const zoom = 1 + (target - 1) * zIn * (1 - zOut * .6);
+      s.z.style.transform = `scale(${zoom})`;
+      if (s.hl) {
+        const pulse = 0.5 + 0.5 * Math.sin((tl - 1.2) * 5);
+        s.hl.style.opacity = clamp((tl - .9) / .3) * (1 - zOut);
+        s.hl.style.boxShadow = `0 0 0 9999px rgba(15,13,46,${.2 * clamp((tl - .9) / .3)}), 0 0 ${16 + pulse * 22}px rgba(245,158,11,.95)`;
+        const tp = tl - (s.tapAt || 1.9);
+        s.tap.style.opacity = tp > 0 && tp < .9 ? 1 - clamp((tp - .55) / .35) : 0;
+        s.tap.style.transform = `scale(${1.5 - .5 * out(tp / .25)})`;
+        s.ring.style.opacity = tp > .2 && tp < 1 ? 1 - clamp((tp - .2) / .8) : 0;
+        s.ring.style.transform = `scale(${1 + 1.6 * out((tp - .2) / .8)})`;
+      }
+    }
+    if (s.type === 'chat') {
+      if (s.mode === 'received') {
+        const n = tl - .5;
+        s.notif.style.transform = `translateY(${(1 - out(n / .45)) * -160}px)`;
+        s.notif.style.opacity = n < 0 ? 0 : 1 - clamp((tl - 2.4) / .4);
+        const bIn = out((tl - 2.5) / .6);
+        s.bubble.style.opacity = bIn; s.bubble.style.transform = `translateY(${(1 - bIn) * 60}px)`;
+        s.tap.style.opacity = 0; s.ring.style.opacity = 0;
+      } else {
+        const tp = tl - 1.8;
+        s.tap.style.opacity = tp > 0 && tp < .9 ? 1 - clamp((tp - .55) / .35) : 0;
+        s.tap.style.transform = `scale(${1.5 - .5 * out(tp / .25)})`;
+        s.ring.style.opacity = tp > .2 && tp < 1 ? 1 - clamp((tp - .2) / .8) : 0;
+        s.ring.style.transform = `scale(${1 + 1.6 * out((tp - .2) / .8)})`;
+        s.send.style.boxShadow = tl > 1 && tl < 2.6 ? `0 0 0 ${6 + 6 * Math.abs(Math.sin(tl * 5))}px rgba(245,158,11,.8)` : 'none';
+        const bIn = out((tl - 2.4) / .6);
+        s.bubble.style.opacity = bIn; s.bubble.style.transform = `translateY(${(1 - bIn) * 80}px)`;
+        s.field.style.opacity = 1 - bIn;
+      }
+    }
+    if (s.type === 'terminal') {
+      const full = s.lines.join('\n');
+      const n = Math.floor(clamp((tl - .6) / 2.2) * s.cmdLen);
+      const shown = full.slice(0, n) + (n < s.cmdLen && Math.floor(tl * 3) % 2 ? '▌' : '');
+      s.term.innerHTML = esc(shown) + (tl > 3.1 ? `\n\n<span class="ok">${esc(s.result)}</span>` : '');
+    }
+  });
+};
+window.duration = () => total;
+</script>
+</body></html>
