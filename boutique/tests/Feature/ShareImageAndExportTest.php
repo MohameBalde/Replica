@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
+use App\Services\StatusImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -91,7 +92,7 @@ class ShareImageAndExportTest extends TestCase
 
     public function test_manifest_describes_an_installable_app_with_existing_icons(): void
     {
-        $manifest = json_decode(file_get_contents(public_path('manifest.webmanifest')), true, flags: JSON_THROW_ON_ERROR);
+        $manifest = json_decode(file_get_contents(public_path('manifest.json')), true, flags: JSON_THROW_ON_ERROR);
 
         $this->assertSame('Wanllan', $manifest['short_name']);
         $this->assertSame('standalone', $manifest['display']);
@@ -168,6 +169,19 @@ class ShareImageAndExportTest extends TestCase
         $response = $this->get('/admin/partager/image/'.$this->product->id.'?download=1')->assertOk();
         $response->assertHeader('Content-Type', 'image/jpeg');
         $this->assertSame('attachment; filename="statut-nimstore-'.$this->product->slug.'.jpg"', $response->headers->get('Content-Disposition'));
+        [$w, $h] = getimagesizefromstring($response->getContent());
+        $this->assertSame([1080, 1920], [$w, $h]);
+    }
+
+    public function test_status_image_drops_characters_the_font_cannot_draw(): void
+    {
+        // Sinon GD dessine des carrés « NO GLYPH » à la place des emoji et des drapeaux.
+        $this->assertSame('NimStore', StatusImage::drawable('Nim🔥Store 🇬🇳'));
+        $this->assertSame('Chaussures et parfums', StatusImage::drawable('Chaussures 👟 et parfums ✨'));
+        $this->assertSame('N° 1 · Été « promo » … ©', StatusImage::drawable('N° 1 · Été « promo » … ©'));
+
+        $this->store->update(['name' => '🔥🔥']);
+        $response = $this->actingAs($this->merchant)->get('/admin/partager/image')->assertOk();
         [$w, $h] = getimagesizefromstring($response->getContent());
         $this->assertSame([1080, 1920], [$w, $h]);
     }

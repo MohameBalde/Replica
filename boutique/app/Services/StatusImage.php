@@ -39,8 +39,10 @@ class StatusImage
             $this->paragraph($sub, 'Medium', 34, $this->rgb([0xC7, 0xD2, 0xFE]), $y + 34 + 24, 2, center: true);
         }
 
+        // Les 4 premiers produits en vente ; un produit épuisé ne sert qu'à compléter.
         $products = $store->products()->where('is_visible', true)->with('firstImage', 'variants')
-            ->orderBy('position')->orderByDesc('id')->limit(4)->get();
+            ->orderBy('position')->orderByDesc('id')->limit(24)->get()
+            ->sortBy(fn (Product $p) => $p->isSoldOut() ? 1 : 0)->take(4);
         $this->grid($products, 500);
 
         $this->footer($store, route('shop.show', $store), $this->payments($store));
@@ -87,7 +89,7 @@ class StatusImage
     {
         $cx = intdiv(self::WIDTH, 2);
         imagefilledellipse($this->img, $cx, $y + 70, 140, 140, $this->rgb(self::GOLD));
-        $this->text(mb_strtoupper(mb_substr($name, 0, 1)), 'Bold', 72, $this->rgb(self::INDIGO), $y + 70 + 26, center: true);
+        $this->text(mb_strtoupper(mb_substr(self::drawable($name) ?: 'W', 0, 1)), 'Bold', 72, $this->rgb(self::INDIGO), $y + 70 + 26, center: true);
     }
 
     /** 2 × 2 produits : photo carrée, nom, prix. */
@@ -107,7 +109,8 @@ class StatusImage
             $y = $top + intdiv($i, 2) * ($size + 130);
             $this->photo($product, $x, $y, $size);
             $this->text($this->fit($product->name, 'Medium', 30, $size), 'Medium', 30, 0xFFFFFF, $y + $size + 44, x: $x);
-            $this->text(gnf($product->fromPrice()), 'Bold', 38, $this->rgb(self::GOLD), $y + $size + 92, x: $x);
+            $price = ($product->variants->min('price') !== $product->variants->max('price') ? 'Dès ' : '').gnf($product->fromPrice());
+            $this->text($price, 'Bold', $this->sizeToFit($price, 'Bold', 38, $size), $this->rgb(self::GOLD), $y + $size + 92, x: $x);
         }
     }
 
@@ -120,7 +123,7 @@ class StatusImage
 
         if (! $src) {
             imagefilledrectangle($this->img, $x, $y, $x + $size, $y + $size, $this->rgb([0xE0, 0xE7, 0xFF]));
-            $letters = mb_strtoupper(mb_substr($product->name, 0, 2));
+            $letters = mb_strtoupper(mb_substr(self::drawable($product->name) ?: '?', 0, 2));
             $this->text($letters, 'Bold', intdiv($size, 4), $this->rgb(self::INDIGO), $y + intdiv($size, 2) + intdiv($size, 10), center: false, x: $x + intdiv($size - $this->width($letters, 'Bold', intdiv($size, 4)), 2));
 
             return;
@@ -138,7 +141,8 @@ class StatusImage
         $top = 1560;
         imagefilledrectangle($this->img, 60, $top, self::WIDTH - 60, $top + 300, 0xFFFFFF);
         $qrSize = 240;
-        $qr = $this->qr($url.'?src=whatsapp', $qrSize);
+        // Scanné depuis un statut WhatsApp ou une vidéo TikTok : compté comme visite « QR code ».
+        $qr = $this->qr($url.'?src=qr', $qrSize);
         imagecopy($this->img, $qr, self::WIDTH - 90 - $qrSize, $top + 30, 0, 0, $qrSize, $qrSize);
         imagedestroy($qr);
 
@@ -173,14 +177,28 @@ class StatusImage
 
     private function width(string $text, string $weight, int $size): int
     {
-        $box = imagettfbbox($size, 0, $this->font($weight), $text);
+        $box = imagettfbbox($size, 0, $this->font($weight), self::drawable($text));
 
         return (int) abs($box[2] - $box[0]);
+    }
+
+    /**
+     * La police Inter couvre le latin, le grec et le cyrillique, et GD lit mal les
+     * caractères sur 4 octets : emoji, drapeaux et autres écritures sont retirés
+     * (sinon des carrés « NO GLYPH » s'affichent).
+     */
+    public static function drawable(string $text): string
+    {
+        // Symboles retirés sauf ceux du latin courant (° © ®), que la police dessine.
+        $text = preg_replace('/[^\p{Latin}\p{Greek}\p{Cyrillic}\p{Common}\p{Inherited}]|(?![\x{A0}-\x{FF}])\p{So}|[\p{Cf}\p{Co}\p{Cs}\x{20E3}\x{FE00}-\x{FE0F}\x{10000}-\x{10FFFF}]/u', '', $text) ?? '';
+
+        return trim(preg_replace('/\s+/u', ' ', $text) ?? '');
     }
 
     /** Écrit une ligne ; $y est la ligne de base. */
     private function text(string $text, string $weight, int $size, int $color, int $y, bool $center = false, int $x = 0): void
     {
+        $text = self::drawable($text);
         if ($center) {
             $x = intdiv(self::WIDTH - $this->width($text, $weight, $size), 2);
         }
@@ -194,9 +212,10 @@ class StatusImage
     private function paragraph(string $text, string $weight, int $size, int $color, int $y, int $maxLines, bool $center = false, int $x = 80, ?int $width = null, bool $breakAnywhere = false): int
     {
         $width ??= self::WIDTH - 2 * $x;
+        $text = self::drawable($text);
         $lines = [];
         $line = '';
-        $tokens = $breakAnywhere ? mb_str_split($text) : preg_split('/\s+/u', trim($text));
+        $tokens = $breakAnywhere ? mb_str_split($text) : preg_split('/\s+/u', $text);
         $glue = $breakAnywhere ? '' : ' ';
         foreach ($tokens as $token) {
             $try = $line === '' ? $token : $line.$glue.$token;
@@ -213,6 +232,8 @@ class StatusImage
             $lines = array_slice($lines, 0, $maxLines);
             $lines[$maxLines - 1] = $this->fit($lines[$maxLines - 1].'…', $weight, $size, $width);
         }
+        // Un mot seul plus large que la ligne (ex. un nom sans espace) est coupé lui aussi.
+        $lines = array_map(fn ($l) => $this->fit($l, $weight, $size, $width), $lines);
 
         $lineHeight = (int) round($size * 1.3);
         foreach ($lines as $i => $l) {

@@ -1,7 +1,7 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 124 tests, 1 194 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Tests : 125 tests, 1 200 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
 Parité (`replica-diff/parity.py`) : **96,3 / 100**, indispensables **22 sur 22**.
 
 ## 2026-10-18 (soir) : application installable, image pour le statut, export
@@ -16,6 +16,7 @@ Parité (`replica-diff/parity.py`) : **96,3 / 100**, indispensables **22 sur 22*
 - **Image pour le statut WhatsApp et TikTok** (Partager, section 4) : 1080 × 1920, la boutique avec 4 produits, ou un produit seul (photo, prix, choix), le lien et un QR code étiqueté WhatsApp, les moyens de paiement. Seuls les produits visibles.
 - **Exporter (Excel)** sur la liste des commandes : un fichier CSV avec les filtres affichés (onglet et paiement), 18 colonnes (date à l'heure de Conakry, articles, montants en nombres pour les sommes, source, réponses, notes).
 - Vérifié dans Chromium à 320, 360 et 1200 px (aucun débordement, aucune erreur JavaScript) ; page hors connexion contrôlée en arrêtant vraiment le serveur.
+- Revue (export, image, application) : rien à corriger sur l'export. Image : emoji et drapeaux dessinés en carrés « NO GLYPH » (retirés), mot très long qui sortait de l'image (coupé avec « … »), produits épuisés mis en avant (placés après ceux en vente), « Dès » manquant devant les prix variables, QR code compté « WhatsApp » au lieu de « QR code ». Application : le serveur ne connaît pas le type `.webmanifest`, le manifeste devient `manifest.json`.
 
 ## 2026-10-18 (suite) : commandes, messages, saisie, réglages « Commande »
 

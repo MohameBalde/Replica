@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary_large_image">
     @if ($installable === true)
         {{-- Espace commerçant : installable comme une application (écran d'accueil du téléphone). --}}
-        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
         <script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));</script>
     @endif
     @vite('resources/css/app.css')
