@@ -8,7 +8,8 @@ Rythme : environ 1 h par jour en semaine et 3 h le week-end. Décembre reste ré
 
 | Chantier du plan | Ce qui existe déjà | Décision |
 | --- | --- | --- |
-| 1. Fiche course livreur | adresse, mode de livraison (zone), repère (Réglages > Commande), montant à encaisser, messages WhatsApp prêts | **Oui, en premier** : un message « livreur » + une page `/course/{jeton}` sans connexion |
+| 0. Alerte « nouvelle commande » (ajout du 22 octobre) | la commande arrive sur WhatsApp **seulement si le client appuie sur « Envoyer »** ; sinon elle attend dans Wanllan (badge « WhatsApp non envoyé ») | **Oui, en premier** : notification sur le téléphone du commerçant (app installée), gratuite, sans Meta. Android tout de suite ; iPhone seulement si Wanllan est installé sur l'écran d'accueil. **Non** à l'API WhatsApp Business de Meta pour l'instant (vérification d'entreprise, numéro dédié, coût par message) et **non** aux robots WhatsApp non officiels (numéro bloqué, contraire aux règles de WhatsApp) |
+| 1. Fiche course livreur | adresse, mode de livraison (zone), repère (Réglages > Commande), montant à encaisser, messages WhatsApp prêts | **Oui, juste après l'alerte** : un message « livreur » + une page `/course/{jeton}` sans connexion |
 | 2. ID de transaction Mobile Money | champ « N° de transaction » **facultatif** à l'envoi de la capture | **Oui** : le rendre obligatoire, l'afficher en gros chez le commerçant et dans le message WhatsApp, avec une aide visuelle (exemple de SMS fabriqué par nous, sans données réelles) |
 | 4. Paniers abandonnés | la commande est créée **avant** WhatsApp, avec le numéro du client ; badge « WhatsApp non envoyé » | **Oui, version courte** : un bouton « Relancer » sur ces commandes. **Non** au numéro demandé avant le panier : c'est une friction de plus pour l'acheteur, contraire au principe n° 2 du plan |
 | 3. Google Sheets en temps réel | export Excel (CSV) avec filtres | **Seulement si 2 commerçants de la bêta le demandent** (script Google Apps Script + envoi en file d'attente) |
@@ -27,8 +28,8 @@ Rythme : environ 1 h par jour en semaine et 3 h le week-end. Décembre reste ré
 | Semaine | Travail | Livrable |
 | --- | --- | --- |
 | **Ven. 23 → dim. 26 oct.** | Tests sur téléphone, préparation et lancement de la bêta | bêta ouverte |
-| **27 oct. → 1er nov.** | Fiche course livreur (message + page livreur), puis ID de transaction obligatoire | PR « Livreur et paiement vérifié » |
-| **2 → 8 nov.** | Bouton « Relancer » ; mesure du taux « WhatsApp non envoyé » | PR « Relance » |
+| **27 oct. → 1er nov.** | Alerte « nouvelle commande » sur le téléphone du commerçant, puis n° de transaction obligatoire | PR « Alertes et paiement vérifié » |
+| **2 → 8 nov.** | Fiche course livreur (message + page livreur) et bouton « Relancer » ; mesure du taux « WhatsApp non envoyé » | PR « Livreur et relance » |
 | **9 → 15 nov.** | Retours de la bêta ; Google Sheets seulement si demandé | corrections bêta |
 | **16 → 30 nov.** | Marge, stabilisation, bilan de la bêta | bilan + décision sur les prix |
 | **Décembre** | Projet de fin de cycle (pas de Wanllan, sauf panne) | — |

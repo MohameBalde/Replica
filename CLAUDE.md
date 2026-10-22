@@ -77,8 +77,8 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - Le compte GitHub de Mohamed est bloqué pour facturation : GitHub Actions ne tourne pas (le serveur n'en dépend pas).
 - Reste à faire : vérifier les instantanés automatiques Lightsail (3 h) et le nom du compte Orange Money affiché, créer la surveillance UptimeRobot, finir le test de la boutique Balde-tech sur téléphone (commande, aperçu WhatsApp).
 - **À finaliser après la bêta** (plan du 22 octobre, détail et calendrier : `replica/roadmap-apres-beta.md`, version PNG à côté) :
-  1. du 27 octobre au 1er novembre : **fiche course livreur** (message WhatsApp + page `/course/{jeton}` sans connexion) et **n° de transaction Mobile Money obligatoire**, mis en avant chez le commerçant ;
-  2. du 2 au 8 novembre : bouton **« Relancer »** sur les commandes jamais envoyées sur WhatsApp, et mesure des abandons (pas de numéro demandé avant le panier) ;
+  1. du 27 octobre au 1er novembre : **alerte « nouvelle commande »** sur le téléphone du commerçant (notification de l'app installée : aujourd'hui, le commerçant n'est prévenu que si le client appuie sur « Envoyer » dans WhatsApp) et **n° de transaction Mobile Money obligatoire** ;
+  2. du 2 au 8 novembre : **fiche course livreur** (message WhatsApp + page `/course/{jeton}` sans connexion) et bouton **« Relancer »** sur les commandes jamais envoyées sur WhatsApp (pas de numéro demandé avant le panier) ;
   3. du 9 au 15 novembre : retours de la bêta ; **Google Sheets** seulement si 2 commerçants le demandent ;
   4. reporté à 2027 : descriptions par IA (coût mensuel) et FCFA / autres pays.
 - Suite : bêta du 26 octobre, puis brique 2 (caisse et stock hors ligne) en janvier 2027.
