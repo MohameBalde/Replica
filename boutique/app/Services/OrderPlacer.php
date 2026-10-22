@@ -133,7 +133,8 @@ class OrderPlacer
     /**
      * Écrit la commande en une transaction : numéro suivant sous verrou, fiche client,
      * lignes, et stock décompté sans survente (sinon tout est annulé, erreur sur $errorKey).
-     * Une ligne peut porter son propre prix unitaire (commande saisie à la main).
+     * Une ligne peut porter son propre prix unitaire (commande saisie à la main, ou
+     * prix de la variante + suppléments pour le panier) et ses suppléments.
      */
     private function persist(Store $store, Collection $lines, string $name, string $phone, ?string $address, array $attributes, string $errorKey): Order
     {
@@ -188,6 +189,8 @@ class OrderPlacer
                     'variant_id' => $variant->id,
                     'product_name' => $variant->product->name,
                     'variant_name' => $variant->name,
+                    // Suppléments copiés tels quels : un changement de prix plus tard ne touche pas la commande.
+                    'options' => collect($line['addons'] ?? [])->map(fn ($a) => ['name' => $a['name'], 'price' => $a['price'], 'text' => $a['text']])->values()->all() ?: null,
                     'unit_price' => $line['unit_price'] ?? $variant->price,
                     'quantity' => $qty,
                     'line_total' => $line['line_total'],

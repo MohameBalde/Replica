@@ -98,8 +98,7 @@ class OrderController extends Controller
 
     private function exportRow(Order $order): array
     {
-        $items = $order->items->map(fn ($i) => $i->quantity.' × '.$i->product_name
-            .($i->variant_name && $i->variant_name !== 'Standard' ? ' ('.$i->variant_name.')' : ''))->implode(' ; ');
+        $items = $order->items->map(fn ($i) => $i->quantity.' × '.$i->label().($i->options ? ' + '.$i->optionsLabel() : ''))->implode(' ; ');
         $answers = collect($order->answers ?? [])->map(fn ($a) => ($a['q'] ?? '').' : '.($a['a'] ?? ''))->implode(' ; ');
 
         return [

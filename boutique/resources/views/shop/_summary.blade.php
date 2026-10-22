@@ -3,7 +3,7 @@
     @foreach ($items as $item)
         <li class="flex gap-3 text-sm">
             <span class="w-8 shrink-0 text-text-muted">{{ $item->quantity }} ×</span>
-            <span class="min-w-0 flex-1">{{ $item->label() }}</span>
+            <span class="min-w-0 flex-1 break-words">{{ $item->label() }}@if ($item->options)<span class="block text-text-muted">+ {{ $item->optionsLabel() }}</span>@endif</span>
             <span class="price">{{ gnf($item->line_total) }}</span>
         </li>
     @endforeach

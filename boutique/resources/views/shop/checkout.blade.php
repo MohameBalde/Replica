@@ -94,7 +94,7 @@
             </div>
             <ul class="space-y-1 text-sm">
                 @foreach ($lines as $line)
-                    <li class="flex gap-3"><span class="w-8 text-text-muted">{{ $line['quantity'] }} ×</span><span class="flex-1">{{ $line['variant']->product->name }}{{ $line['variant']->name !== 'Standard' ? ' ('.$line['variant']->name.')' : '' }}</span><span class="whitespace-nowrap">{{ gnf($line['line_total']) }}</span></li>
+                    <li class="flex gap-3"><span class="w-8 shrink-0 text-text-muted">{{ $line['quantity'] }} ×</span><span class="min-w-0 flex-1 break-words">{{ $line['variant']->product->name }}{{ $line['variant']->name !== 'Standard' ? ' ('.$line['variant']->name.')' : '' }}@if ($line['addons'])<span class="block text-text-muted">+ {{ \App\Models\OrderItem::describeOptions($line['addons']) }}</span>@endif</span><span class="whitespace-nowrap">{{ gnf($line['line_total']) }}</span></li>
                 @endforeach
             </ul>
             <div class="mt-3 space-y-1 border-t border-border pt-3 text-sm">

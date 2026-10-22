@@ -1,8 +1,22 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 125 tests, 1 200 vérifications, verts sur SQLite et sur MariaDB (au 18 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
-Parité (`replica-diff/parity.py`) : **96,3 / 100**, indispensables **22 sur 22**.
+Tests : 135 tests, 1 297 vérifications, verts sur SQLite et sur MariaDB (au 22 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-22 : suppléments payants (ex. flocage)
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| S15 produit : suppléments | fait | — | une clé par supplément, gardée quand le commerçant le renomme : les paniers en cours y font référence ; une clé inconnue envoyée par le formulaire est remplacée |
+| S02 fiche produit | fait | — | prix qui suit le choix et les suppléments cochés ; le champ « texte » n'apparaît que sous la case cochée, mais reste visible sans JavaScript |
+| S03 panier | fait | — | le panier change de structure : une ligne = choix + suppléments + texte (deux maillots L avec deux noms = deux lignes). Les paniers ouverts avant la mise à jour (ancien format) restent valables. Le stock se compte par taille sur toutes les lignes |
+
+- **Suppléments payants** : jusqu'à 10 par produit (nom, prix, texte à demander au client, ex. « Nom et numéro au dos »). Le client les coche sur la fiche ; le prix s'ajoute à l'article ; le texte est obligatoire quand il est demandé.
+- Copiés sur la commande (nom, prix, texte) : un changement de prix plus tard ne touche pas les commandes passées. Visibles dans le panier, la commande, le message WhatsApp, la facture client, la fiche commande, la facture imprimable et l'export.
+- Un supplément retiré par le commerçant disparaît des paniers en cours (avec son prix) ; le prix vient toujours de la base.
+- Migration `2026_10_20_000001` : `products.addons` et `order_items.options` (JSON). Le contrôle `line_total = unit_price × quantity` reste vrai : le prix unitaire inclut les suppléments.
+- La commande saisie à la main ne propose pas les suppléments : le commerçant met le prix négocié et précise dans la note interne.
 
 ## 2026-10-18 (soir) : application installable, image pour le statut, export
 
@@ -33,7 +47,7 @@ Parité (`replica-diff/parity.py`) : **96,3 / 100**, indispensables **22 sur 22*
 - **Nouvelle commande** à la main (téléphone, message, comptoir), note interne.
 - **Questions au client** (ex. point de repère), facultatives ou obligatoires ; réponses dans WhatsApp, la facture et la commande.
 - **Horaires d'ouverture** par jour ; la vitrine dit « Ouvert jusqu'à 20 h » ou « Fermé · ouvre demain à 8 h ».
-- **Pas fait (choix)** : vrais suppléments payants. Le panier devrait changer de structure à une semaine de la bêta. En attendant : un choix avec son prix (ex. « L + flocage ») et une question pour le texte du flocage.
+- **Pas fait (choix)** : vrais suppléments payants, faits le 22 octobre (voir plus haut).
 - Revue adversariale des actions en masse, messages et facture : 4 angles, chaque point contre-vérifié ; points confirmés corrigés (paiement partiel, actions qui reculaient, colonne Client écrasée à 1200 px, facture qui débordait à 360 px, salutation « Bonjour El »).
 - **Bug ancien corrigé** : la pagination affichait « pagination.next » en production (pas de fichiers de langue français). Ajout de `lang/fr/pagination.php`, `lang/fr/validation.php` (dont « fichier trop lourd » pour les photos de plus de 10 Mo) et `lang/fr.json`.
 - Deuxième revue (saisie manuelle, questions, horaires, QR) : adresse liée au mode de livraison, moyen de paiement sans numéro refusé, page client d'une vente au comptoir, réponses jamais rangées sous une question modifiée, panier et commande qui disent quand la boutique rouvre, fermeture à minuit, cases qui restaient cochées après une erreur, débordements à 320 px (lien de suivi, lien Google Maps en repère). Pages contrôlées à 320, 360, 1200 et 1366 px : aucun débordement, aucune erreur JavaScript.

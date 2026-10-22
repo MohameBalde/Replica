@@ -22,7 +22,7 @@ Envoi d'une preuve de paiement (capture) par le client,paiement,must,yes,yes,sto
 Interface entièrement en français,guinée,must,no,yes,ajout Guinée
 Prix et totaux en GNF (séparateur de milliers),guinée,must,no,yes,ajout Guinée
 Instructions Orange Money et MTN MoMo (numéro marchand + montant),guinée,must,no,yes,ajout Guinée
-Options / suppléments payants sur un produit,produits,should,yes,partial,"en attendant : choix avec leur prix (ex. « L + flocage ») et une question à la commande pour le texte ; vrais suppléments après la bêta"
+Options / suppléments payants sur un produit,produits,should,yes,yes,"jusqu'à 10 suppléments par produit (ex. flocage), prix ajouté à l'article, texte demandé au client (nom et numéro) ; copiés sur la commande, la facture et le message WhatsApp"
 Frais de livraison par zone,livraison,should,yes,yes,via un mode par zone
 Questions personnalisées au checkout (repère),commande,should,yes,yes,"Réglages > Commande | 3 questions, facultatives ou obligatoires ; réponses dans WhatsApp, la facture et la commande"
 Minimum de commande par mode de livraison,livraison,should,yes,yes,vérifié au checkout ; réglage dans S18 à venir

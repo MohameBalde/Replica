@@ -24,7 +24,7 @@ class WhatsAppMessage
         $lines = ['Bonjour '.$order->store->name.' 👋', 'Voici ma commande *#'.$order->number.'* :', ''];
 
         foreach ($order->items->take(self::MAX_ITEMS_LISTED) as $item) {
-            $lines[] = '• '.$item->quantity.' × '.$item->label().' — '.gnf($item->line_total);
+            $lines[] = '• '.$item->quantity.' × '.$item->label().($item->options ? ' + '.$item->optionsLabel() : '').' — '.gnf($item->line_total);
         }
         if ($order->items->count() > self::MAX_ITEMS_LISTED) {
             $lines[] = '• … et '.($order->items->count() - self::MAX_ITEMS_LISTED).' autre(s) article(s)';
