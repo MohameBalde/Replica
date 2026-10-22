@@ -9,6 +9,14 @@
     $rows = array_values($rows);
     $rows[] = ['id' => '', 'name' => '', 'price' => '', 'stock' => '']; // une ligne vide prête à remplir
     $photoCount = $editing ? $product->images->count() : 0;
+    // Suppléments payants : lignes enregistrées (ou renvoyées après une erreur) + une ligne vide.
+    $addonRows = array_values(old('addons', $product->addonList()
+        ->map(fn ($a) => ['key' => $a['key'], 'name' => $a['name'], 'price' => $a['price'] ? gnf($a['price'], false) : '', 'text' => $a['text']])
+        ->values()->all()));
+    $hasAddons = $addonRows !== [];
+    if (count($addonRows) < \App\Models\Product::MAX_ADDONS) {
+        $addonRows[] = ['key' => '', 'name' => '', 'price' => '', 'text' => ''];
+    }
 @endphp
 <x-layouts.admin :title="$editing ? 'Modifier le produit' : 'Nouveau produit'" :back="route('admin.products.index')">
     <form method="POST" action="{{ $editing ? route('admin.products.update', $product->id) : route('admin.products.store') }}"
@@ -104,6 +112,47 @@
                     <x-icon name="plus" :size="18" /> Ajouter une ligne
                 </button>
                 <p class="help">Pour retirer un choix, videz son nom.</p>
+            </div>
+        </details>
+
+        {{-- Suppléments payants (ex. flocage) : le client les coche sur la fiche produit, avec un texte si besoin. --}}
+        <details class="card mb-4" @if ($hasAddons) open @endif>
+            <summary class="flex min-h-tap cursor-pointer items-center gap-2 p-4 font-semibold">
+                <x-icon name="plus" :size="18" /> Suppléments payants <span class="font-normal text-text-muted">(ex. flocage)</span>
+            </summary>
+            <div class="border-t border-border p-4">
+                <p class="help mt-0 mb-3">Le client coche les suppléments qu'il veut ; leur prix s'ajoute à l'article. « Texte demandé » : ce que le client doit écrire, ex. « Nom et numéro au dos ».</p>
+                <div id="addon-rows" class="divide-y divide-border">
+                    @foreach ($addonRows as $i => $row)
+                        <div class="grid grid-cols-[1fr_7rem] gap-2 py-3 first:pt-0" data-addon-row>
+                            <input type="hidden" name="addons[{{ $i }}][key]" value="{{ $row['key'] ?? '' }}">
+                            <label class="sr-only" for="a{{ $i }}-name">Supplément</label>
+                            <input class="input" id="a{{ $i }}-name" name="addons[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}" placeholder="Ex. Flocage" maxlength="60">
+                            <label class="sr-only" for="a{{ $i }}-price">Prix du supplément</label>
+                            <div class="input-group">
+                                <input class="input" id="a{{ $i }}-price" name="addons[{{ $i }}][price]" value="{{ $row['price'] ?? '' }}" inputmode="numeric" placeholder="Prix">
+                            </div>
+                            <label class="sr-only" for="a{{ $i }}-text">Texte demandé au client</label>
+                            <input class="input col-span-2" id="a{{ $i }}-text" name="addons[{{ $i }}][text]" value="{{ $row['text'] ?? '' }}" placeholder="Texte à demander (facultatif)" maxlength="60">
+                        </div>
+                    @endforeach
+                </div>
+                @error('addon_rows')<p class="error">{{ $message }}</p>@enderror
+                @error('addon_rows.*')<p class="error">{{ $message }}</p>@enderror
+                <button type="button" class="btn btn-secondary mt-3" onclick="
+                    const rows = document.getElementById('addon-rows');
+                    if (rows.children.length >= {{ \App\Models\Product::MAX_ADDONS }}) return;
+                    const copy = rows.lastElementChild.cloneNode(true);
+                    const n = rows.children.length;
+                    copy.querySelectorAll('input, label').forEach(el => {
+                        ['name', 'id', 'for'].forEach(a => { if (el.hasAttribute(a) && !(a === 'id' && el.type === 'hidden')) el.setAttribute(a, el.getAttribute(a).replace(/\d+/, n)); });
+                        if (el.tagName === 'INPUT') el.value = '';
+                    });
+                    rows.appendChild(copy);
+                    copy.querySelector('input:not([type=hidden])').focus();">
+                    <x-icon name="plus" :size="18" /> Ajouter un supplément
+                </button>
+                <p class="help">Pour retirer un supplément, videz son nom. Prix vide = gratuit.</p>
             </div>
         </details>
 

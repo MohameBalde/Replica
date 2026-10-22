@@ -65,6 +65,7 @@ class ProductController extends Controller
                 'description' => $data['description'] ?? null,
                 'is_visible' => true,
                 'track_stock' => $data['track_stock'],
+                'addons' => $data['addons'],
             ]);
             $this->syncVariants($store, $product, $data['variants']);
 
@@ -99,6 +100,7 @@ class ProductController extends Controller
                 'description' => $data['description'] ?? null,
                 'is_visible' => $request->boolean('is_visible'),
                 'track_stock' => $data['track_stock'],
+                'addons' => $data['addons'],
             ]);
             $this->syncVariants($store, $model, $data['variants']);
         });
@@ -117,7 +119,8 @@ class ProductController extends Controller
 
     /**
      * @return array{name:string, category:?string, description:?string, track_stock:bool,
-     *               variants: list<array{id:?int, name:string, price:int, stock:?int}>}
+     *               variants: list<array{id:?int, name:string, price:int, stock:?int}>,
+     *               addons: ?list<array{key:string, name:string, price:int, text:?string}>}
      */
     private function validated(Request $request, ?Product $product = null): array
     {
@@ -133,10 +136,22 @@ class ProductController extends Controller
             ])
             ->values();
 
+        // Suppléments payants (ex. flocage) : une ligne sans nom est ignorée.
+        $addonRows = collect($request->input('addons', []))
+            ->filter(fn ($r) => is_array($r) && trim((string) ($r['name'] ?? '')) !== '')
+            ->map(fn ($r) => [
+                'key' => is_string($r['key'] ?? null) ? $r['key'] : '',
+                'name' => Str::squish((string) $r['name']),
+                'price' => $digits($r['price'] ?? null) ?? '0',
+                'text' => Str::squish((string) ($r['text'] ?? '')),
+            ])
+            ->values();
+
         $request->merge([
             'price' => $digits($request->input('price')),
             'stock' => $digits($request->input('stock')),
             'variant_rows' => $rows->all(),
+            'addon_rows' => $addonRows->all(),
         ]);
 
         $existingPhotos = $product ? $product->images->whereNotIn('id', (array) $request->input('remove_images', []))->count() : 0;
@@ -151,12 +166,21 @@ class ProductController extends Controller
             'variant_rows.*.name' => ['required', 'string', 'max:80', 'distinct:ignore_case'],
             'variant_rows.*.price' => ['nullable', 'integer', 'min:1', 'max:10000000000'],
             'variant_rows.*.stock' => ['nullable', 'integer', 'min:0', 'max:1000000'],
+            'addon_rows' => ['array', 'max:'.Product::MAX_ADDONS],
+            'addon_rows.*.name' => ['required', 'string', 'max:60', 'distinct:ignore_case'],
+            'addon_rows.*.price' => ['integer', 'min:0', 'max:10000000'],
+            'addon_rows.*.text' => ['nullable', 'string', 'max:60'],
             'photos' => ['array', 'max:'.max(0, self::MAX_PHOTOS - $existingPhotos)],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:8192'],
         ], [
             'price.required' => 'Indiquez le prix en GNF.',
             'price.min' => 'Le prix doit être supérieur à 0.',
             'variant_rows.*.name.distinct' => 'Deux choix portent le même nom.',
+            'addon_rows.max' => 'Maximum '.Product::MAX_ADDONS.' suppléments par produit.',
+            'addon_rows.*.name.distinct' => 'Deux suppléments portent le même nom.',
+            'addon_rows.*.name.max' => 'Nom du supplément : 60 caractères maximum.',
+            'addon_rows.*.price.max' => 'Prix du supplément trop élevé.',
+            'addon_rows.*.text.max' => 'Texte demandé : 60 caractères maximum.',
             'photos.max' => 'Maximum '.self::MAX_PHOTOS.' photos par produit.',
             'photos.*.image' => 'Ce fichier n\'est pas une photo.',
             'photos.*.mimes' => 'Photo en JPG, PNG ou WebP seulement.',
@@ -180,8 +204,22 @@ class ProductController extends Controller
             $v['stock'] = $track ? (int) ($v['stock'] ?? 0) : null;
         }
 
+        // Clé gardée d'une modification à l'autre (les paniers en cours y font référence) ;
+        // une clé inconnue ou en double devient une nouvelle clé.
+        $known = $product?->addonList() ?? collect();
+        $used = [];
+        $addons = $addonRows->map(function ($r) use ($known, &$used) {
+            $key = $known->has($r['key']) && ! isset($used[$r['key']]) ? $r['key'] : null;
+            while ($key === null || isset($used[$key]) || $known->has($key) && $key !== $r['key']) {
+                $key = Str::lower(Str::random(8));
+            }
+            $used[$key] = true;
+
+            return ['key' => $key, 'name' => $r['name'], 'price' => (int) $r['price'], 'text' => $r['text'] !== '' ? $r['text'] : null];
+        })->all();
+
         return ['name' => $data['name'], 'category' => $data['category'] ?? null, 'description' => $data['description'] ?? null,
-            'track_stock' => $track, 'variants' => $variants];
+            'track_stock' => $track, 'variants' => $variants, 'addons' => $addons ?: null];
     }
 
     /** Crée, met à jour ou retire les variantes, et journalise les changements de stock. */

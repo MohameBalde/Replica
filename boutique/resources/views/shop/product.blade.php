@@ -11,7 +11,10 @@
     @php
         $soldOut = $product->isSoldOut();
         $available = $product->variants->first(fn ($v) => $v->isAvailable()) ?? $product->variants->first();
+        // Après une erreur (stock, texte manquant) : le choix du client s'il est encore en vente. Prix, maximum et badge le suivent.
+        $selected = $product->variants->first(fn ($v) => $v->id === (int) old('variant_id') && $v->isAvailable()) ?? $available;
         $multi = $product->variants->count() > 1;
+        $addons = $product->addonList();
     @endphp
 
     {{-- Ordinateur : photos à gauche, choix et bouton à droite. --}}
@@ -39,7 +42,7 @@
         @csrf
         <div class="p-4 lg:p-0">
             <h1 class="text-xl font-bold lg:text-display">{{ $product->name }}</h1>
-            <p class="price mt-1 text-lg" id="price">{{ gnf($available->price) }}</p>
+            <p class="price mt-1 text-lg" id="price">{{ gnf($selected->price) }}</p>
 
             @if ($multi)
                 <fieldset class="mt-4">
@@ -49,8 +52,8 @@
                             @php $ok = $variant->isAvailable(); @endphp
                             <label class="choice px-3 py-2 {{ $ok ? '' : 'cursor-not-allowed text-text-muted line-through opacity-60' }}">
                                 <input type="radio" name="variant_id" value="{{ $variant->id }}" class="sr-only"
-                                       data-price="{{ gnf($variant->price) }}" data-stock="{{ $variant->stock ?? '' }}"
-                                       @checked($available->id === $variant->id) @disabled(! $ok)>
+                                       data-price="{{ $variant->price }}" data-stock="{{ $variant->stock ?? '' }}"
+                                       @checked($selected->id === $variant->id) @disabled(! $ok)>
                                 {{ $variant->name }}<span class="sr-only">{{ $ok ? '' : ' (épuisé)' }}</span>
                             </label>
                         @endforeach
@@ -60,12 +63,43 @@
                 <input type="hidden" name="variant_id" value="{{ $available->id }}">
             @endif
 
+            @if ($addons->isNotEmpty())
+                {{-- Suppléments payants (ex. flocage) : le texte demandé s'affiche sous la case cochée. --}}
+                <fieldset class="mt-4" data-addons>
+                    <legend class="label">Suppléments <span class="font-normal text-text-muted">(facultatif)</span></legend>
+                    <div class="space-y-2">
+                        @foreach ($addons as $addon)
+                            @php $checked = in_array($addon['key'], (array) old('addons', []), true); @endphp
+                            <div class="rounded-md border border-border has-[:checked]:border-accent">
+                                <label class="flex min-h-tap cursor-pointer items-center gap-3 px-3 py-2">
+                                    <input type="checkbox" name="addons[]" value="{{ $addon['key'] }}" class="size-5 shrink-0 accent-accent"
+                                           data-addon-price="{{ $addon['price'] }}" @checked($checked)
+                                           @if ($addon['text']) aria-controls="addon-text-{{ $addon['key'] }}" @endif>
+                                    <span class="min-w-0 flex-1">{{ $addon['name'] }}</span>
+                                    <span class="shrink-0 font-semibold whitespace-nowrap">{{ $addon['price'] > 0 ? '+ '.gnf($addon['price']) : 'Gratuit' }}</span>
+                                </label>
+                                @if ($addon['text'])
+                                    <div class="px-3 pb-3" id="addon-text-{{ $addon['key'] }}" data-addon-text>
+                                        <label class="label text-sm" for="addon-input-{{ $addon['key'] }}">{{ $addon['text'] }}</label>
+                                        <input class="input @error('addon_text.'.$addon['key']) is-invalid @enderror" id="addon-input-{{ $addon['key'] }}"
+                                               name="addon_text[{{ $addon['key'] }}]" value="{{ old('addon_text.'.$addon['key']) }}"
+                                               maxlength="{{ \App\Models\Product::ADDON_TEXT_MAX }}" autocomplete="off">
+                                        @error('addon_text.'.$addon['key'])<p class="error">{{ $message }}</p>@enderror
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                    @error('addons')<p class="error">{{ $message }}</p>@enderror
+                </fieldset>
+            @endif
+
             @if (! $soldOut)
                 <div class="mt-4 flex items-center gap-3">
                     <label for="quantity" class="label mb-0">Quantité</label>
                     <input class="input w-24 text-center" id="quantity" name="quantity" type="number" inputmode="numeric" min="1"
-                           max="{{ $available->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="1">
-                    <span class="badge badge-warning" id="low-stock" @unless ($available->stock !== null && $available->stock <= \App\Models\Product::LOW_STOCK) hidden @endunless>Plus que&nbsp;<span>{{ $available->stock }}</span></span>
+                           max="{{ $selected->stock ?? \App\Services\Cart::MAX_QUANTITY }}" value="{{ old('quantity', 1) }}">
+                    <span class="badge badge-warning" id="low-stock" @unless ($selected->stock !== null && $selected->stock <= \App\Models\Product::LOW_STOCK) hidden @endunless>Plus que&nbsp;<span>{{ $selected->stock }}</span></span>
                 </div>
             @endif
 
@@ -90,15 +124,37 @@
     </form>
     </div>
 
-    @if ($multi)
+    @if ($multi || $addons->isNotEmpty())
+        {{-- Prix affiché = choix + suppléments cochés. Sans JavaScript, tout reste visible et le panier fait le calcul. --}}
         <script>
-            document.getElementById('add-form').addEventListener('change', e => {
-                if (e.target.name !== 'variant_id') return;
-                document.getElementById('price').textContent = e.target.dataset.price;
-                const stock = e.target.dataset.stock, low = document.getElementById('low-stock'), qty = document.getElementById('quantity');
-                if (qty) qty.max = stock || {{ \App\Services\Cart::MAX_QUANTITY }};
-                if (low) { low.hidden = !(stock !== '' && Number(stock) <= {{ \App\Models\Product::LOW_STOCK }}); low.querySelector('span').textContent = stock; }
-            });
+            (() => {
+                const form = document.getElementById('add-form');
+                const base = {{ $selected->price }};
+                const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' GNF';
+                function refresh() {
+                    const v = form.querySelector('[name=variant_id]:checked');
+                    let total = v ? Number(v.dataset.price) : base;
+                    form.querySelectorAll('[data-addon-price]').forEach(box => {
+                        if (box.checked) total += Number(box.dataset.addonPrice);
+                        const text = box.getAttribute('aria-controls') && document.getElementById(box.getAttribute('aria-controls'));
+                        // Champ caché = pas envoyé : un ancien texte ne part pas avec une case décochée.
+                        if (text) { text.hidden = !box.checked; text.querySelector('input').disabled = !box.checked; }
+                    });
+                    document.getElementById('price').textContent = fmt(total);
+                }
+                form.addEventListener('change', e => {
+                    if (e.target.name === 'variant_id') {
+                        const stock = e.target.dataset.stock, low = document.getElementById('low-stock'), qty = document.getElementById('quantity');
+                        if (qty) qty.max = stock || {{ \App\Services\Cart::MAX_QUANTITY }};
+                        if (low) { low.hidden = !(stock !== '' && Number(stock) <= {{ \App\Models\Product::LOW_STOCK }}); low.querySelector('span').textContent = stock; }
+                    }
+                    if (e.target.name === 'variant_id' || e.target.dataset.addonPrice !== undefined) {
+                        refresh();
+                        if (e.target.checked && e.target.getAttribute('aria-controls')) document.getElementById(e.target.getAttribute('aria-controls')).querySelector('input').focus();
+                    }
+                });
+                refresh();
+            })();
         </script>
     @endif
 </x-layouts.shop>

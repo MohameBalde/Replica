@@ -19,8 +19,11 @@
                     <div class="min-w-0 flex-1">
                         <p class="font-semibold">{{ $variant->product->name }}</p>
                         @if ($variant->name !== 'Standard')<p class="text-sm text-text-muted">{{ $variant->name }}</p>@endif
-                        <p class="text-sm text-text-muted">{{ gnf($variant->price) }} l'unité</p>
-                        @unless ($variant->isAvailable($line['quantity']))
+                        @if ($line['addons'])
+                            <p class="text-sm break-words">+ {{ \App\Models\OrderItem::describeOptions($line['addons']) }}</p>
+                        @endif
+                        <p class="text-sm text-text-muted">{{ gnf($line['unit_price']) }} l'unité</p>
+                        @unless ($variant->isAvailable($inCart[$variant->id]))
                             <p class="error mt-1">{{ $variant->stock > 0 ? 'Plus que '.$variant->stock.' en stock.' : 'Épuisé : retirez-le du panier.' }}</p>
                         @endunless
                     </div>
@@ -33,10 +36,10 @@
                                 @endif
                                 <form method="POST" action="{{ route('shop.cart.update', $store) }}">
                                     @csrf @method('PATCH')
-                                    <input type="hidden" name="variant_id" value="{{ $variant->id }}">
+                                    <input type="hidden" name="line" value="{{ $line['key'] }}">
                                     <input type="hidden" name="quantity" value="{{ $line['quantity'] + $step }}">
                                     <button class="grid size-tap place-items-center rounded-md border border-border-input" aria-label="{{ $label }}"
-                                            @disabled($step === 1 && ! $variant->isAvailable($line['quantity'] + 1))><x-icon :name="$icon" :size="18" /></button>
+                                            @disabled($step === 1 && ! $variant->isAvailable($inCart[$variant->id] + 1))><x-icon :name="$icon" :size="18" /></button>
                                 </form>
                             @endforeach
                         </div>

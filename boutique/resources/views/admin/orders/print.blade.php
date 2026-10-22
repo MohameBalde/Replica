@@ -63,7 +63,7 @@
             <tbody class="divide-y divide-border">
                 @foreach ($order->items as $item)
                     <tr class="break-inside-avoid align-top">
-                        <td class="py-2 pr-3">{{ $item->label() }}</td>
+                        <td class="py-2 pr-3 break-words">{{ $item->label() }}@if ($item->options)<span class="block text-xs text-text-muted">+ {{ $item->optionsLabel() }}</span>@endif</td>
                         <td class="py-2 text-right tabular-nums">{{ $item->quantity }}</td>
                         <td class="hidden py-2 pl-3 text-right whitespace-nowrap tabular-nums md:table-cell print:table-cell">{{ gnf($item->unit_price) }}</td>
                         <td class="py-2 pl-3 text-right whitespace-nowrap tabular-nums">{{ gnf($item->line_total) }}</td>
