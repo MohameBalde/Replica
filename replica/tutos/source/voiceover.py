@@ -1,6 +1,6 @@
 """Montage voix-off : cale chaque scène d'un tuto sur sa phrase.
 
-python3 voiceover.py <scenes.json> <voix.mp3|wav> <captures> <sortie.mp4>
+python3 voiceover.py <scenes.json> <voix.mp3|wav> <captures> <sortie.mp4> [repères.json d'align.py]
 
 1. Découpe la voix aux silences (un paragraphe = une scène). S'il y a plus de
    morceaux que de scènes (pause au milieu d'une phrase), les plus courts
@@ -16,9 +16,9 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-LEAD = 0.45       # la voix démarre 0,45 s après le début de la scène (le texte apparaît d'abord)
-TAIL = 0.65       # marge après la phrase
-MIN_SCENE = 2.8
+LEAD = 0.3        # la voix démarre 0,3 s après le début de la scène (le texte apparaît d'abord)
+TAIL = 0.45       # marge après la phrase
+MIN_SCENE = 2.4
 SILENCE_DB = -38
 SILENCE_MIN = 0.45
 
@@ -53,9 +53,12 @@ def fit(segs: list[tuple[float, float]], n: int) -> list[tuple[float, float]]:
     return segs
 
 
-def main(scenes_file: str, audio: str, shots: str, out: str) -> None:
+def main(scenes_file: str, audio: str, shots: str, out: str, marks: str | None = None) -> None:
     scenes = json.loads(Path(scenes_file).read_text())
-    segs = fit(speech_segments(audio)[0], len(scenes))
+    # Repères donnés par align.py (transcription), sinon découpe aux silences.
+    segs = [tuple(x) for x in json.loads(Path(marks).read_text())] if marks else fit(speech_segments(audio)[0], len(scenes))
+    if len(segs) != len(scenes):
+        sys.exit(f'{len(segs)} repères pour {len(scenes)} scènes.')
     starts, t = [], 0.0
     for scene, (a, b) in zip(scenes, segs):
         scene['dur'] = round(max(MIN_SCENE, LEAD + (b - a) + TAIL), 2)
@@ -80,4 +83,4 @@ def main(scenes_file: str, audio: str, shots: str, out: str) -> None:
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:5])
+    main(*sys.argv[1:6])
