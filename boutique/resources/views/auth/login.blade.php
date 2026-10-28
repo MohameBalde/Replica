@@ -23,5 +23,5 @@
     </form>
 
     <p class="mt-6 text-center text-sm text-text-muted">Pas encore de boutique ? <a class="font-semibold text-accent" href="{{ route('register') }}">Créer mon compte</a></p>
-    <p class="mt-2 text-center text-sm text-text-muted">Mot de passe oublié ? Écrivez au support sur WhatsApp.</p>
+    <p class="mt-2 text-center text-sm"><a class="font-semibold text-accent" href="{{ route('password.forgot') }}">Mot de passe oublié ?</a></p>
 </x-layouts.guest>

@@ -15,6 +15,7 @@ class TeamAction extends Model
         'paiement_annule' => 'Paiement annulé',
         'suspension' => 'Boutique suspendue',
         'reactivation' => 'Boutique réactivée',
+        'mot_de_passe' => 'Lien de mot de passe créé',
     ];
 
     protected $fillable = ['user_id', 'store_id', 'store_name', 'action', 'details'];

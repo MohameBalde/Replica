@@ -10,6 +10,13 @@
             </a>
         </div>
     @endif
+    @if (session('password_url'))
+        <div class="px-4 pt-3">
+            <a href="{{ session('password_url') }}" class="btn btn-whatsapp" target="_blank" rel="noopener">
+                <x-icon name="message" :size="20" /> Envoyer le lien de mot de passe
+            </a>
+        </div>
+    @endif
 
     <section class="section">
         <div class="flex flex-wrap gap-1.5">@include('team._status')</div>
@@ -121,6 +128,21 @@
                 </form>
             </details>
             @error('payment')<p class="error mt-2">{{ $message }}</p>@enderror
+        </section>
+    @endif
+
+    @if ($store->user)
+        <section class="section">
+            <h2 class="section-title">Mot de passe oublié</h2>
+            <p class="text-sm text-text-muted">
+                Créez un lien et envoyez-le sur WhatsApp au numéro du compte, {{ phone_display($store->user->phone) }}, jamais à un autre numéro.
+                Il est valable 1 heure, une seule fois ; un nouveau lien annule le précédent.
+            </p>
+            <form method="POST" action="{{ route('team.stores.password', $store->id) }}" class="mt-3">
+                @csrf
+                <button class="btn btn-secondary" type="submit">Créer un lien de mot de passe</button>
+            </form>
+            @error('password_link')<p class="error mt-2">{{ $message }}</p>@enderror
         </section>
     @endif
 

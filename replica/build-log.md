@@ -1,8 +1,22 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 147 tests, 1 405 vérifications, verts sur SQLite et sur MariaDB (au 28 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Tests : 155 tests, 1 458 vérifications, verts sur SQLite et sur MariaDB (au 28 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
 Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-28 (suite) : mot de passe oublié, sans SMS ni e-mail
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| S10 mot de passe oublié | fait | envoi automatique (il faudrait un SMS payant ou l'API WhatsApp de Meta) | prouver que la demande vient du propriétaire sans SMS : le lien part toujours vers le WhatsApp du numéro du compte, quel que soit le numéro qui a demandé |
+
+- Connexion : lien « Mot de passe oublié ? » vers `/mot-de-passe-oublie`. Le commerçant entre son numéro et WhatsApp s'ouvre vers le support avec un message prêt. La réponse est la même que le numéro ait un compte ou non.
+- Gestion, fiche boutique : « Créer un lien de mot de passe » prépare un message WhatsApp vers le numéro du compte, avec un lien `/nouveau-mot-de-passe/{jeton}` valable 1 heure et une seule fois. Un nouveau lien annule le précédent. Action notée dans l'historique.
+- Seule l'empreinte SHA-256 du jeton est enregistrée (`users.password_reset_hash`, migration `2026_10_28_000001`). Ouvrir le lien ne l'use pas, car WhatsApp le visite pour l'aperçu ; seul l'envoi du nouveau mot de passe l'use.
+- Après le changement : connexion automatique, « rester connecté » des autres appareils annulé, sessions des autres appareils fermées (sessions en base).
+- Secours en ligne de commande pour un compte sans boutique ou un membre de l'équipe : `artisan wanllan:mot-de-passe <numéro>`.
+- `mot-de-passe-oublie` et `nouveau-mot-de-passe` ne peuvent pas devenir des liens de boutique.
+- 8 tests (`PasswordResetTest`), migration aller-retour vérifiée sur MariaDB.
 
 ## 2026-10-28 : retours de Mohamed pendant la bêta (connexion, déconnexion, retour à son espace)
 

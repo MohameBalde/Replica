@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\StoreSettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\StoreSetupController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
@@ -34,8 +35,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/inscription', [RegisterController::class, 'store'])->middleware('throttle:auth');
     Route::get('/connexion', [LoginController::class, 'create'])->name('login');
     Route::post('/connexion', [LoginController::class, 'store'])->middleware('throttle:auth');
+    Route::get('/mot-de-passe-oublie', [PasswordResetController::class, 'forgot'])->name('password.forgot');
+    Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'requestLink'])->middleware('throttle:auth');
 });
 Route::post('/deconnexion', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+// Lien envoyé par l'équipe sur WhatsApp : ouvert aussi quand on est connecté (ex. un membre de l'équipe qui teste).
+Route::get('/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+Route::post('/nouveau-mot-de-passe/{token}', [PasswordResetController::class, 'update'])->middleware('throttle:auth')->name('password.update');
 
 // Espace commerçant
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
@@ -117,6 +123,7 @@ Route::middleware(['auth', 'team'])->prefix('gestion')->name('team.')->group(fun
     Route::delete('/boutiques/{store:id}/paiements/dernier', [TeamStoreController::class, 'cancelPayment'])->whereNumber('store')->name('stores.payments.cancel');
     Route::post('/boutiques/{store:id}/suspendre', [TeamStoreController::class, 'suspend'])->whereNumber('store')->name('stores.suspend');
     Route::post('/boutiques/{store:id}/reactiver', [TeamStoreController::class, 'reactivate'])->whereNumber('store')->name('stores.reactivate');
+    Route::post('/boutiques/{store:id}/mot-de-passe', [TeamStoreController::class, 'passwordLink'])->whereNumber('store')->name('stores.password');
 });
 
 // S06, S07 : facture publique (lien non devinable) et envoi WhatsApp

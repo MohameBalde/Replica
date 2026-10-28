@@ -173,6 +173,25 @@ class StoreController extends Controller
             ->with('status', $store->name.' est suspendue : ses clients voient « Boutique momentanément indisponible ».');
     }
 
+    /**
+     * Mot de passe oublié : un lien valable 1 heure, à envoyer sur le WhatsApp du numéro du compte
+     * (jamais à un autre numéro : c'est ce qui prouve que la demande vient du propriétaire).
+     */
+    public function passwordLink(Request $request, Store $store): RedirectResponse
+    {
+        $owner = $store->user;
+        if (! $owner) {
+            return back()->withErrors(['password_link' => 'Cette boutique n\'a plus de compte.']);
+        }
+
+        $url = $owner->createPasswordResetUrl();
+        TeamAction::record($request->user(), $store, 'mot_de_passe', 'Lien envoyé au '.phone_display($owner->phone).', valable 1 h');
+
+        return redirect()->route('team.stores.show', $store->id)
+            ->with('status', 'Lien créé. Envoyez-le sur WhatsApp au numéro du compte ; il est valable 1 heure.')
+            ->with('password_url', WhatsAppMessage::url($owner->phone, WhatsAppMessage::passwordReset($owner, $url)));
+    }
+
     public function reactivate(Request $request, Store $store): RedirectResponse
     {
         if ($store->isSuspended()) {

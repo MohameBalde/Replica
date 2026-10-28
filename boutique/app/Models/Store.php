@@ -21,6 +21,7 @@ class Store extends Model
         'admin', 'c', 'connexion', 'inscription', 'deconnexion', 'api', 'up', 'storage',
         'build', 'login', 'register', 'logout', 'aide', 'support', 'contact', 'tarifs',
         'confidentialite', 'conditions', 'mentions-legales', 'cgu', 'gestion',
+        'mot-de-passe-oublie', 'nouveau-mot-de-passe',
     ];
 
     /** Espace Gestion : on relance de 7 jours avant la fin jusqu'à 30 jours après. */
