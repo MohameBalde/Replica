@@ -1,0 +1,97 @@
+[
+ {
+  "type": "title",
+  "title": "Commander en 1 minute",
+  "sub": "Le guide pour vos clients",
+  "dur": 3
+ },
+ {
+  "type": "shot",
+  "img": "c01",
+  "step": "Étape 1/6",
+  "title": "Ouvrez le lien de la boutique",
+  "sub": "Choisissez un produit.",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c03",
+  "step": "Étape 2/6",
+  "title": "Choisissez taille et options",
+  "sub": "Flocage : écrivez le nom et le numéro.",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c04",
+  "step": "Étape 2/6",
+  "title": "Ajoutez au panier",
+  "sub": "Le prix suit vos choix.",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c05",
+  "step": "Étape 3/6",
+  "title": "Vérifiez votre panier",
+  "sub": "Puis appuyez sur « Commander ».",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c06",
+  "step": "Étape 4/6",
+  "title": "Vos coordonnées",
+  "sub": "Nom et numéro WhatsApp. Aucun compte à créer.",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c07",
+  "step": "Étape 4/6",
+  "title": "Livraison et paiement",
+  "sub": "Orange Money, MTN ou à la livraison.",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c08",
+  "step": "Étape 4/6",
+  "title": "Validez la commande",
+  "sub": "",
+  "dur": 4.3
+ },
+ {
+  "type": "shot",
+  "img": "c09",
+  "step": "Étape 5/6",
+  "title": "Envoyez sur WhatsApp",
+  "sub": "Le message est déjà écrit pour vous.",
+  "dur": 4.3
+ },
+ {
+  "type": "chat",
+  "mode": "send",
+  "step": "Étape 5/6",
+  "title": "Appuyez sur « Envoyer »",
+  "sub": "Sinon, la boutique ne reçoit pas votre message.",
+  "contact": "NimStore",
+  "text": "Bonjour NimStore 👋\nVoici ma commande *#1012* :\n\n• 1 × Survêtement Real Madrid 2026 (M) + Flocage nom et numéro « DIALLO 10 » (+50 000 GNF) — 325 000 GNF\n\nLivraison : 25 000 GNF\n*Total : 350 000 GNF*\n\nNom : Mamadou Diallo\nService : Livraison Ratoma\nAdresse : Kipé, rue KA-020\nPoint de repère : Près de la pharmacie, portail noir\nPaiement : Orange Money\n\nDétail : https://wanllan.com/c/01M5JRF8EVWCSY6N3BJQTJA56R",
+  "dur": 5.5,
+  "contactStore": "NimStore"
+ },
+ {
+  "type": "shot",
+  "img": "c10",
+  "step": "Étape 6/6",
+  "title": "Payez, puis envoyez la preuve",
+  "sub": "La capture et le n° de transaction reçu par SMS.",
+  "dur": 4.3
+ },
+ {
+  "type": "end",
+  "title": "Merci pour votre commande !",
+  "sub": "Suivez-la avec le lien reçu sur <span class=\"gold\">WhatsApp</span>",
+  "dur": 3.5
+ }
+]
