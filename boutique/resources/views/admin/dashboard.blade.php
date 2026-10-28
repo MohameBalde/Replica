@@ -40,6 +40,8 @@
         })();
     </script>
 
+    <x-push-alerts />
+
     @if ($starting)
         {{-- ===== Bien démarrer : tant qu'aucune commande (non annulée) n'est arrivée ===== --}}
         @php

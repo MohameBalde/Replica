@@ -70,7 +70,8 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - **Plan « poste de pilotage »** (après comparaison avec le site de Take App, avant la bêta), fait les 17 et 18 octobre : **Accueil** du commerçant (`/admin`, PR #4) ; commandes en tableau et **actions en masse** ; **messages WhatsApp prêts** et **facture imprimable / PDF** avec QR code ; **commande saisie à la main** ; **Réglages > Commande** : questions au client (point de repère) et horaires d'ouverture. Parité 95,3 / 100.
 - Lot 3 (PR #6, en ligne le 22 octobre) : espace commerçant **installable** sur l'écran d'accueil (page « Pas de connexion »), **image pour le statut** WhatsApp / TikTok (Partager), **export des commandes** pour Excel.
 - Lot 4 (22 octobre) : **suppléments payants** par produit (ex. flocage avec nom et numéro), copiés sur la commande. Parité 97,4 / 100.
-- Reste du modèle, volontairement pas fait : plusieurs boutiques par compte, notifications push, taxes.
+- Reste du modèle, volontairement pas fait : plusieurs boutiques par compte, taxes.
+- **Alerte « nouvelle commande »** (28 octobre) : notifications web sur les appareils du commerçant, activées depuis l'Accueil (« Activer les alertes ») ; sur iPhone, seulement depuis l'app ajoutée à l'écran d'accueil. Clés VAPID créées seules dans `storage/app/private/vapid.json` sur le serveur.
 - Piège connu : les tests tournent sur SQLite, qui ne vérifie pas la longueur des colonnes. Avant une PR qui touche la base, relancer aussi les tests sur MariaDB (voir `replica/build-log.md`, bug « Payée en partie » corrigé le 18 octobre).
 - Hébergement choisi : **AWS Lightsail, région Paris** (serveur 1 Go à 7 $/mois, sauvegardes quotidiennes). Étude comparative et raisons : `replica/hosting.md`. Mohamed a une carte qui paie en dollars. Compte AWS ouvert le 16 octobre (double authentification par passkey, alerte de budget à 10 $).
 - Domaine **wanllan.com** acheté chez **Spaceship** le 17 octobre 2026 (9,08 $, puis 10,18 $/an, renouvellement automatique) ; DNS chez Spaceship. E-mail pro : Zoho Mail formule gratuite, configuré le 17 octobre sur wanllan.com (MX, SPF, DKIM, DMARC chez Spaceship) : contact@wanllan.com (administrateur, organisation « Balde Tech ») et mohamedbalde@wanllan.com ; 3 boîtes libres sur 5.
@@ -78,7 +79,7 @@ Chaque skill écrit dans `replica/`. Règle : on clone **les fonctionnalités**,
 - Le compte GitHub de Mohamed est bloqué pour facturation : GitHub Actions ne tourne pas (le serveur n'en dépend pas).
 - Reste à faire : vérifier les instantanés automatiques Lightsail (3 h) et le nom du compte Orange Money affiché, créer la surveillance UptimeRobot, finir le test de la boutique Balde-tech sur téléphone (commande, aperçu WhatsApp).
 - **À finaliser après la bêta** (plan du 22 octobre, détail et calendrier : `replica/roadmap-apres-beta.md`, version PNG à côté) :
-  1. du 27 octobre au 1er novembre : **alerte « nouvelle commande »** sur le téléphone du commerçant (notification de l'app installée : aujourd'hui, le commerçant n'est prévenu que si le client appuie sur « Envoyer » dans WhatsApp) et **n° de transaction Mobile Money obligatoire** ;
+  1. du 27 octobre au 1er novembre : ~~alerte « nouvelle commande »~~ (fait le 28 octobre) et **n° de transaction Mobile Money obligatoire** ;
   2. du 2 au 8 novembre : **fiche course livreur** (message WhatsApp + page `/course/{jeton}` sans connexion) et bouton **« Relancer »** sur les commandes jamais envoyées sur WhatsApp (pas de numéro demandé avant le panier) ;
   3. du 9 au 15 novembre : retours de la bêta ; **Google Sheets** seulement si 2 commerçants le demandent ;
   4. reporté à 2027 : descriptions par IA (coût mensuel) et FCFA / autres pays.

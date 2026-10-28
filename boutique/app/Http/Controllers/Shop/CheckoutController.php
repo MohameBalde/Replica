@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Store;
 use App\Services\Cart;
 use App\Services\OrderPlacer;
+use App\Services\PushNotifier;
 use App\Services\PaymentOptions;
 use App\Services\SourceTracker;
 use App\Support\Phone;
@@ -110,6 +111,9 @@ class CheckoutController extends Controller
         $source = SourceTracker::current($store);
         $order = $placer->place($store, $cart, $data, $source['source'], $source['campaign']);
         $cart->clear();
+
+        // Alerte sur les appareils du commerçant, envoyée après la réponse : le client n'attend pas.
+        defer(fn () => app(PushNotifier::class)->newOrder($order));
 
         return redirect()->route('invoice.show', $order)->with('just_ordered', true);
     }

@@ -21,4 +21,11 @@ return [
 
     // Rappel affiché dans l'espace commerçant avant la fin de l'abonnement.
     'reminder_days' => 3,
+
+    // Alerte « nouvelle commande » (notifications de l'app installée). Sans ces variables,
+    // la paire de clés est créée une fois et gardée dans storage/app/private/vapid.json.
+    'vapid' => [
+        'public' => env('WANLLAN_VAPID_PUBLIC'),
+        'private' => env('WANLLAN_VAPID_PRIVATE'),
+    ],
 ];

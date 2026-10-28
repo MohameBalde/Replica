@@ -29,6 +29,9 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Paire de clés d'essai pour les alertes (sans usage en production) : les tests n'écrivent pas storage/app/private/vapid.json. -->
+        <env name="WANLLAN_VAPID_PUBLIC" value="BKmV18227EjhDcOy50rYpwNd4uVNNRiMacigHVTKRdCHgl9pbvYKwbDxfnlxZNwfgVDq2fFaqw1m_7GUdL3MA-k"/>
+        <env name="WANLLAN_VAPID_PRIVATE" value="mMVWo8MuSeFAXiibgkdEH5WTcVsRimHQE4SNktHIU84"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
