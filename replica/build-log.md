@@ -16,6 +16,7 @@ Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22*
 - Clés VAPID : variables `WANLLAN_VAPID_PUBLIC` et `WANLLAN_VAPID_PRIVATE` si présentes. Sinon, une paire est créée au premier besoin et gardée dans `storage/app/private/vapid.json` (dossier partagé entre les versions du serveur, jamais dans Git). Les tests utilisent une paire d'essai (`phpunit.xml`).
 - Envoi après la réponse (`defer`) : le client n'attend pas. Délai maximal de 5 s. Une panne du service d'envoi ne bloque jamais la commande. Les commandes saisies à la main par le commerçant ne déclenchent pas d'alerte.
 - 9 tests (`OrderAlertTest`, avec un faux service d'envoi). Envoi réel vérifié contre un faux service local : chiffrement `aes128gcm`, signature VAPID, appareil refusé oublié.
+- **Première mise en ligne refusée par le serveur** (le site est resté sur la version précédente). Un ancien test vérifiait que l'Accueil ne contenait nulle part « 77 » (les visites d'une autre boutique). La carte des alertes ajoute à la page un jeton tiré au hasard, qui contenait « 77 » sur le serveur. Le test cherche maintenant dans le texte visible seulement, sans les scripts. Il est passé 40 fois de suite, et la procédure du serveur a été rejouée trois fois sur une copie neuve du code (tests avec une `APP_KEY` au hasard, installation sans les outils de test, migration MariaDB, mise en cache).
 
 ## 2026-10-28 (suite) : mot de passe oublié, sans SMS ni e-mail
 
