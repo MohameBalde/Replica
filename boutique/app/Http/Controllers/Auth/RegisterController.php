@@ -13,6 +13,9 @@ use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
+    /** Le numéro a déjà un compte : la page d'inscription ajoute un lien « Se connecter » à ce message. */
+    public const PHONE_TAKEN = 'Ce numéro a déjà un compte Wanllan.';
+
     public function create(): View
     {
         return view('auth.register');
@@ -28,7 +31,7 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'phone.regex' => 'Entrez un numéro guinéen valable, par exemple 620 00 00 00.',
-            'phone.unique' => 'Ce numéro a déjà un compte. Connectez-vous.',
+            'phone.unique' => self::PHONE_TAKEN,
         ]);
 
         $user = User::create($data);

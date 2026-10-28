@@ -1,4 +1,8 @@
 <x-layouts.guest title="Créer mon compte">
+    <x-slot:action>
+        <a href="{{ route('login') }}" class="inline-block py-2 text-sm font-semibold text-accent">Se connecter</a>
+    </x-slot:action>
+
     <h1 class="text-display font-bold">Vendez sur WhatsApp, sans répéter vos prix 50 fois.</h1>
     <p class="mt-3 text-text-muted">Créez votre boutique en 2 minutes. Vos clients choisissent, commandent, et la commande arrive sur votre WhatsApp.</p>
 
@@ -15,11 +19,17 @@
             <label class="label" for="phone">Numéro de téléphone</label>
             <div class="input-group @error('phone') is-invalid @enderror">
                 <span class="input-addon">+224</span>
-                <input class="input" id="phone" name="phone" type="tel" inputmode="tel" value="{{ old('phone') }}" placeholder="620 00 00 00" autocomplete="tel" required
+                <input class="input" id="phone" name="phone" type="tel" inputmode="tel" value="{{ old('phone') ? substr(old('phone'), -9) : '' }}" placeholder="620 00 00 00" autocomplete="tel" required
                        aria-describedby="phone-help @error('phone') phone-error @enderror" @error('phone') aria-invalid="true" @enderror>
             </div>
             <p class="help" id="phone-help">Il vous servira à vous connecter.</p>
-            @error('phone')<p class="error" id="phone-error">{{ $message }}</p>@enderror
+            @error('phone')
+                <p class="error" id="phone-error">{{ $message }}
+                    @if ($message === \App\Http\Controllers\Auth\RegisterController::PHONE_TAKEN)
+                        <a class="font-semibold text-accent underline" href="{{ route('login') }}">Se connecter</a>
+                    @endif
+                </p>
+            @enderror
         </div>
 
         <div class="field">
