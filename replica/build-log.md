@@ -1,8 +1,21 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 155 tests, 1 458 vérifications, verts sur SQLite et sur MariaDB (au 28 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Tests : 164 tests, 1 510 vérifications, verts sur SQLite et sur MariaDB (au 28 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
 Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22**.
+
+## 2026-10-28 (soir) : alerte « nouvelle commande » sur les appareils du commerçant
+
+| écran | état | ce qui manque | plus dur que prévu |
+| --- | --- | --- | --- |
+| S09 Accueil : alertes | fait | réglage par type d'alerte (une seule pour l'instant : nouvelle commande) | iPhone : alertes seulement depuis l'app ajoutée à l'écran d'accueil (iOS 16.4 et plus) et chiffrement `aes128gcm` obligatoire ; Chromium sans service de notifications en test, d'où un faux service local pour vérifier l'envoi réel |
+
+- Avant, le commerçant n'était prévenu que si le client appuyait sur « Envoyer » dans WhatsApp. Maintenant, chaque commande passée par un client envoie une notification sur ses appareils : « Nouvelle commande · 350 000 GNF », « N° 12 de Mariama ». Toucher la notification ouvre la commande.
+- Notifications web (gratuites, sans Meta ni SMS), bibliothèque `minishlink/web-push` 11. Accueil : carte « Soyez prévenu de chaque commande » avec un bouton « Activer les alertes ». Une alerte d'essai part tout de suite, avec aussi un bouton « Envoyer une alerte d'essai » et un bouton « Désactiver ». Messages adaptés aux cas suivants : iPhone sans app installée, alertes bloquées, navigateur incompatible.
+- Table `push_subscriptions` (migration `2026_10_28_000002`), une ligne par appareil, indexée par l'empreinte de l'adresse d'envoi. Un appareil passé à un autre compte ne prévient que le dernier. Les appareils qui refusent (404 ou 410) sont oubliés au premier envoi.
+- Clés VAPID : variables `WANLLAN_VAPID_PUBLIC` et `WANLLAN_VAPID_PRIVATE` si présentes. Sinon, une paire est créée au premier besoin et gardée dans `storage/app/private/vapid.json` (dossier partagé entre les versions du serveur, jamais dans Git). Les tests utilisent une paire d'essai (`phpunit.xml`).
+- Envoi après la réponse (`defer`) : le client n'attend pas. Délai maximal de 5 s. Une panne du service d'envoi ne bloque jamais la commande. Les commandes saisies à la main par le commerçant ne déclenchent pas d'alerte.
+- 9 tests (`OrderAlertTest`, avec un faux service d'envoi). Envoi réel vérifié contre un faux service local : chiffrement `aes128gcm`, signature VAPID, appareil refusé oublié.
 
 ## 2026-10-28 (suite) : mot de passe oublié, sans SMS ni e-mail
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DeliverySettingsController;
 use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ShareController;
+use App\Http\Controllers\Admin\PushSubscriptionController;
 use App\Http\Controllers\Admin\StoreSettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\StoreSetupController;
@@ -53,6 +54,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('store')->group(function () {
         // Accueil : à faire maintenant, ventes, ce qui se vend.
         Route::get('/', [DashboardController::class, 'show'])->name('home');
+
+        // Alerte « nouvelle commande » sur les appareils du commerçant.
+        Route::post('/alertes', [PushSubscriptionController::class, 'store'])->middleware('throttle:push')->name('push.store');
+        Route::delete('/alertes', [PushSubscriptionController::class, 'destroy'])->middleware('throttle:push')->name('push.destroy');
+        Route::post('/alertes/test', [PushSubscriptionController::class, 'test'])->middleware('throttle:push')->name('push.test');
 
         // S12, S13 : commandes
         Route::get('/commandes', [OrderController::class, 'index'])->name('orders.index');

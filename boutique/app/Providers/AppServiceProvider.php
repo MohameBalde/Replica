@@ -23,5 +23,6 @@ class AppServiceProvider extends ServiceProvider
         // Le limiteur passe avant la liaison des modèles : on s'appuie sur le chemin (/c/{jeton}/preuve).
         RateLimiter::for('proof', fn (Request $r) => Limit::perHour(10)->by('proof|'.$r->ip().'|'.$r->path()));
         RateLimiter::for('auth', fn (Request $r) => Limit::perMinute(10)->by('auth|'.$r->ip()));
+        RateLimiter::for('push', fn (Request $r) => Limit::perMinute(10)->by('push|'.$r->user()?->id));
     }
 }
