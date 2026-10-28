@@ -140,6 +140,7 @@
 
     <footer class="border-t border-border px-4 py-6 text-center text-xs text-text-muted">
         Wanllan · Conakry, Guinée · Support {{ config('wanllan.support_hours') }}
+        <span class="mt-1 block">Wanllan est un service <span class="font-semibold">Hakil Group</span>.</span>
         <span class="mt-2 block">
             <a href="{{ route('legal.terms') }}" class="font-semibold text-accent">Conditions</a> ·
             <a href="{{ route('legal.privacy') }}" class="font-semibold text-accent">Confidentialité</a>

@@ -33,7 +33,7 @@
 - **Intermédiaire commercial** (marge par vente) : maillots, PC et sacs (boutique familiale), chaussures et habits (avec mon partenaire Nimaga).
 - **Services informatiques** : installation de logiciels, licences, mises à jour, dépannage logiciel.
 - **E-commerce** : NimStore, SoumamoShop, NimsDecore (dropshipping). Promotion via TikTok et Canva.
-- **Balde Tech** (choisi le 17 octobre 2026) : nom de l'entreprise qui porte tous les projets logiciels (Wanllan, caisse, portail Wi-Fi, micro-logiciels). Signature : « Wanllan, un produit Balde Tech ». Domaine **baldetech.com** libre au 17/10, à acheter plus tard (≈ 9 $), quand Wanllan aura ses premiers abonnés. Pas encore d'entreprise déclarée.
+- **Hakil Group** (choisi le 23 octobre 2026 avec son associé Nimaga) : le groupe qui porte Wanllan et les projets à venir ; remplace **Balde Tech** (choisi le 17 octobre) comme signature : « Wanllan est un service Hakil Group » (pied de page de wanllan.com depuis le 28 octobre). Domaines **hakilgroup.com** et **hakil.africa** encore libres au 28 octobre, pas achetés (≈ 10 $/an pour le .com, chez Spaceship). Logo recommandé : « L'Ascension » (pas encore choisi). Pas encore d'entreprise déclarée : les pages Conditions et Confidentialité restent au nom de Mohamed Baldé (`WANLLAN_LEGAL_NAME`).
 - **Balde Media** : média digital (TikTok @balde_media), présentateur virtuel 3D « Monsieur Macro ».
 - **Développement** : application Laravel pour un centre de formation.
 - Stack que je connais : **Laravel, MySQL, Railway, Python/Flask, Vercel**.

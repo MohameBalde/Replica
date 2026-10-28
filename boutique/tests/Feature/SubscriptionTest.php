@@ -84,6 +84,7 @@ class SubscriptionTest extends TestCase
             ->assertSee('Votre boutique sur WhatsApp, en 2 minutes.')
             ->assertSee(gnf(config('wanllan.prices.merchant')))
             ->assertSee('Rien n\'est prélevé automatiquement')
+            ->assertSee('Wanllan est un service <span class="font-semibold">Hakil Group</span>.', false)
             ->assertDontSee('Le plus choisi');
         $this->actingAs($this->merchant)->get('/')->assertRedirect(route('admin.home'));
     }
