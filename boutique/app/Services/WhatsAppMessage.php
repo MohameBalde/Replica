@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Store;
 use App\Models\SubscriptionPayment;
+use App\Models\User;
 use App\Support\Plans;
 use Illuminate\Support\Str;
 
@@ -113,6 +114,21 @@ class WhatsAppMessage
         return trim('Bonjour '.($store->user?->name ?? '')).' 👋 Ici Wanllan. Paiement de '.gnf($payment->amount).' bien reçu ✅'
             ."\n".'Votre formule '.Plans::get($payment->plan)['name'].' pour « '.$store->name.' » est active jusqu\'au '
             .$payment->period_end->timezone('Africa/Conakry')->format('d/m/Y').'. Merci de votre confiance !';
+    }
+
+    /** Demande du commerçant au support, depuis la page « Mot de passe oublié ». */
+    public static function forgotPassword(string $phone): string
+    {
+        return 'Bonjour Wanllan 👋 J\'ai oublié mon mot de passe. Numéro de mon compte : '.phone_display($phone)
+            .'. Pouvez-vous m\'envoyer un lien pour en choisir un nouveau ?';
+    }
+
+    /** Lien « nouveau mot de passe » envoyé par l'équipe au WhatsApp du numéro du compte. */
+    public static function passwordReset(User $user, string $url): string
+    {
+        return trim('Bonjour '.$user->name).' 👋 Ici Wanllan. Voici votre lien pour choisir un nouveau mot de passe '
+            .'(valable '.(User::RESET_MINUTES / 60).' heure, une seule fois) :'."\n".$url
+            ."\n".'Si vous n\'avez rien demandé, ignorez ce message.';
     }
 
     /**
