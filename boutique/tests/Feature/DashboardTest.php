@@ -90,7 +90,10 @@ class DashboardTest extends TestCase
     /** Le texte lu à l'écran : sans balises, espaces regroupés (« 1 » et « commande reçue » sont dans deux <p>). */
     private function text(TestResponse $response): string
     {
-        return trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($response->getContent()), ENT_QUOTES)));
+        // Texte visible seulement : sans les scripts (jeton CSRF, clé des alertes, tirés au hasard).
+        $html = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', ' ', $response->getContent());
+
+        return trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($html), ENT_QUOTES)));
     }
 
     private function assertText(TestResponse $response, string ...$needles): TestResponse
@@ -299,8 +302,10 @@ class DashboardTest extends TestCase
         ]);
         DailyVisit::create(['store_id' => $otherStore->id, 'day' => Period::today(), 'source' => 'tiktok', 'visits' => 77]);
 
-        $this->assertText($this->home(), '1 commande reçue', '0 visite de la boutique')
-            ->assertDontSee('Client Secret')->assertDontSee('900 000')->assertDontSee('77');
+        $response = $this->assertText($this->home(), '1 commande reçue', '0 visite de la boutique')
+            ->assertDontSee('Client Secret')->assertDontSee('900 000');
+        // Les 77 visites de l'autre boutique : cherchées dans le texte affiché, pas dans les jetons tirés au hasard.
+        $this->assertDoesNotMatchRegularExpression('/\b77\b/', $this->text($response));
     }
 
     public function test_closed_store_banner_reopens_from_home(): void
