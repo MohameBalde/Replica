@@ -1,16 +1,17 @@
 # Journal de construction
 
 App : `boutique/` (Laravel 12.70, PHP 8.3, MySQL 8 / MariaDB, Tailwind 4, CSS final 7,8 Ko gzip, pas de framework JS : quelques petits scripts en ligne).
-Tests : 144 tests, 1 386 vérifications, verts sur SQLite et sur MariaDB (au 28 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
+Tests : 147 tests, 1 405 vérifications, verts sur SQLite et sur MariaDB (au 28 octobre). Parcours rejoués dans Chromium de 320 à 1366 px, zéro erreur console.
 Parité (`replica-diff/parity.py`) : **97,4 / 100**, indispensables **22 sur 22**.
 
-## 2026-10-28 : « Se connecter » visible sur l'inscription (retour de Mohamed pendant la bêta)
+## 2026-10-28 : retours de Mohamed pendant la bêta (connexion, déconnexion, retour à son espace)
 
 - Sur la page d'inscription, le lien « Se connecter » était tout en bas, sous le formulaire. Sur téléphone, un commerçant qui a déjà un compte ne le voyait pas. Il est maintenant en haut à droite, comme sur la page d'accueil. Le lien du bas reste.
 - Numéro déjà inscrit : le message devient « Ce numéro a déjà un compte Wanllan. », suivi d'un lien « Se connecter ».
 - Après une erreur, le numéro revenait sous la forme 224620… derrière le « +224 » du champ. Il revient maintenant sans l'indicatif, comme au checkout.
 - **Compte créé par erreur** (le commerçant a déjà une boutique avec un autre numéro) : il arrivait sur « Votre boutique » sans pouvoir en sortir, car la page de connexion le renvoyait là. Un bouton « Se déconnecter » est maintenant en haut à droite de cette page.
 - 4 tests (`AuthPagesTest`). Vérifié dans Chromium à 320, 360 et 1280 px.
+- **Vitrine vue par son commerçant** : dans l'app installée sur ordinateur, « Voir ma boutique » ouvre une fenêtre sans bouton « retour ». Le commerçant connecté voit maintenant en haut de sa propre vitrine une barre « Retour à mon espace » (et « Vue client »). Si la vitrine a été ouverte depuis son espace, le lien referme la fenêtre ; sinon il mène à son Accueil. Les clients et les autres commerçants ne voient pas cette barre (3 tests, `StoreOwnerBarTest`).
 
 ## 2026-10-22 : suppléments payants (ex. flocage)
 
