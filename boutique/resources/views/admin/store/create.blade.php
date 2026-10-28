@@ -1,4 +1,12 @@
 <x-layouts.guest title="Créer ma boutique">
+    {{-- Compte créé par erreur (le commerçant a déjà une boutique avec un autre numéro) : seule sortie, la connexion renvoie ici. --}}
+    <x-slot:action>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="py-2 text-sm font-semibold text-accent">Se déconnecter</button>
+        </form>
+    </x-slot:action>
+
     <h1 class="text-display font-bold">Votre boutique</h1>
     <p class="mt-3 text-text-muted">Ces informations apparaîtront chez vos clients. Vous pourrez les changer plus tard.</p>
 
