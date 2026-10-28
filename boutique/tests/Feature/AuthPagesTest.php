@@ -7,7 +7,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** Inscription : un commerçant qui a déjà un compte trouve « Se connecter » sans faire défiler la page. */
+/**
+ * Un commerçant qui a déjà un compte trouve « Se connecter » sans faire défiler l'inscription,
+ * et peut sortir d'un compte créé par erreur.
+ */
 class AuthPagesTest extends TestCase
 {
     use RefreshDatabase;
@@ -39,6 +42,20 @@ class AuthPagesTest extends TestCase
             ->assertSeeInOrder([RegisterController::PHONE_TAKEN, 'href="'.route('login').'"', 'id="password"'], false)
             ->assertSee('value="620112233"', false)
             ->assertDontSee('224620112233');
+    }
+
+    public function test_new_account_without_store_can_log_out(): void
+    {
+        // Compte créé par erreur : la connexion renvoie vers « Votre boutique », la déconnexion est la seule sortie.
+        $this->signup('620 11 22 33')->assertRedirect(route('admin.store.create'));
+        $this->get('/connexion')->assertRedirect();
+
+        $this->get(route('admin.store.create'))->assertOk()
+            ->assertSeeInOrder(['action="'.route('logout').'"', 'Se déconnecter', 'Votre boutique'], false);
+
+        $this->post('/deconnexion')->assertRedirect(route('login'));
+        $this->assertGuest();
+        $this->get('/connexion')->assertOk();
     }
 
     public function test_other_phone_errors_have_no_login_link(): void
